@@ -21,11 +21,11 @@ export default function Home() {
         </div>
       </section>
       <section aria-labelledby="work-title">
-        <div className="section-header"><p className="section-label">01 / SELECTED WORK</p><h2 id="work-title">作品，持续生长。</h2><Link className="text-link" href="/projects">查看全部作品 <Arrow /></Link></div>
-        <div className="project-grid">{projects.slice(0, 3).map((project, index) => <ProjectCard key={project.slug} project={project} index={index} />)}</div>
+        <div className="section-header"><h2 id="work-title">作品，持续生长。</h2><Link className="text-link" href="/projects">查看全部作品 <Arrow /></Link></div>
+        <div className="project-grid">{projects.slice(0, 3).map((project) => <ProjectCard key={project.slug} project={project} />)}</div>
       </section>
-      <section className="practice" aria-labelledby="practice-title"><p className="section-label">02 / PRACTICE</p><h2 id="practice-title">保持好奇，认真构建。</h2><TechStack /></section>
-      <section className="practice" aria-labelledby="notes-title"><p className="section-label">03 / NOTES</p><h2 id="notes-title">构建中的手记。</h2><div className="notes-grid">{posts.slice(0, 2).map((post) => <NoteCard key={post.slug} post={post} />)}</div><Link className="text-link" href="/blog">阅读全部手记 <Arrow /></Link></section>
+      <section className="practice" aria-labelledby="practice-title"><h2 id="practice-title">保持好奇，认真构建。</h2><TechStack /></section>
+      <section className="practice" aria-labelledby="notes-title"><h2 id="notes-title">构建中的手记。</h2><div className="notes-grid">{posts.slice(0, 2).map((post) => <NoteCard key={post.slug} post={post} />)}</div><Link className="text-link" href="/blog">阅读全部手记 <Arrow /></Link></section>
     </main>
   );
 }

@@ -48,7 +48,7 @@ Desktop pygame games have no available browser runtime or verified screenshots i
 
 ## Reused presentation
 
-The media-first project card structure is adapted from the MIT-licensed Magic UI Portfolio and shared across home and work. NoteCard serves both home and notes. The source revision and adaptation details are recorded in `docs/design-references.md`; the full upstream MIT notice is retained in `licenses/magicui-portfolio-MIT.txt`. No external image assets or new UI dependencies are bundled.
+The media-first project card structure is adapted from the MIT-licensed Magic UI Portfolio and shared across home and work. NoteCard serves both home and notes. The source revision and adaptation details are recorded in `docs/design-references.md`; the full upstream MIT notice is retained in `licenses/magicui-portfolio-MIT.txt`. No external image assets or new UI dependencies are bundled. A shared breadcrumb adapted from the official shadcn registry is used in product and note details, with its MIT notice retained. Notes have native chapter links; typography uses a self-hosted OFL Archivo variable font. Motion is limited to the homepage image reveal and interaction feedback, with reduced-motion support.
 
 ## Curated notes
 
