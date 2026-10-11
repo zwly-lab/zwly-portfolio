@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
-import { ProjectCard } from "@/components/ProjectCard";
+import { ProjectCollection } from "@/components/ProjectCollection";
 import { projects } from "@/data/projects";
 export const metadata: Metadata = { title: "作品" };
 export default function ProjectsPage() {
-  return <main id="main-content" className="container page-body"><header className="page-header"><h1>作品，持续生长。</h1><p>从具体问题出发，在构建中学习。这里收录正在迭代的项目，也保留值得继续探索的方向。</p></header><div className="project-grid">{projects.map((project) => <ProjectCard key={project.slug} project={project} />)}</div></main>;
+  return <main id="main-content" className="container page-body"><header className="page-header"><h1>作品，持续生长。</h1><p>体验教学工具，了解应用成果，浏览视觉创作。每件作品保留实际进展与使用边界。</p></header><ProjectCollection projects={projects} /></main>;
 }

@@ -29,3 +29,21 @@ The shared `ui/breadcrumb.tsx` is adapted from `npx shadcn@latest view @shadcn/b
 Archivo variable font is self-hosted from Google Fonts `ofl/archivo/Archivo[wdth,wght].ttf`, with `licenses/Archivo-OFL.txt`. Chinese uses the existing system font fallback. No external font requests at runtime or new component dependencies. Article navigation uses native anchor links and a responsive sticky table of contents.
 
 Motion: one 600ms print-like uncover on the homepage preview; 140–220ms link/card feedback and gallery opacity; native smooth section navigation with target-heading feedback. No repeating animation or delayed article reading; reduced-motion disables spatial/reveal motion while retaining state colors.
+
+## Product clarity refinement (2026-10-11)
+
+The homepage now names the actual teaching/tool/visual scope in Chinese, puts its primary actions next to the headline, and uses a cropped view of the actual PyScreen workspace. Crops are CSS presentations of existing screenshots, not invented interfaces. The cards retain the previously adapted Magic UI source and license.
+
+Work listings have three domain filters plus All, pressed-state semantics and a live result count. Six products include their audience, a three-step use/presentation flow, and the actual runtime boundaries. Offline products retain screenshots or the existing silent film. Exploration entries remain explicitly unimplemented.
+
+Article previous/next navigation is adapted from [timlrx/tailwind-nextjs-starter-blog, layouts/PostLayout.tsx](https://github.com/timlrx/tailwind-nextjs-starter-blog/blob/b45bef66b40c63b6f57c15ee8cd090682238df4c/layouts/PostLayout.tsx), revision `b45bef66b40c63b6f57c15ee8cd090682238df4c`. Reused the conditional adjacent-article footer/link structure, adapted to local typed content, Next Link and the incumbent CSS. Full MIT notice: `licenses/timlrx-starter-blog-MIT.txt`. No Contentlayer, analytics, comments, author avatars or dependency graph is imported. `sabin-paudel/portfolio-template` was also inspected but its missing license means no source was reused.
+
+Articles move the oversized cover into a compact desktop sidebar, show dates and summaries before the body, track the current section, and include examples alongside the discussion. The travel images are two independent composition references, not an original/generated comparison. The native details example explains state feedback and links to the actual algorithm demo; it does not pretend to run the algorithm.
+
+The gallery uses native modal dialog behavior ([MDN dialog reference](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/dialog)): explicit close, Escape, focus restoration, previous/next buttons, arrow-key navigation, an announced position and background scroll preservation. Original image links remain available. The modal and example use a 160ms opacity transition, disabled for reduced motion. No additional runtime dependencies.
+
+## Site-wide continuity refinement (2026-10-11)
+
+The subsequent refinement expands resource screening to design, navigation, layouts, components, dynamic components, icons and motion. See [resource-screening.md](resource-screening.md) for the 20 entry URLs, access limitations, selected implementations and pinned license provenance.
+
+It supersedes the earlier gallery-only opacity behavior: thumbnail expansion/return and directional navigation now use bounded native Web Animations. Work filtering animates retained-card positions; a shared selection underline connects the global navbar, homepage preview controls, filters and article directory. Native disclosure gains a state label, a licensed chevron and progressive CSS size animation. Global link/card feedback reaches all routes. The editorial palette, real media, native keyboard behavior and reduced-motion paths remain the design authority.

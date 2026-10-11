@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 
 const origin = process.argv[2] ?? "http://localhost:3000";
 const pages = [
-  ["/", "Ideas into", "ZWLY Lab"],
+  ["/", "把复杂知识，", "ZWLY Lab"],
   ["/projects", "作品，持续生长。", "作品"],
   ["/about", "保持好奇，认真构建。", "关于"],
   ["/blog", "记录，也是一种构建。", "手记"],
@@ -31,6 +31,9 @@ for (const [path, heading, title] of pages) {
   assert.ok(html.includes('id="main-content"'), path + " skip-link target");
   assert.ok(html.includes('href="https://github.com/zwly-lab"'), path + " contact");
   assert.ok(!html.includes('href="#"'), path + " inert link");
+  if (path === "/projects") assert.ok(html.includes('aria-controls="filtered-projects"'), "accessible project filters");
+  if (path.startsWith("/blog/")) assert.ok(html.includes('aria-label="继续阅读"'), path + " adjacent article navigation");
+  if (["campus-takeout", "pyscreen", "kmp-visualizer", "linked-list-merge", "gdp-timeline", "jd-protocol-engine"].some((slug) => path === "/projects/" + slug)) assert.ok(html.includes("从输入到结果"), path + " product workflow");
   const styles = [...html.matchAll(/<link\b[^>]*>/g)].map(([tag]) => tag).filter((tag) => tag.includes('rel="stylesheet"')).map((tag) => tag.match(/href="([^"]+)"/));
   assert.ok(styles.length > 0, path + " stylesheet");
   for (const [, href] of styles) assert.equal((await fetch(new URL(href.replaceAll("&amp;", "&"), origin))).status, 200, href);
@@ -52,6 +55,7 @@ const posters = [...new Set([...galleryPage.matchAll(/href="(\/images\/posters\/
 assert.equal(posters.length, 18, "curated gallery image count");
 assert.ok(!galleryPage.includes("avatar"), "avatars are excluded");
 assert.ok(galleryPage.includes("Style B 极简编辑"), "original style concept is archived");
+assert.ok(galleryPage.includes("<dialog"), "native gallery dialog");
 for (const name of posters) {
   const response = await fetch(new URL(name, origin));
   assert.equal(response.status, 200, name);
