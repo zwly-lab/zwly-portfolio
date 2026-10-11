@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
-import Link from "next/link";
-import { Arrow } from "@/components/Arrow";
+import { NoteCard } from "@/components/NoteCard";
 import { posts } from "@/data/posts";
 export const metadata: Metadata = { title: "手记" };
 export default function BlogPage() {
-  return <main id="main-content" className="container page-body"><header className="page-header"><p className="section-label">NOTES & THOUGHTS</p><h1>记录，也是一种构建。</h1><p>关于开发、设计与 AI 的思考。从小问题开始，把过程写下来。</p></header><div>{posts.map((post) => <Link className="note-row" key={post.slug} href={"/blog/" + post.slug}><time dateTime={post.date}>{post.date.replaceAll("-", ".")}</time><div><h2>{post.title}</h2><p>{post.summary}</p></div><Arrow /></Link>)}</div></main>;
+  return <main id="main-content" className="container page-body"><header className="page-header"><p className="section-label">NOTES & THOUGHTS</p><h1>记录，也是一种构建。</h1><p>开发记录与已有学习笔记精选。用封面找到主题，再读摘要、方法与验证边界。</p></header><div className="notes-grid">{posts.map((post) => <NoteCard key={post.slug} post={post} />)}</div></main>;
 }

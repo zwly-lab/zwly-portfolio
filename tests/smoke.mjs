@@ -17,6 +17,8 @@ const pages = [
   ["/projects/ai-agent-lab", "AI Agent Lab", "AI Agent Lab"],
   ["/blog/building-in-public", "给作品一个可以访问的地方", "给作品一个可以访问的地方"],
   ["/blog/less-but-clearer", "少一点装饰，多一点清晰", "少一点装饰，多一点清晰"],
+  ["/blog/photo-to-visual-diary", "从照片到日记拼贴", "从照片到日记拼贴"],
+  ["/blog/motion-for-understanding", "让动效帮助理解", "让动效帮助理解"],
 ];
 for (const [path, heading, title] of pages) {
   const response = await fetch(new URL(path, origin));
@@ -24,6 +26,7 @@ for (const [path, heading, title] of pages) {
   const html = await response.text();
   assert.match(html, /<html[^>]*lang="zh-CN"/);
   assert.ok(html.includes(heading), path + " heading");
+  assert.ok(html.includes("<img"), path + " visual preview");
   assert.ok(html.includes("<title>" + title), path + " metadata");
   assert.ok(html.includes('id="main-content"'), path + " skip-link target");
   assert.ok(html.includes('href="https://github.com/zwly-lab"'), path + " contact");
@@ -35,7 +38,7 @@ for (const [path, heading, title] of pages) {
 for (const path of ["/missing-page", "/projects/missing-project", "/blog/missing-note"]) {
   assert.equal((await fetch(new URL(path, origin))).status, 404, path);
 }
-for (const path of ["/demos/kmp/index.html", "/demos/kmp/src/app.js", "/demos/linked-list/index.html", "/demos/pyscreen/index.html", "/demos/pyscreen/playground.html", "/demos/pyscreen/playground-worker.mjs", "/demos/pyscreen/pyodide/pyodide.mjs", "/demos/pyscreen/pyodide/python_stdlib.zip", "/demos/gdp/index.html", "/images/projects/jd-dashboard.png", "/videos/jd-product-film.mp4"]) {
+for (const path of ["/demos/kmp/index.html", "/demos/kmp/src/app.js", "/demos/linked-list/index.html", "/demos/pyscreen/index.html", "/demos/pyscreen/playground.html", "/demos/pyscreen/playground-worker.mjs", "/demos/pyscreen/pyodide/pyodide.mjs", "/demos/pyscreen/pyodide/python_stdlib.zip", "/demos/gdp/index.html", "/images/projects/jd-dashboard.png", "/videos/jd-product-film.mp4", "/images/projects/campus-menu.png", "/images/projects/pyscreen.png", "/images/projects/kmp.png", "/images/projects/linked-list.png", "/images/projects/gdp.png"]) {
   const response = await fetch(new URL(path, origin));
   assert.equal(response.status, 200, path);
   assert.ok((await response.arrayBuffer()).byteLength > 0, path + " empty asset");
@@ -55,4 +58,4 @@ for (const name of posters) {
   assert.match(response.headers.get("content-type"), /image\/png/);
   assert.deepEqual(new Uint8Array(await response.arrayBuffer()).slice(0, 8), new Uint8Array([137, 80, 78, 71, 13, 10, 26, 10]));
 }
-console.log(`PASS: ${pages.length} pages, metadata, CSS, links, 3 missing routes, 12 demo/media assets and ${posters.length} gallery images including WebAssembly/PNG validation.`);
+console.log(`PASS: ${pages.length} pages with visual previews, metadata, CSS, links, 3 missing routes, 17 demo/media assets and ${posters.length} gallery images including WebAssembly/PNG validation.`);

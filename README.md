@@ -26,7 +26,7 @@ Open http://localhost:3000. Production preview: `npm run build`, then `npm run s
 - `src/data/projects.ts`: projects, technologies, descriptions and exploration status.
 - `src/data/posts.ts`: dated notes and article sections.
 - `src/data/site.ts`: GitHub contact link and practice areas.
-- `src/components`: navigation, footer, project rows and stack display.
+- `src/components`: navigation, footer, shared project/note cards and stack display.
 - `src/app/globals.css`: shared design tokens, typography and responsive layout.
 
 The Campus Takeout entry is being iterated; AI Writing Coach and AI Agent Lab are explicitly exploration directions. Existing results include PyScreen, KMP, linked-list merge, the GDP timeline, JD Protocol Engine, and a poster collection. The homepage keeps three selected entries. No fabricated metrics or contact addresses are included.
@@ -44,7 +44,15 @@ The Campus Takeout entry is being iterated; AI Writing Coach and AI Agent Lab ar
 
 The standalone demos are copied into `public/demos`; original projects are untouched. PyScreen uses a local Pyodide 0.27.8 runtime, with upstream files unchanged and license/source notices retained in `public/demos/pyscreen/pyodide`. Its server-only screen link was omitted and internal links use relative paths. The copied renderer skips hidden/tiny canvases; the mobile preview has a bounded height to prevent intrinsic canvas resize growth. A regression test covers the drawing boundary. The first Python run loads about 14 MB of runtime assets. GDP loads ECharts from the original pyecharts CDN and uses historical exercise data. JD's business operations require local services and login; only reviewed presentation assets are published, without credentials or business records. The silent video preserves the reviewed release video stream from apple-product-film-30s-no-bgm.mp4 and removes all audio without re-encoding.
 
-Desktop pygame games have no available browser runtime or verified screenshots in this environment. BigData, PySpark and scraped third-party pages are not copied wholesale. Campus Takeout remains a project overview because its working UI depends on the WeChat environment and backend.
+Desktop pygame games have no available browser runtime or verified screenshots in this environment. BigData, PySpark and scraped third-party pages are not copied wholesale. Campus Takeout has a labeled historical menu screenshot and a product introduction; its working UI depends on the WeChat environment and backend.
+
+## Reused presentation
+
+The media-first project card structure is adapted from the MIT-licensed Magic UI Portfolio and shared across home and work. NoteCard serves both home and notes. The source revision and adaptation details are recorded in `docs/design-references.md`; the full upstream MIT notice is retained in `licenses/magicui-portfolio-MIT.txt`. No external image assets or new UI dependencies are bundled.
+
+## Curated notes
+
+The notes page reuses one cover/summary/article template for two build records and two curated learning-note summaries from the existing Second Brain: photo-to-visual-diary and motion-for-understanding. Source names, original dates and validation boundaries are visible. Only rewritten public summaries are included, without vault paths, personal journals or full template dumps; the original vault is unchanged. Covers are illustrative and do not claim the prompt templates have been validated.
 
 ## Validate
 
@@ -57,7 +65,7 @@ npm run start
 npm test
 ```
 
-The smoke test checks 15 routes, metadata, stylesheet availability, contact links, 3 missing routes and 12 demo/media resources and 18 gallery images, including WebAssembly/PNG signatures and MIME types. It can check a deployment with `npm test -- https://zwly-lab.vercel.app`.
+The smoke test checks 17 routes with visual previews, metadata, stylesheet availability, contact links, 3 missing routes, 17 demo/media resources and 18 gallery images, including WebAssembly/PNG signatures and MIME types. It can check a deployment with `npm test -- https://zwly-lab.vercel.app`.
 
 GitHub Actions runs install, lint, types, build and the production smoke test on pushes to `main` and pull requests. Actions are pinned to immutable revisions. Browser checks cover actual navigation and widths of 1440, 971, 390 and 320 pixels.
 
