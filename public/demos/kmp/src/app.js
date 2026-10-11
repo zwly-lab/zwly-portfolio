@@ -1,4 +1,5 @@
 const { buildTrace } = window.KMP;
+const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 
 const ids = ['app','textInput','patternInput','textTrack','patternTrack','alignment','lpsTable','eventList','statusTitle','statusDetail','stepBadge','progressText','progressBar','textPointer','patternPointer','lpsHint','foundCount','footerState','randomBtn','resetBtn','prevBtn','playBtn','nextBtn','speedSelect','phaseLabel','stageTitle','buildStage','matchStage','buildPatternTrack','buildScanPointer','decisionTarget','prefixLabel','ruleIcon','ruleText','prefixPreview','suffixPreview','comparisonOperator','proofBoard','prefixCells','suffixCells','proofArrow','processRail','focusAnchor','focusTarget','focusReason','originMap','windowLabel','windowCells','prefixCue','suffixCue','sourceHint','whyStrip','prefixWhy','suffixWhy','valueWhy','guideTargetBuild','guideTargetMatch','moveExplanation','openingLesson','openingPattern','openingChar','openingStart','visualPanel'];
 const el = Object.fromEntries(ids.map((id) => [id, document.getElementById(id)]));
@@ -20,6 +21,7 @@ function sourceCells(chars, prefixLength, suffixLength, traverseIndex) {
   return chars.map((char, index) => `<span class="origin-cell ${index < prefixLength ? 'from-prefix' : ''} ${index >= chars.length - suffixLength ? 'from-suffix' : ''} ${index === traverseIndex ? 'traverse-current' : ''}" style="--delay:${index * 55}ms">${char}<small>${index}</small></span>`).join('');
 }
 function animateWrite(current) {
+  if (reducedMotion.matches) return;
   transferTimer = setTimeout(() => {
     const source = el.focusAnchor.getBoundingClientRect(), target = el.lpsTable.querySelector('.lps-cell.active')?.getBoundingClientRect();
     if (!target) return;
@@ -32,6 +34,7 @@ function animateWrite(current) {
   }, 360);
 }
 function animateExtraction(current) {
+  if (reducedMotion.matches) return;
   if (!['lps-compare','lps-confirm','lps-result'].includes(current.phase)) return;
   extractionTimer = setTimeout(() => {
     [['from-prefix', el.prefixCells, 'prefix'], ['from-suffix', el.suffixCells, 'suffix']].forEach(([sourceClass, target, side]) => {
@@ -51,6 +54,7 @@ function animateExtraction(current) {
   }, 260);
 }
 function animateFallbackLookup(current) {
+  if (reducedMotion.matches) return;
   if (current.phase !== 'lps-fallback' && current.phase !== 'fallback') return;
   fallbackTimer = setTimeout(() => {
     const source = el.lpsTable.querySelector('.lps-cell.lookup')?.getBoundingClientRect();
@@ -174,7 +178,7 @@ function render() {
   el.prevBtn.disabled = step === 0; el.nextBtn.disabled = step === trace.steps.length - 1;
 }
 function reset() { stop(); trace = buildTrace(el.textInput.value, el.patternInput.value); step = 0; render(); }
-function showStep(next) { clearTimeout(sceneTimer); el.visualPanel.classList.remove('scene-enter'); el.visualPanel.classList.add('scene-leave'); sceneTimer = setTimeout(() => { step = next; render(); el.visualPanel.classList.remove('scene-leave'); void el.visualPanel.offsetWidth; el.visualPanel.classList.add('scene-enter'); }, 340); }
+function showStep(next) { clearTimeout(sceneTimer); el.visualPanel.classList.remove('scene-enter', 'scene-leave'); if (reducedMotion.matches) { step = next; render(); return; } el.visualPanel.classList.add('scene-leave'); sceneTimer = setTimeout(() => { step = next; render(); el.visualPanel.classList.remove('scene-leave'); void el.visualPanel.offsetWidth; el.visualPanel.classList.add('scene-enter'); }, 340); }
 function move(delta) { stop(); showStep(Math.min(trace.steps.length - 1, Math.max(0, step + delta))); }
 function play() { if (timer) return stop(); if (step === trace.steps.length - 1) { step = 0; render(); } timer = setInterval(() => { if (step === trace.steps.length - 1) return stop(); showStep(step + 1); }, Number(el.speedSelect.value)); el.playBtn.textContent = '❚❚ 暂停'; }
 function randomExample() { const alphabet = 'ABCD', patternLength = 3 + Math.floor(Math.random() * 4), textLength = patternLength + 10 + Math.floor(Math.random() * 7), pattern = Array.from({ length: patternLength }, () => alphabet[Math.floor(Math.random() * alphabet.length)]).join(''), text = Array.from({ length: textLength }, () => alphabet[Math.floor(Math.random() * alphabet.length)]); const at = Math.floor(Math.random() * (textLength - patternLength + 1)); text.splice(at, patternLength, ...pattern); el.textInput.value = text.join(''); el.patternInput.value = pattern; document.querySelector('.sample.active')?.classList.remove('active'); reset(); }
@@ -183,3 +187,4 @@ el.openingStart.addEventListener('click', () => move(1));
 [el.textInput, el.patternInput].forEach((input) => input.addEventListener('input', reset));
 document.querySelectorAll('.sample').forEach((button) => button.addEventListener('click', () => { el.textInput.value = button.dataset.text; el.patternInput.value = button.dataset.pattern; document.querySelector('.sample.active')?.classList.remove('active'); button.classList.add('active'); reset(); }));
 reset();
+el.app.dataset.ready = 'true';
