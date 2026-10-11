@@ -1,5 +1,48 @@
 # Portfolio presentation references
 
+Current direction is the portfolio-wide redesign below; earlier sections remain
+as a chronological record and do not override the current layout.
+
+## Portfolio-wide redesign (2026-10-11)
+
+The whole portfolio leads, not one product's marketing page. Home has paired
+previews for learning tools, applications/interfaces and visual expression.
+Detailed task/code/feedback annotation belongs to PyScreen's own case.
+The previous independent reviews informed hierarchy, evidence gaps, Chinese
+reading density and quieter concept archives. Existing filters, demo states,
+gallery controls and licensed source adaptations remain in use.
+
+Primary product references: [Linear](https://linear.app/) for process narration,
+[Apple's Chinese product page](https://www.apple.com.cn/macbook-air/) for media
+scale, [Stripe](https://stripe.com/payments) for value/implementation reading
+layers, [Vercel Observability](https://vercel.com/products/observability) for real
+state objects, and [Ant Design motion](https://ant.design/docs/spec/motion-cn/)
+for shared cognition/feedback rules. These are design patterns, not copied source
+or media. No enterprise claims, customer logos or benchmark numbers are imported.
+
+Personal portfolio references: Joshua Baker (case argument), Ben Mingo (image
+curation), Rauno (work/prototype hierarchy), Emil Kowalski (purposeful feedback),
+Maxime Heckel (examples next to explanations), Anthony Fu (focus/archive),
+Shu Ding (contribution scope), Sukka and Innei (problem-led engineering writing).
+Chinese design sites portfolio.zioydesign.com.cn and echolin.com.cn/design are
+supplementary for Chinese case framing and visual-series organization.
+Do not copy unverified-license code, articles or imagery. Historical Shiro
+designs are not evidence about Innei's current site.
+
+Media evidence added this round: public/images/projects/pyscreen-error.png is an
+unaltered 1440×1000 browser capture. In level 6, entering an incomplete x =
+assignment and running produced line-1 SyntaxError and a locate-line button.
+Replacing it with the two-frame movement code and running again yielded x=3,
+y=4, 2/2 frames and 15 trace steps. This verifies the observed interaction,
+not educational effectiveness. Original upstream demo code remains untouched.
+
+The gallery uses a progressively enhanced native
+[View Transition API](https://developer.mozilla.org/en-US/docs/Web/API/Document/startViewTransition).
+Unsupported/reduced-motion browsers update directly. An active selection ref
+keeps rapid key presses ordered while pending transitions are interrupted.
+Closing invalidates deferred updates and preserves the native focus restoration.
+No animation dependency was added.
+
 Reviewed on 2026-10-11. These sources inform information hierarchy. The MIT Magic UI Portfolio card structure is adapted into the existing ProjectCard, and reused for the shared NoteCard. External image assets and dependencies are not copied.
 
 - [Adham Dannaway — portfolio](https://www.adhamdannaway.com/portfolio): put visual work before long descriptions, keep titles and categories concise.

@@ -1,9 +1,7 @@
 import type { Metadata } from "next";
 import { ContentBreadcrumb } from "@/components/ContentBreadcrumb";
-import Image from "next/image";
 import { notFound } from "next/navigation";
 import { posts } from "@/data/posts";
-import { ArticleToc } from "@/components/ArticleToc";
 import { ArticleNavigation } from "@/components/ArticleNavigation";
 import { NoteExample } from "@/components/NoteExample";
 export const dynamicParams = false;
@@ -18,5 +16,12 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
   const post = posts.find((item) => item.slug === slug);
   if (!post) notFound();
   const position = posts.indexOf(post);
-  return <main id="main-content" className="container"><header className="page-header case-header article-header"><ContentBreadcrumb href="/blog" label="手记" title={post.title} /><p className="article-meta"><time dateTime={post.date}>{post.date}</time> · ZWLY Lab</p><h1>{post.title}</h1><p>{post.summary}</p></header><div className="reading-layout"><aside className="reading-aside"><figure className="article-cover"><Image src={post.cover.src} alt={post.cover.caption} width={post.cover.width} height={post.cover.height} sizes="240px" /><figcaption>{post.cover.caption}</figcaption></figure><ArticleToc titles={post.sections.map((section) => section.title)} /></aside><article className="article prose">{post.sourceNote && <p className="article-meta">来源：{post.sourceNote}</p>}{post.sections.map((section, index) => <section key={section.title} id={"section-" + (index + 1)}><h2>{section.title}</h2><p>{section.text}</p>{index === 0 && <NoteExample slug={post.slug} />}</section>)}<ArticleNavigation previous={posts[position - 1]} next={posts[position + 1]} /></article></div></main>;
+  return <main id="main-content" className="container note-reading">
+    <header className="page-header article-header"><ContentBreadcrumb href="/blog" label="手记" title={post.title} /><h1>{post.title}</h1><p>{post.summary}</p><div className="article-meta"><time dateTime={post.date}>{post.date.replaceAll("-", ".")}</time> · ZWLY Lab · {post.sourceNote ? "学习与实践" : "构建记录"}</div></header>
+    <article className="article prose">
+      {post.sections.map((section, index) => <section key={section.title} id={"section-" + (index + 1)}><h2>{section.title}</h2><p>{section.text}</p>{index === 0 && <NoteExample slug={post.slug} />}</section>)}
+      {post.sourceNote && <footer className="article-source"><h2>这篇手记的来源</h2><p>{post.sourceNote}</p></footer>}
+      <ArticleNavigation previous={posts[position - 1]} next={posts[position + 1]} />
+    </article>
+  </main>;
 }

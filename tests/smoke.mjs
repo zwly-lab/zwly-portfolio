@@ -2,10 +2,10 @@ import assert from "node:assert/strict";
 
 const origin = process.argv[2] ?? "http://localhost:3000";
 const pages = [
-  ["/", "把复杂知识，", "ZWLY Lab"],
-  ["/projects", "作品，持续生长。", "作品"],
-  ["/about", "保持好奇，认真构建。", "关于"],
-  ["/blog", "记录，也是一种构建。", "手记"],
+  ["/", "让想法，", "ZWLY Lab"],
+  ["/projects", "值得展开的作品。", "作品"],
+  ["/about", "把复杂的过程，", "关于"],
+  ["/blog", "把构建中的判断，", "手记"],
   ["/projects/campus-takeout", "Campus Takeout", "Campus Takeout"],
   ["/projects/pyscreen", "PyScreen", "PyScreen"],
   ["/projects/kmp-visualizer", "KMP 算法可视化", "KMP 算法可视化"],
@@ -35,13 +35,24 @@ for (const [path, heading, title] of pages) {
   assert.ok(!html.includes('href="#"'), path + " inert link");
   if (path === "/projects") assert.ok(html.includes('aria-controls="filtered-projects"'), "accessible project filters");
   if (path === "/") {
-    assert.ok(html.includes('aria-label="切换创作视角"'), "curated hero views");
+    assert.ok(html.includes('aria-label="切换作品方向"'), "curated portfolio directions");
+    assert.ok(html.includes('id="portfolio-overview"'), "portfolio preview target");
     assert.ok(html.includes('aria-controls="live-demo-stage"'), "embedded demo trigger");
     assert.ok(!html.includes("<iframe"), "demo runtime waits for user activation");
   }
   if (path.startsWith("/blog/")) assert.ok(html.includes('aria-label="继续阅读"'), path + " adjacent article navigation");
   if (path.startsWith("/projects/")) assert.ok(html.includes('aria-label="继续探索"'), path + " connected browsing path");
-  if (["campus-takeout", "pyscreen", "kmp-visualizer", "linked-list-merge", "gdp-timeline", "jd-protocol-engine"].some((slug) => path === "/projects/" + slug)) assert.ok(html.includes("从输入到结果"), path + " product workflow");
+  if (path === "/projects/pyscreen") assert.ok(html.includes('id="process-explanation"'), "product detail has the interactive walkthrough");
+  if (["campus-takeout", "pyscreen", "kmp-visualizer", "linked-list-merge", "gdp-timeline", "jd-protocol-engine"].some((slug) => path === "/projects/" + slug)) {
+    assert.ok(html.includes('id="case-question"'), path + " concrete product question");
+    assert.ok(html.includes('id="case-decisions-title"'), path + " design choices");
+    assert.ok(html.includes('id="case-verify-title"'), path + " observable walkthrough");
+    assert.ok(html.includes("现有成果与下一步"), path + " truthful evidence boundary");
+  }
+  if (["/projects/ai-writing-coach", "/projects/ai-agent-lab"].includes(path)) {
+    assert.ok(html.includes("研究方向 · 尚未实现"), path + " concept status");
+    assert.ok(!html.includes('id="case-verify-title"'), path + " concept cannot masquerade as a product");
+  }
   const styles = [...html.matchAll(/<link\b[^>]*>/g)].map(([tag]) => tag).filter((tag) => tag.includes('rel="stylesheet"')).map((tag) => tag.match(/href="([^"]+)"/));
   assert.ok(styles.length > 0, path + " stylesheet");
   for (const [, href] of styles) assert.equal((await fetch(new URL(href.replaceAll("&amp;", "&"), origin))).status, 200, href);

@@ -24,12 +24,13 @@ Open http://localhost:3000. Production preview: `npm run build`, then `npm run s
 ## Maintain the content
 
 - `src/data/projects.ts`: projects, technologies, descriptions and exploration status.
+- `src/data/cases.ts`: product questions, concrete interface choices, observation paths and evidence boundaries.
 - `src/data/posts.ts`: dated notes and article sections.
 - `src/data/site.ts`: GitHub contact link and practice areas.
 - `src/components`: navigation, footer, shared project/note cards and stack display.
 - `src/app/globals.css`: shared design tokens, typography and responsive layout.
 
-The Campus Takeout entry is being iterated; AI Writing Coach and AI Agent Lab are explicitly exploration directions. Existing results include PyScreen, KMP, linked-list merge, the GDP timeline, JD Protocol Engine, and a poster collection. The homepage keeps three selected entries. No fabricated metrics or contact addresses are included.
+The portfolio overview introduces interactive learning, applications/interfaces and visual expression through selectable paired previews. Selected work then leads to PyScreen, Campus Takeout and JD Protocol Engine. Product walkthroughs belong in their detail pages. Algorithms/data practice, visual series and unimplemented concepts have separate hierarchy. Existing filters, actual demos, native gallery and licensed link/article components are reused. No fabricated metrics or contact addresses are included. See DESIGN.md for the current composition and motion rules.
 
 ## Existing results
 
@@ -48,11 +49,11 @@ Desktop pygame games have no available browser runtime or verified screenshots i
 
 ## Reused presentation
 
-The media-first project card structure is adapted from the MIT-licensed Magic UI Portfolio and shared across home and work. NoteCard serves both home and notes. The source revision and adaptation details are recorded in `docs/design-references.md`; the full upstream MIT notice is retained in `licenses/magicui-portfolio-MIT.txt`. No external image assets or new UI dependencies are bundled. A shared breadcrumb adapted from the official shadcn registry is used in product and note details, with its MIT notice retained. Notes have native chapter links; typography uses a self-hosted OFL Archivo variable font. Motion connects the selectable hero frame, work filters, gallery navigation, conditional live demo and article reading position, with reduced-motion support.
+The media-first project card structure is adapted from the MIT-licensed Magic UI Portfolio and shared across home and work. NoteCard serves both home and notes. The source revision and adaptation details are recorded in `docs/design-references.md`; the full upstream MIT notice is retained in `licenses/magicui-portfolio-MIT.txt`. No external image assets or new UI dependencies are bundled. A shared breadcrumb adapted from the official shadcn registry is used in product and note details, with its MIT notice retained. Typography uses a self-hosted OFL Archivo variable font. Motion connects the selectable portfolio directions, product annotations, work filters, gallery navigation and conditional live demo, with reduced-motion support. Short articles retain adjacent reading links in a single column.
 
 ## Curated notes
 
-The notes page reuses one cover/summary/article template for two build records and four curated learning/practice summaries from the existing Second Brain: photo-to-visual-diary, motion-for-understanding, data-before-charts and chinese-product-posters. Source names, original dates and validation boundaries are visible. Only rewritten public summaries are included, without vault paths, personal journals or full template dumps; the original vault is unchanged. Covers are illustrative and do not claim the prompt templates have been validated.
+The notes page features the interaction-feedback article, followed by learning/practice and build-record archives. Short articles use one reading column with in-content examples, source notes and adjacent article links; they do not need a large sticky table of contents. Source names, dates and validation boundaries remain visible. Only rewritten public summaries are included, without vault paths, personal journals or full template dumps; the original vault is unchanged.
 
 ## Validate
 
@@ -67,7 +68,7 @@ npm test
 
 The smoke test checks 19 routes with visual previews, metadata, stylesheet availability, contact links, 3 missing routes, 19 demo/media resources and 18 gallery images, including WebAssembly/PNG signatures and MIME types. It can check a deployment with `npm test -- https://zwly-lab.vercel.app`.
 
-GitHub Actions runs install, lint, types, build and the production smoke test on pushes to `main` and pull requests. Actions are pinned to immutable revisions. Browser checks cover actual navigation and widths of 1440, 971, 390 and 320 pixels.
+GitHub Actions runs install, lint, types, build and the production smoke test on pushes to `main` and pull requests. Actions are pinned to immutable revisions. The optional `node tests/browser.mjs` check uses an existing Playwright installation (set `PLAYWRIGHT_MODULE` to its package directory and `BROWSER_EXECUTABLE` when using system Chrome). It covers 40 route/viewport combinations at widths of 1440, 820, 390 and 360 pixels, intact images, direction selection, filtering, live demo loading, rapid gallery navigation, keyboard focus restoration and reduced motion. An optional second argument selects the origin; a third argument saves screenshots.
 
 ## Vercel
 
