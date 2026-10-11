@@ -29,7 +29,7 @@ Open http://localhost:3000. Production preview: `npm run build`, then `npm run s
 - `src/components`: navigation, footer, project rows and stack display.
 - `src/app/globals.css`: shared design tokens, typography and responsive layout.
 
-The Campus Takeout entry is being iterated; AI Writing Coach and AI Agent Lab are explicitly exploration directions. Five existing results have been added: PyScreen, KMP, linked-list merge, the GDP timeline, and JD Protocol Engine. The homepage keeps three selected entries. No fabricated metrics or contact addresses are included.
+The Campus Takeout entry is being iterated; AI Writing Coach and AI Agent Lab are explicitly exploration directions. Existing results include PyScreen, KMP, linked-list merge, the GDP timeline, JD Protocol Engine, and a poster collection. The homepage keeps three selected entries. No fabricated metrics or contact addresses are included.
 
 ## Existing results
 
@@ -40,6 +40,7 @@ The Campus Takeout entry is being iterated; AI Writing Coach and AI Agent Lab ar
 | Linked-list merge | Interactive stable merge animation | `E:/Python/linked-list-merge-visualizer/启动-有序链表二路归并.html` |
 | GDP timeline | Historical 1960–2019 chart, adapted for viewport resizing | `E:/Python/BaseProject/动态图/1960-2019全球GDP前8国家.html` |
 | JD Protocol Engine | Existing dashboard screenshot and silent product film | `E:/Python/Order/JD/assets/screenshots`, `marketing/video/output` |
+| Poster collection | 18 curated visual works, original aspect ratios and full-image links | ChatGPT Library image copies, plus three reviewed JD marketing posters; see `docs/visual-assets.md` |
 
 The standalone demos are copied into `public/demos`; original projects are untouched. PyScreen uses a local Pyodide 0.27.8 runtime, with upstream files unchanged and license/source notices retained in `public/demos/pyscreen/pyodide`. Its server-only screen link was omitted and internal links use relative paths. The copied renderer skips hidden/tiny canvases; the mobile preview has a bounded height to prevent intrinsic canvas resize growth. A regression test covers the drawing boundary. The first Python run loads about 14 MB of runtime assets. GDP loads ECharts from the original pyecharts CDN and uses historical exercise data. JD's business operations require local services and login; only reviewed presentation assets are published, without credentials or business records. The silent video preserves the reviewed release video stream from apple-product-film-30s-no-bgm.mp4 and removes all audio without re-encoding.
 
@@ -56,7 +57,7 @@ npm run start
 npm test
 ```
 
-The smoke test checks 14 routes, metadata, stylesheet availability, contact links, 3 missing routes and 12 demo/media resources, including the WebAssembly signature and MIME type. It can check a deployment with `npm test -- https://zwly-lab.vercel.app`.
+The smoke test checks 15 routes, metadata, stylesheet availability, contact links, 3 missing routes and 12 demo/media resources and 18 gallery images, including WebAssembly/PNG signatures and MIME types. It can check a deployment with `npm test -- https://zwly-lab.vercel.app`.
 
 GitHub Actions runs install, lint, types, build and the production smoke test on pushes to `main` and pull requests. Actions are pinned to immutable revisions. Browser checks cover actual navigation and widths of 1440, 971, 390 and 320 pixels.
 
@@ -74,4 +75,4 @@ This version does not include a CMS, contact form, visitor analytics or large an
 
 As of 2026-10-11, `npm audit --omit=dev` reports no known vulnerabilities. The full audit reports 5 high-severity entries in the development-only ESLint → fast-glob → micromatch → braces chain (GHSA-vfj7-8cjw-p6xm). The latest braces release is still 3.0.3, within the advisory range; npm suggests a breaking framework-lint downgrade, which is not applied. Recheck upstream patches when updating tooling.
 
-The original Style B image was not retained in the referenced conversation. The implementation follows the explicitly confirmed light editorial direction and a fresh concept in that style. System fonts replace raster-generated lettering; exploration status labels are intentional additions for factual accuracy.
+The original Style B concept was recovered from the ChatGPT Library image cache during visual collection and archived with Styles A, C and D. The implementation follows the confirmed light editorial direction. Concepts are labeled separately from working product screens. Avatars are excluded at the user’s request; academic files with personal identifiers and third-party source screenshots are not published. The gallery preserves reviewed image bytes and uses Next.js responsive previews with lazy loading. This is a curated selection, not an exhaustive Library export.

@@ -7,6 +7,7 @@ export type Project = {
   demo?: string;
   image?: string;
   video?: string;
+  gallery?: { src: string; title: string; width: number; height: number }[];
   overview: string;
   focus: string[];
 };
@@ -46,6 +47,31 @@ export const projects: Project[] = [
     image: "/images/projects/jd-dashboard.png", video: "/videos/jd-product-film.mp4",
     overview: "展示已有的任务控制台界面截图和产品演示视频。项目把任务、状态、日志与恢复入口集中在一个工作区。实际业务操作依赖本地服务和用户自己的登录环境；这里提供界面成果展示。截图中的状态和数量是拍摄时的界面内容。",
     focus: ["让任务状态、阻塞原因与下一步动作容易找到。", "把运行过程与结果集中到可观察的界面。", "展示产品表达，同时保持登录凭据与业务数据在本地。"],
+  },
+  {
+    slug: "poster-collection", title: "海报与视觉作品", description: "从日常灵感到产品表达，让想法成为画面。", stack: ["AI 视觉", "海报", "拼贴", "界面概念"], status: "showcase",
+    overview: "精选 18 张已有作品：旅行与美食拼贴、风景插画、水彩风格化、四套 ZWLY Lab 网站概念和产品海报。保留完整画幅，点击图片可查看原图。AI 生成或风格化画面作为视觉作品展示；网站概念图展示设计方向，图中的界面、数量与宣传文案不代表实际产品状态。",
+    gallery: [
+      { src: "/images/posters/food-illustration.png", title: "美食手绘 · 日式餐桌", width: 1122, height: 1402 },
+      { src: "/images/posters/food-diary-corgi.png", title: "美食拼贴 · More Good Days", width: 1122, height: 1402 },
+      { src: "/images/posters/food-diary.png", title: "美食拼贴 · 餐桌日记", width: 1122, height: 1402 },
+      { src: "/images/posters/travel-family-corgi.png", title: "旅行拼贴 · 日落与陪伴", width: 1122, height: 1402 },
+      { src: "/images/posters/travel-family.png", title: "旅行拼贴 · 温暖时刻", width: 1122, height: 1402 },
+      { src: "/images/posters/travel-diary.png", title: "旅行拼贴 · 圣托里尼", width: 1122, height: 1402 },
+      { src: "/images/posters/santorini-illustration.png", title: "风景插画 · 海岛日落", width: 1122, height: 1402 },
+      { src: "/images/posters/santorini-sunset.png", title: "风景视觉 · 金色时刻", width: 1122, height: 1402 },
+      { src: "/images/posters/watercolor-kites.png", title: "水彩风格化 · 风筝与歌声", width: 919, height: 1712 },
+      { src: "/images/posters/watercolor-wallpaper.png", title: "水彩风格化 · 竖屏构图", width: 845, height: 1860 },
+      { src: "/images/posters/watercolor-space.png", title: "水彩风格化 · 留白构图", width: 845, height: 1860 },
+      { src: "/images/posters/portfolio-style-b.png", title: "网站概念 · Style B 极简编辑", width: 1448, height: 1086 },
+      { src: "/images/posters/portfolio-style-a.png", title: "网站概念 · Style A 科技夜色", width: 1448, height: 1086 },
+      { src: "/images/posters/portfolio-style-c.png", title: "网站概念 · Style C 柔和未来", width: 1448, height: 1086 },
+      { src: "/images/posters/portfolio-style-d.png", title: "网站概念 · Style D 创意手绘", width: 1448, height: 1086 },
+      { src: "/images/posters/jd-overview.png", title: "产品总览 · A4", width: 794, height: 1123 },
+      { src: "/images/posters/jd-recovery.png", title: "异常恢复 · 4:5", width: 864, height: 1080 },
+      { src: "/images/posters/jd-privacy.png", title: "隐私安全 · 16:9", width: 1920, height: 1080 },
+    ],
+    focus: ["探索拼贴、插画和水彩之间不同的视觉表达。", "让不同画幅适应展示场景，同时保留完整图片。", "区分视觉概念与实际实现，记录从灵感到产品的过程。"],
   },
   {
     slug: "ai-writing-coach", title: "AI Writing Coach", description: "探索 AI 如何支持写作练习与反馈。", stack: ["AI", "教育", "Prompt"], status: "exploring",

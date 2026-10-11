@@ -12,6 +12,7 @@ const pages = [
   ["/projects/linked-list-merge", "有序链表二路归并", "有序链表二路归并"],
   ["/projects/gdp-timeline", "全球 GDP 时间轴", "全球 GDP 时间轴"],
   ["/projects/jd-protocol-engine", "JD Protocol Engine", "JD Protocol Engine"],
+  ["/projects/poster-collection", "海报与视觉作品", "海报与视觉作品"],
   ["/projects/ai-writing-coach", "AI Writing Coach", "AI Writing Coach"],
   ["/projects/ai-agent-lab", "AI Agent Lab", "AI Agent Lab"],
   ["/blog/building-in-public", "给作品一个可以访问的地方", "给作品一个可以访问的地方"],
@@ -43,4 +44,15 @@ const wasm = await fetch(new URL("/demos/pyscreen/pyodide/pyodide.asm.wasm", ori
 assert.equal(wasm.status, 200);
 assert.match(wasm.headers.get("content-type"), /application\/wasm/);
 assert.deepEqual(new Uint8Array(await wasm.arrayBuffer()).slice(0, 4), new Uint8Array([0, 97, 115, 109]));
-console.log(`PASS: ${pages.length} pages, metadata, CSS, links, 3 missing routes and 12 demo/media assets including WebAssembly.`);
+const galleryPage = await (await fetch(new URL("/projects/poster-collection", origin))).text();
+const posters = [...new Set([...galleryPage.matchAll(/href="(\/images\/posters\/[^"\s]+\.png)"/g)].map((match) => match[1]))];
+assert.equal(posters.length, 18, "curated gallery image count");
+assert.ok(!galleryPage.includes("avatar"), "avatars are excluded");
+assert.ok(galleryPage.includes("Style B 极简编辑"), "original style concept is archived");
+for (const name of posters) {
+  const response = await fetch(new URL(name, origin));
+  assert.equal(response.status, 200, name);
+  assert.match(response.headers.get("content-type"), /image\/png/);
+  assert.deepEqual(new Uint8Array(await response.arrayBuffer()).slice(0, 8), new Uint8Array([137, 80, 78, 71, 13, 10, 26, 10]));
+}
+console.log(`PASS: ${pages.length} pages, metadata, CSS, links, 3 missing routes, 12 demo/media assets and ${posters.length} gallery images including WebAssembly/PNG validation.`);
