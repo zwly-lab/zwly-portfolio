@@ -387,6 +387,13 @@ html,body{height:100%;overflow:hidden}.app{height:100vh;min-height:0;overflow:hi
 }
 
 /* Collapse only the secondary column when it would squeeze the teaching stage. */
+@media (max-width: 680px) {
+  .ctrl, .sample, .field input, .speed-field select, .opening-lesson button { min-height: 44px; }
+  .ctrl.icon { min-width: 44px; }
+  .controls, .samples { flex-wrap: wrap; }
+  .field input { font-size: 16px; }
+}
+
 @media (min-width: 681px) and (max-width: 900px) {
   .workspace { grid-template-columns: minmax(0, 1fr); grid-template-rows: minmax(0, 1fr); }
   .side-column { display: none; }

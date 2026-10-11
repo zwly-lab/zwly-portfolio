@@ -48,11 +48,11 @@ Desktop pygame games have no available browser runtime or verified screenshots i
 
 ## Reused presentation
 
-The media-first project card structure is adapted from the MIT-licensed Magic UI Portfolio and shared across home and work. NoteCard serves both home and notes. The source revision and adaptation details are recorded in `docs/design-references.md`; the full upstream MIT notice is retained in `licenses/magicui-portfolio-MIT.txt`. No external image assets or new UI dependencies are bundled. A shared breadcrumb adapted from the official shadcn registry is used in product and note details, with its MIT notice retained. Notes have native chapter links; typography uses a self-hosted OFL Archivo variable font. Motion is limited to the homepage image reveal and interaction feedback, with reduced-motion support.
+The media-first project card structure is adapted from the MIT-licensed Magic UI Portfolio and shared across home and work. NoteCard serves both home and notes. The source revision and adaptation details are recorded in `docs/design-references.md`; the full upstream MIT notice is retained in `licenses/magicui-portfolio-MIT.txt`. No external image assets or new UI dependencies are bundled. A shared breadcrumb adapted from the official shadcn registry is used in product and note details, with its MIT notice retained. Notes have native chapter links; typography uses a self-hosted OFL Archivo variable font. Motion connects the selectable hero frame, work filters, gallery navigation, conditional live demo and article reading position, with reduced-motion support.
 
 ## Curated notes
 
-The notes page reuses one cover/summary/article template for two build records and two curated learning-note summaries from the existing Second Brain: photo-to-visual-diary and motion-for-understanding. Source names, original dates and validation boundaries are visible. Only rewritten public summaries are included, without vault paths, personal journals or full template dumps; the original vault is unchanged. Covers are illustrative and do not claim the prompt templates have been validated.
+The notes page reuses one cover/summary/article template for two build records and four curated learning/practice summaries from the existing Second Brain: photo-to-visual-diary, motion-for-understanding, data-before-charts and chinese-product-posters. Source names, original dates and validation boundaries are visible. Only rewritten public summaries are included, without vault paths, personal journals or full template dumps; the original vault is unchanged. Covers are illustrative and do not claim the prompt templates have been validated.
 
 ## Validate
 
@@ -65,7 +65,7 @@ npm run start
 npm test
 ```
 
-The smoke test checks 17 routes with visual previews, metadata, stylesheet availability, contact links, 3 missing routes, 17 demo/media resources and 18 gallery images, including WebAssembly/PNG signatures and MIME types. It can check a deployment with `npm test -- https://zwly-lab.vercel.app`.
+The smoke test checks 19 routes with visual previews, metadata, stylesheet availability, contact links, 3 missing routes, 19 demo/media resources and 18 gallery images, including WebAssembly/PNG signatures and MIME types. It can check a deployment with `npm test -- https://zwly-lab.vercel.app`.
 
 GitHub Actions runs install, lint, types, build and the production smoke test on pushes to `main` and pull requests. Actions are pinned to immutable revisions. Browser checks cover actual navigation and widths of 1440, 971, 390 and 320 pixels.
 

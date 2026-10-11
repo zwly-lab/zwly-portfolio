@@ -31,4 +31,10 @@ Desktop and mobile screenshots were inspected in one initial pass plus a correct
 
 ## Limits
 
-No physical phone, Safari/Firefox, screen reader, GPU profiling or public Vercel deployment was tested. Native details still works where the optional size-animation CSS is unsupported. Resource entry pages were read, but not every external demo/video was played or its source licensed. Existing unrelated local edits remain intact. No commit, push or deployment was performed.
+No physical phone, Safari/Firefox, screen reader, GPU profiling or public Vercel deployment was tested. Native details still works where the optional size-animation CSS is unsupported. Resource entry pages were read, but not every external demo/video was played or its source licensed. Existing unrelated local edits remain intact. No commit, push or deployment was performed during that initial verification pass.
+
+## Authorized release merge — 2026-10-11
+
+The user subsequently requested commit and deployment. Newer upstream commits through 7f8c199 were merged without discarding the embedded KMP demo, six curated notes, case navigation, historical screenshots or the clamped-anchor fix. The interaction additions remain scoped to shared selection feedback, keyed-card layout changes, gallery motion and disclosure state.
+
+Fresh merged-build checks: build, lint and typecheck passed; renderer check and the expanded 19-page production smoke test passed. Browser checks passed hero selection, embedded demo readiness, 4/1/9 project filtering, retained section-3 selection, gallery navigation/Escape, 390px centered dialog and single-row filters; no console errors were observed. Public deployment verification follows publication and is reported separately.

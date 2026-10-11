@@ -7,7 +7,7 @@ export type Project = {
   category: "应用工具" | "教学可视化" | "视觉创作";
   audience?: string;
   steps?: { title: string; text: string }[];
-  preview?: "workspace" | "diagram";
+  preview?: "workspace" | "diagram" | "art";
   demo?: string;
   image?: { src: string; width: number; height: number; caption: string };
   video?: string;
@@ -63,7 +63,7 @@ export const projects: Project[] = [
   },
   {
     slug: "jd-protocol-engine", title: "JD Protocol Engine", description: "本地任务控制台的界面成果与产品演示。", stack: ["Python", "任务工作流", "产品设计"], status: "showcase",
-    category: "应用工具", preview: "workspace", audience: "需要集中查看本地任务状态与日志的用户。本站提供截图与静音演示。",
+    category: "应用工具", audience: "需要集中查看本地任务状态与日志的用户。本站提供截图与静音演示。",
     steps: [{ title: "查看工作区", text: "从控制台了解任务入口和拍摄时的状态。" }, { title: "观察运行信息", text: "通过截图与视频查看状态、日志和恢复入口的组织方式。" }, { title: "理解使用边界", text: "业务操作依赖本地服务和用户登录环境，本站不执行业务任务。" }],
     image: { src: "/images/projects/jd-dashboard.png", width: 1600, height: 1000, caption: "本地控制台 · 实际界面截图" }, video: "/videos/jd-product-film.mp4",
     overview: "展示已有的任务控制台界面截图和产品演示视频。项目把任务、状态、日志与恢复入口集中在一个工作区。实际业务操作依赖本地服务和用户自己的登录环境；这里提供界面成果展示。截图中的状态和数量是拍摄时的界面内容。",
@@ -71,7 +71,7 @@ export const projects: Project[] = [
   },
   {
     slug: "poster-collection", title: "海报与视觉作品", description: "从日常灵感到产品表达，让想法成为画面。", stack: ["AI 视觉", "海报", "拼贴", "界面概念"], status: "showcase",
-    category: "视觉创作",
+    category: "视觉创作", preview: "art",
     overview: "精选 18 张已有作品：旅行与美食拼贴、风景插画、水彩风格化、四套 ZWLY Lab 网站概念和产品海报。保留完整画幅，点击图片可查看原图。AI 生成或风格化画面作为视觉作品展示；网站概念图展示设计方向，图中的界面、数量与宣传文案不代表实际产品状态。",
     gallery: [
       { src: "/images/posters/food-illustration.png", title: "美食手绘 · 日式餐桌", width: 1122, height: 1402 },
