@@ -29,7 +29,21 @@ Open http://localhost:3000. Production preview: `npm run build`, then `npm run s
 - `src/components`: navigation, footer, project rows and stack display.
 - `src/app/globals.css`: shared design tokens, typography and responsive layout.
 
-The Campus Takeout entry is being iterated; AI Writing Coach and AI Agent Lab are explicitly exploration directions. The two initial notes describe this portfolio's first version. Add real screenshots and public demos when available. No fabricated metrics, email address or demo links are included.
+The Campus Takeout entry is being iterated; AI Writing Coach and AI Agent Lab are explicitly exploration directions. Five existing results have been added: PyScreen, KMP, linked-list merge, the GDP timeline, and JD Protocol Engine. The homepage keeps three selected entries. No fabricated metrics or contact addresses are included.
+
+## Existing results
+
+| Result | Public presentation | Source |
+| --- | --- | --- |
+| PyScreen | Browser Python playground and course index | `E:/Python/Book/teaching-tools/pyscreen-package/src/pyscreen/web` |
+| KMP | Self-contained interactive algorithm demo | `E:/Python/kmp-algorithm-visualizer` |
+| Linked-list merge | Interactive stable merge animation | `E:/Python/linked-list-merge-visualizer/启动-有序链表二路归并.html` |
+| GDP timeline | Historical 1960–2019 chart, adapted for viewport resizing | `E:/Python/BaseProject/动态图/1960-2019全球GDP前8国家.html` |
+| JD Protocol Engine | Existing dashboard screenshot and silent product film | `E:/Python/Order/JD/assets/screenshots`, `marketing/video/output` |
+
+The standalone demos are copied into `public/demos`; original projects are untouched. PyScreen uses a local Pyodide 0.27.8 runtime, with upstream files unchanged and license/source notices retained in `public/demos/pyscreen/pyodide`. Its server-only screen link was omitted and internal links use relative paths. The copied renderer skips hidden/tiny canvases; the mobile preview has a bounded height to prevent intrinsic canvas resize growth. A regression test covers the drawing boundary. The first Python run loads about 14 MB of runtime assets. GDP loads ECharts from the original pyecharts CDN and uses historical exercise data. JD's business operations require local services and login; only reviewed presentation assets are published, without credentials or business records. The silent video preserves the reviewed release video stream from apple-product-film-30s-no-bgm.mp4 and removes all audio without re-encoding.
+
+Desktop pygame games have no available browser runtime or verified screenshots in this environment. BigData, PySpark and scraped third-party pages are not copied wholesale. Campus Takeout remains a project overview because its working UI depends on the WeChat environment and backend.
 
 ## Validate
 
@@ -42,13 +56,15 @@ npm run start
 npm test
 ```
 
-The smoke test checks 9 routes, metadata, stylesheet availability, contact links and 3 missing routes. It can check a deployment with `npm test -- https://your-project.vercel.app`.
+The smoke test checks 14 routes, metadata, stylesheet availability, contact links, 3 missing routes and 12 demo/media resources, including the WebAssembly signature and MIME type. It can check a deployment with `npm test -- https://zwly-lab.vercel.app`.
 
 GitHub Actions runs install, lint, types, build and the production smoke test on pushes to `main` and pull requests. Actions are pinned to immutable revisions. Browser checks cover actual navigation and widths of 1440, 971, 390 and 320 pixels.
 
 ## Vercel
 
-Use the Next.js preset, repository root, Node.js 24, `npm ci` and `npm run build`. No environment variables, database or paid domain are required. The intended production branch is `main`; when the Git connection is enabled, Vercel handles branch previews and production deployments. Use the generated `.vercel.app` address.
+Live site: https://zwly-lab.vercel.app · Public repository: https://github.com/zwly-lab/zwly-portfolio
+
+Vercel project `zwly-lab` is on the Hobby plan and connected to this GitHub repository. Use the Next.js preset, repository root, Node.js 24, `npm ci` and `npm run build`. No environment variables, database or paid domain are required. The production branch is `main`; pushing to it triggers deployment to the free `.vercel.app` address.
 
 Keep credentials and `.vercel` metadata out of Git. Production publishing should follow the matching user authorization.
 

@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#f4f9fd">
+    <title>KMP 字符串匹配可视化</title>
+    <link rel="stylesheet" href="src/styles.css">
+    <link rel="stylesheet" href="src/overrides.css?v=fluid-layout-4">
+  </head>
+  <body>
+    <main class="app" id="app">
+      <header class="topbar">
+        <div class="brand">KMP <span>字符串匹配</span></div>
+        <div class="algorithm-tag" aria-label="算法复杂度">O(n + m)</div>
+        <div class="progress"><span id="progressText">准备开始</span><i><b id="progressBar"></b></i></div>
+      </header>
+
+      <section class="setup" aria-label="算法输入与控制">
+        <label class="field">主串（被查找的文本）
+          <input id="textInput" value="ABABDABACDABABCABAB" spellcheck="false" aria-label="主串 Text">
+        </label>
+        <label class="field">模式串（要找的词）
+          <input id="patternInput" value="ABABCABAB" spellcheck="false" aria-label="模式串 Pattern">
+        </label>
+        <div class="samples" aria-label="示例">
+          <span>示例</span>
+          <button class="sample active" data-text="ABABDABACDABABCABAB" data-pattern="ABABCABAB">经典</button>
+          <button class="sample" data-text="AABAACAADAABAABA" data-pattern="AABA">回退</button>
+        </div>
+        <div class="controls">
+          <button id="randomBtn" class="ctrl" type="button">⌘ 随机</button>
+          <button id="resetBtn" class="ctrl" type="button">↺ 重置</button>
+          <button id="prevBtn" class="ctrl icon" type="button" aria-label="上一步">‹</button>
+          <button id="playBtn" class="ctrl primary" type="button">▶ 演示</button>
+          <button id="nextBtn" class="ctrl icon" type="button" aria-label="下一步">›</button>
+        </div>
+        <label class="speed-field">速度
+          <select id="speedSelect" aria-label="演示速度"><option value="5600">慢讲</option><option value="4200" selected>讲解</option><option value="2800">回顾</option></select>
+        </label>
+      </section>
+
+      <section class="workspace">
+        <article class="panel visual-panel" id="visualPanel">
+          <div class="panel-heading"><div><p id="phaseLabel" class="eyebrow">第一关 · 先填 next 数组</p><h1 id="stageTitle">一次只弄懂一格</h1></div><span id="stepBadge" class="step-badge">STEP 0</span></div>
+          <div class="status-card" id="statusCard" role="status"><small>本步只回答一个问题</small><strong id="statusTitle">准备从 next[0] 开始</strong><span id="statusDetail">先看清楚这一格为什么是这个值，再进入下一步。</span></div>
+          <div id="buildStage" class="build-stage" aria-label="next 数组生成过程">
+            <div class="build-explainer"><span>正在决定</span><strong id="decisionTarget">next[0] = 0</strong><small id="prefixLabel">候选前缀长度：0</small></div>
+            <div class="build-track-wrap"><div class="track-label">模式串（正在操作的子串）<small id="buildScanPointer">扫描位置 = 0</small></div><div id="buildPatternTrack" class="track build-track"></div></div>
+            <section id="originMap" class="origin-map traverse-stage" aria-label="模式串遍历动画">
+              <div class="origin-heading"><span>第一步 · 从模式串取数据</span><strong id="windowLabel">P[0…0]</strong><small>真前缀不含完整窗口</small></div>
+              <div class="source-stage">
+                <div id="windowCells" class="window-cells"></div>
+                <div class="slice-cues"><span id="prefixCue">前缀：空串 ∅</span><span id="suffixCue">后缀：空串 ∅</span></div>
+              </div>
+              <p id="sourceHint" class="source-hint">完整窗口不能作为真前缀或真后缀。</p>
+            </section>
+            <div id="proofBoard" class="proof-board" aria-label="next 数组的前后缀对齐动画">
+              <div id="processRail" class="process-rail" aria-label="推导阶段"><span data-stage="align">遍历子串</span><i></i><span data-stage="compare">生成前/后缀</span><i></i><span data-stage="answer">得出长度</span><i></i><span data-stage="commit">写入 next</span></div>
+              <div id="guideCueBuild" class="scene-guide" aria-live="polite"><small>第二步 · 按规则推导</small><strong id="guideTargetBuild">先看当前窗口</strong></div>
+              <section id="openingLesson" class="opening-lesson" aria-labelledby="openingQuestion">
+                <small>先只看这一件事</small>
+                <div class="opening-source"><strong>这是我们现在操作的子串</strong><span>它叫“模式串”，也是之后要在全文里找的那串文字。</span><div id="openingPattern" class="opening-pattern" aria-label="正在研究的模式串"></div><em>↓ 先聚焦它的第一个字符</em></div>
+                <h2 id="openingQuestion">一个词的开头和结尾，能留下相同的一段吗？</h2>
+                <div class="opening-choice"><span>从开头取</span><i>→</i><b id="openingChar">A</b><i>←</i><span>从结尾取</span></div>
+                <p>开头取的一段，以后叫“前缀”；结尾取的一段，叫“后缀”。规则是：不能把整个词全部拿走。</p>
+                <button id="openingStart" type="button">从这个字符开始 →</button>
+              </section>
+              <div id="focusAnchor" class="focus-anchor"><small>本步唯一目标</small><strong id="focusTarget">next[0] = 0</strong><span id="focusReason">从起点建立数组</span></div>
+              <div id="whyStrip" class="why-strip" aria-label="next 值的生成依据"><span id="prefixWhy">左端取 0 格</span><span id="suffixWhy">右端取 0 格</span><strong id="valueWhy">起点写入 0</strong></div>
+              <div class="proof-row"><span>候选前缀</span><div id="prefixCells" class="proof-cells"></div></div>
+              <div id="proofArrow" class="proof-arrow">比较下一对字符</div>
+              <div class="proof-row"><span>当前位置后缀</span><div id="suffixCells" class="proof-cells"></div></div>
+            </div>
+            <section class="panel table-panel next-stage" aria-label="next 数组写入动画">
+              <div class="panel-heading compact"><div><p class="eyebrow">第三步 · 落入数组</p><h2>next 数组</h2></div><span id="lpsHint">待构建</span></div>
+              <div id="lpsTable" class="lps-table" aria-label="模式串 LPS 表"></div>
+            </section>
+            <div class="prefix-pair" aria-label="候选前缀与当前后缀比较"><div>候选前缀<strong id="prefixPreview">∅</strong></div><b id="comparisonOperator">→</b><div>当前后缀<strong id="suffixPreview">∅</strong></div></div>
+            <div class="build-rule"><b id="ruleIcon">①</b><span id="ruleText">比较当前字符与候选前缀；不匹配就缩短候选前缀。</span></div>
+          </div>
+          <div class="match-stage" id="matchStage">
+            <div id="guideCueMatch" class="scene-guide" aria-live="polite"><small>请看舞台中央</small><strong id="guideTargetMatch">先看这一对字符</strong></div>
+            <div id="moveExplanation" class="move-explanation" aria-live="polite" hidden></div>
+            <div class="track-label">主串（被查找的全文）<small id="textPointer">i = 0</small></div>
+            <div id="textTrack" class="track" aria-label="主串字符"></div>
+            <div class="alignment" id="alignment">
+              <div class="track-label pattern-label">模式串（要找的子串）<small id="patternPointer">j = 0</small></div>
+              <div id="patternTrack" class="track pattern-track" aria-label="模式串字符"></div>
+            </div>
+          </div>
+          <div class="legend"><span><i class="dot match"></i>已匹配</span><span><i class="dot compare"></i>当前比较</span><span><i class="dot fallback"></i>失配回退</span><span><i class="dot found"></i>匹配成功</span></div>
+        </article>
+
+        <aside class="side-column">
+          <article class="panel event-panel">
+            <div class="panel-heading compact"><div><p class="eyebrow">运行轨迹</p><h2>关键事件</h2></div><span id="foundCount" class="found-count">0 个结果</span></div>
+            <ol id="eventList" class="event-list" aria-live="polite"></ol>
+          </article>
+        </aside>
+      </section>
+      <footer><a href="/projects/kmp-visualizer">← 返回作品</a><span id="footerState">等待输入</span></footer>
+    </main>
+    <script defer src="src/kmp.js?v=teaching-steps-10"></script>
+    <script defer src="src/app.js?v=teaching-flow-3"></script>
+  </body>
+</html>

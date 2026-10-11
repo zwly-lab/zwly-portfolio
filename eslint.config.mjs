@@ -5,6 +5,7 @@ import nextTs from "eslint-config-next/typescript";
 const eslintConfig = defineConfig([
   ...nextVitals,
   ...nextTs,
+  { files: ["public/demos/**/*.js", "public/demos/**/*.mjs"], rules: { "@typescript-eslint/no-unused-vars": "off", "react-hooks/rules-of-hooks": "off" } },
   // Override default ignores of eslint-config-next.
   globalIgnores([
     // Default ignores of eslint-config-next:
@@ -12,6 +13,8 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Upstream Pyodide runtime is copied intact and verified by hashes and browser execution.
+    "public/demos/pyscreen/pyodide/**",
   ]),
 ]);
 

@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#d4b895" />
+    <meta name="description" content="大学程序设计课程互动入口：用 Python 建模与组织程序，借助 AI 协作，并通过可复现的测试验证结果。" />
+    <title>课程首页 · Python 电子屏</title>
+    <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="./style.css" />
+    <link rel="stylesheet" href="./home.css" />
+    <script src="./navigation.js" defer></script>
+  </head>
+  <body class="home-page">
+    <a class="skip-link" href="#chapters">跳到章节目录</a>
+    <header class="home-header">
+      <a class="brand" href="./index.html">
+        <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+        <span><strong>PYSCREEN</strong><small>Python 互动学习</small></span>
+      </a>
+      <nav class="site-nav" aria-label="页面导航">
+        <a href="/projects/pyscreen">作品集</a>
+        <a href="./index.html" aria-current="page">课程首页</a>
+
+        <a href="./playground.html">Python 练习台
+          <svg class="ui-icon" aria-hidden="true" viewBox="0 0 20 20"><path d="M6 14 14 6M7 6h7v7" /></svg>
+        </a>
+      </nav>
+    </header>
+
+    <main class="home-main">
+      <section class="home-hero" aria-labelledby="home-title">
+        <div class="hero-copy">
+          <p class="eyebrow">COURSE MAP · 9 CHAPTERS</p>
+          <h1 id="home-title">把想法变成程序，<br />让每一步都看得见。</h1>
+          <p class="hero-description">从现实任务出发，澄清目标与边界，把任务拆成数据、规则和步骤；用 Python 组织实现，借助 AI 理解和改进，再用可复现的测试验证并交接结果。</p>
+          <div class="hero-actions">
+            <a class="primary-action" href="./playground.html?level=1">开始一个练习
+              <svg class="ui-icon" aria-hidden="true" viewBox="0 0 20 20"><path d="M3 10h14m-6-6 6 6-6 6" /></svg>
+            </a>
+            <a class="secondary-action" href="#chapters">浏览章节路线</a>
+          </div>
+          <p class="hero-note"><span class="note-dot" aria-hidden="true"></span><span id="course-totals">章节练习、选做拓展与 PyCharm 项目均可自由进入。</span></p>
+        </div>
+        <div class="hero-visual" aria-hidden="true">
+          <div class="visual-topline"><span>CODE → STATE</span><span>01 / 09</span></div>
+          <div class="visual-code"><span>01</span> x = 2<br /><span>02</span> x = x + 1<br /><span>03</span> screen.update()</div>
+          <div class="mini-board"><span class="mini-square"></span><span class="mini-destination"></span></div>
+          <div class="visual-caption"><span>程序状态</span><strong>x：2 → 3</strong></div>
+        </div>
+      </section>
+
+      <section class="chapter-section" id="chapters" tabindex="-1" aria-labelledby="chapter-heading">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">LEARNING PATH</p>
+            <h2 id="chapter-heading">从章节卡片进入任务</h2>
+          </div>
+          <p>展开章节查看练习与项目子卡片；可按自己的学习需要选择顺序。</p>
+        </div>
+        <div class="chapter-grid" id="chapter-grid"></div>
+        <aside class="course-capstone" aria-labelledby="course-capstone-title">
+          <div>
+            <p class="eyebrow">AFTER CHAPTER 09 · 正文之后</p>
+            <h3 id="course-capstone-title">课程综合实践</h3>
+          </div>
+          <p>选择一项生活或行业任务，完成需求澄清、数据与规则建模、Python 实现、测试验收和 AI 使用说明，交付可复现的成果。综合实践不计作第十章。</p>
+        </aside>
+      </section>
+    </main>
+
+    <footer class="home-footer">
+      <span>PYSCREEN EDU</span>
+      <span>问题建模 · AI 协作 · 验证与迁移</span>
+
+    </footer>
+    <script src="./home.js"></script>
+  </body>
+</html>

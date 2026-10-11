@@ -18,7 +18,7 @@ export default function Home() {
       </section>
       <section aria-labelledby="work-title">
         <div className="section-header"><p className="section-label">01 / SELECTED WORK</p><h2 id="work-title">作品，持续生长。</h2><Link className="text-link" href="/projects">查看全部作品 <Arrow /></Link></div>
-        <div>{projects.map((project, index) => <ProjectCard key={project.slug} project={project} index={index} />)}</div>
+        <div>{projects.slice(0, 3).map((project, index) => <ProjectCard key={project.slug} project={project} index={index} />)}</div>
       </section>
       <section className="practice" aria-labelledby="practice-title"><p className="section-label">02 / PRACTICE</p><h2 id="practice-title">保持好奇，认真构建。</h2><TechStack /></section>
     </main>

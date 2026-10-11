@@ -3,7 +3,10 @@ export type Project = {
   title: string;
   description: string;
   stack: string[];
-  status: "building" | "exploring";
+  status: "building" | "exploring" | "showcase";
+  demo?: string;
+  image?: string;
+  video?: string;
   overview: string;
   focus: string[];
 };
@@ -13,6 +16,36 @@ export const projects: Project[] = [
     slug: "campus-takeout", title: "Campus Takeout", description: "面向校园场景的微信点餐小程序。", stack: ["Vue", "Node.js", "微信小程序"], status: "building",
     overview: "围绕校园点餐场景构建微信小程序，关注从商品浏览、规格选择到购物车和订单的完整体验。项目仍在迭代，作品集将逐步补充真实界面、设计过程和验证记录。",
     focus: ["梳理点餐流程，让商品与规格信息易于理解。", "结合前后端实现，关注订单与交互行为的一致性。", "通过版本管理与验证记录，让每次改进可追踪。"],
+  },
+  {
+    slug: "pyscreen", title: "PyScreen · Python 练习台", description: "在浏览器里运行 Python，让代码、变量与画面相互连接。", stack: ["Python", "Pyodide", "Canvas"], status: "showcase",
+    demo: "/demos/pyscreen/playground.html?level=6",
+    overview: "来自 Python 教学项目的互动练习台。Python 在浏览器中运行，可以观察变量、执行过程和 Canvas 画面。首次打开需要加载本地托管的 Python 运行时；课程首页也可从练习台进入，部分课程说明仍面向本地 Python 环境。",
+    focus: ["把程序运行过程变成可以观察的反馈。", "将练习、画布与变量面板放在同一个学习界面。", "保留错误提示，支持在反馈中修改和再次运行。"],
+  },
+  {
+    slug: "kmp-visualizer", title: "KMP 算法可视化", description: "逐步观察模式匹配、前缀表与失配回退。", stack: ["JavaScript", "算法", "可视化"], status: "showcase",
+    demo: "/demos/kmp/index.html",
+    overview: "将 KMP 字符串匹配过程拆成可播放的步骤。通过主串与模式串的位置、next / LPS 表和失配回退过程，理解算法如何避免重复比较。",
+    focus: ["同时呈现字符比较与指针变化。", "支持暂停、单步观察与自定义输入。", "用可重复的匹配轨迹验证算法行为。"],
+  },
+  {
+    slug: "linked-list-merge", title: "有序链表二路归并", description: "跟随指针移动，观察两个有序链表合并。", stack: ["JavaScript", "链表", "动画"], status: "showcase",
+    demo: "/demos/linked-list/index.html",
+    overview: "通过节点和连线展示两个有序链表的稳定归并。输入或随机生成数据，逐步观察比较、摘取节点以及结果链表的形成过程。",
+    focus: ["让指针与链表结构的变化保持一致。", "支持重复值、不同长度和逐步播放。", "将线性时间、常量辅助空间的过程直观呈现。"],
+  },
+  {
+    slug: "gdp-timeline", title: "全球 GDP 时间轴", description: "用动态柱状图观察 1960–2019 年的历史排名。", stack: ["Python", "pyecharts", "ECharts"], status: "showcase",
+    demo: "/demos/gdp/index.html",
+    overview: "来自数据可视化练习的历史 GDP 动态图表。拖动年份或播放时间轴，观察每年排名前八的国家。数据范围为 1960–2019 年，图中数值沿用原练习数据，不作为最新经济数据或研究依据。图表库通过 pyecharts 的公共资源服务加载。",
+    focus: ["用时间轴连接各年的排名变化。", "保留原图表数据与交互。", "在小屏幕上适配图表尺寸。"],
+  },
+  {
+    slug: "jd-protocol-engine", title: "JD Protocol Engine", description: "本地任务控制台的界面成果与产品演示。", stack: ["Python", "任务工作流", "产品设计"], status: "showcase",
+    image: "/images/projects/jd-dashboard.png", video: "/videos/jd-product-film.mp4",
+    overview: "展示已有的任务控制台界面截图和产品演示视频。项目把任务、状态、日志与恢复入口集中在一个工作区。实际业务操作依赖本地服务和用户自己的登录环境；这里提供界面成果展示。截图中的状态和数量是拍摄时的界面内容。",
+    focus: ["让任务状态、阻塞原因与下一步动作容易找到。", "把运行过程与结果集中到可观察的界面。", "展示产品表达，同时保持登录凭据与业务数据在本地。"],
   },
   {
     slug: "ai-writing-coach", title: "AI Writing Coach", description: "探索 AI 如何支持写作练习与反馈。", stack: ["AI", "教育", "Prompt"], status: "exploring",
