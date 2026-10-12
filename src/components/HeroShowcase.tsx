@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useLayoutEffect, useRef, useState } from "react";
 import { ActiveUnderline } from "./ActiveUnderline";
 import { Arrow } from "./Arrow";
+import { motionTiming } from "@/lib/motion";
 
 const views = [
   { label: "精选一览", kind: "selected", text: "应用、交互与视觉，同一个作品集里的三种探索。选择方向，继续展开。", items: [
@@ -46,13 +47,14 @@ export function HeroShowcase() {
     previous.current = null;
     if (!positions || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     const items = grid.current?.querySelectorAll<HTMLElement>("[data-preview]");
+    const timing = motionTiming("change");
     items?.forEach((item) => {
       const before = positions.get(item.dataset.preview!);
       const after = item.getBoundingClientRect();
       item.animate(before ? [
         { transform: `translate(${before.left - after.left}px, ${before.top - after.top}px) scale(${before.width / after.width}, ${before.height / after.height})` },
         { transform: "none" },
-      ] : [{ opacity: .4, clipPath: "inset(0 0 5%)" }, { opacity: 1, clipPath: "inset(0)" }], { duration: 280, easing: "cubic-bezier(0.16, 1, 0.3, 1)" });
+      ] : [{ opacity: .4, clipPath: "inset(0 0 5%)" }, { opacity: 1, clipPath: "inset(0)" }], timing);
     });
     return () => { items?.forEach((item) => item.getAnimations().forEach((animation) => animation.cancel())); };
   }, [selected]);

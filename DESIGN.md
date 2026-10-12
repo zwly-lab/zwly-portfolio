@@ -141,7 +141,7 @@ The palette is deliberately narrow: `paper-white` and pale fields carry content,
 
 The main container is capped at 1288px and subtracts 104px from the viewport; at 760px and below it subtracts 48px. The homepage hero uses a `.85fr / 1.3fr` editorial split. Its showcase uses a `1.8fr / 1fr` composition with a larger first preview and compact secondary entries. The default “精选一览” contains JD, PyScreen, and the travel artwork, while four controls switch among mixed, interaction, application, and visual directions.
 
-Shared previews retain their geometry during selection changes through a 280ms native Web Animations transition. On mobile, the hero becomes one column: the first work keeps a readable image and later works become 48px-high text links, so all directions remain reachable without squeezing three thumbnails into the viewport.
+Shared previews retain their geometry during selection changes through a 300ms native Web Animations transition. On mobile, the hero becomes one column: the first work keeps a readable image and later works become 48px-high text links, so all directions remain reachable without squeezing three thumbnails into the viewport.
 
 The homepage live demo remains a stable `1fr / 1.3fr` two-column region on wide screens and collapses to one column at 760px. Its intro and fallback screenshot are visible while the embedded demo is closed; opening the demo changes only the stage content. Collection grids move from three columns to two at 1050px and one at 760px. The compact navigation tightens at 440px and wraps only below 350px.
 
@@ -183,17 +183,21 @@ The wordmark and compact horizontal links share the Archivo stack. Current, hove
 
 ### Directional Overview
 
-The signature overview offers four text choices and reuses preview identity by image source. The first mixed view shows JD, PyScreen, and travel work together. When a selection keeps an existing preview, its old and new bounds drive the 280ms geometry transition; new previews arrive with a light opacity-and-clip reveal. Reduced-motion users receive the final composition immediately, and a new selection cancels the previous animation before measuring the next one.
+The signature overview offers four text choices and reuses preview identity by image source. The first mixed view shows JD, PyScreen, and travel work together. When a selection keeps an existing preview, its old and new bounds drive the 300ms geometry transition with a top-left transform origin; new previews arrive with a light opacity-and-clip reveal. A new selection measures the current animated geometry before cancelling it, so interrupted movement continues from the visible position. Reduced-motion users receive the final composition immediately.
 
 ### Process Spotlight
 
-The task, code, and result steps share one overlay with fixed base geometry. State classes preserve that approved geometry by applying `translateX(...) scaleX(...)`; only `transform` transitions for 280ms with the arrival easing. Reduced-motion browsers remove the transition.
+The task, code, and result steps share one overlay with fixed base geometry. State classes preserve that approved geometry by applying `translateX(...) scaleX(...)`; only `transform` transitions for 300ms with the arrival easing. Reduced-motion browsers remove the transition.
 
 ### Page and Image Motion
 
-- **Route title:** On each pathname change, the first `h1` inside `#main-content` reveals from `clip-path: inset(0 12% 0 0)` to no inset over 320ms with the arrival easing. The native Web Animation is skipped when no heading exists or reduced motion is already active, and is cancelled on route cleanup or a motion-preference change.
+- **Timing:** CSS owns 140ms immediate feedback, 220ms small disclosures/decoration, 300ms selection and image changes, 480ms entrances, and 180ms departures. Native animations read these tokens with both seconds and milliseconds supported. Arrivals use `cubic-bezier(0.16, 1, 0.3, 1)`; departures use `cubic-bezier(0.4, 0, 1, 1)`.
+- **Route entry:** One controller reveals the route heading over 480ms. Its immediate summary follows after 40ms for 300ms; the homepage overview follows after 80ms for 480ms. There is no overlapping CSS entrance on the overview, filtered collection or process showcase. Content stays visible without JavaScript. Pointer or keyboard interaction cancels entry before selection measures geometry; route cleanup cancels its own entry animations.
+- **Selection underline:** First placement is immediate. Subsequent selection changes travel for 300ms, matching the retained previews, filters and process spotlight.
+- **Gallery:** A viewport-bounded stage keeps the panel and toolbar/controls stable across portrait and landscape artwork. The original aspect ratio and viewport-bounded width reserve image geometry before decoding. The existing responsive thumbnail fills that frame until the full image loads. Opening uses 480ms; image navigation uses 300ms. Closing preserves the current transform and opacity and takes 180ms, together with backdrop, panel and control departure. An unchanged image returns to its visible opener; a changed image fades, preserving the native dialog's return focus to the original opener.
+- **Live motion preference:** Switching to reduced motion cancels in-flight page animations as well as CSS effects; an interrupted gallery close still releases the modal and restores focus. Embedded teaching runtimes retain their separate, user-controlled educational timing.
 - **Linked titles:** Project, note, featured-note, note-list, and article-navigation titles keep a transparent one-pixel underline at rest. Hover and keyboard focus reveal the underline in the current text color while the existing 140ms color and 220ms decoration feedback run.
-- **Preview images:** Work, note, poster, and overview previews scale to `1.018` over 280ms. Keyboard focus enables the response; pointer hover enables it only for fine pointers that support hover. The effect exists only when reduced motion is not requested.
+- **Preview images:** Work, note, poster, and overview previews scale to `1.018` over 300ms. Keyboard focus enables the response; pointer hover enables it only for fine pointers that support hover. The effect exists only when reduced motion is not requested.
 - **Home visual prints:** The two `.visual-print` images use native CSS view timelines to unfold from `clip-path: inset(8% 6%)` to no inset across `entry 15%` through `entry 100%`. Browsers without the required `animation-timeline` and `animation-range` support keep the images static, and reduced-motion users receive no animation.
 
 These additions use native Web Animations and CSS only; they add no runtime dependency.

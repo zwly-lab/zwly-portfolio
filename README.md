@@ -70,6 +70,8 @@ The smoke test checks 19 routes with visual previews, metadata, stylesheet avail
 
 GitHub Actions runs install, lint, types, build and the production smoke test on pushes to `main` and pull requests. Actions are pinned to immutable revisions. The optional `node tests/browser.mjs` check uses an existing Playwright installation (set `PLAYWRIGHT_MODULE` to its package directory and `BROWSER_EXECUTABLE` when using system Chrome). It covers 40 route/viewport combinations at widths of 1440, 820, 390 and 360 pixels, intact images, direction selection, filtering, live demo loading, rapid gallery navigation, keyboard focus restoration and reduced motion. An optional second argument selects the origin; a third argument saves screenshots.
 
+With the same browser runtime, `node tests/motion.mjs [origin]` checks coordinated entry, CSS time-unit conversion in production, retained-preview geometry when interrupted, changes to reduced-motion preference during playback, slow-image frame stability, gallery exit opacity, return focus/reopening, and stable toolbar/control positions across all 18 artworks on desktop/mobile. These browser checks complement the CI smoke test; they do not claim physical-device frame-rate measurements.
+
 ## Vercel
 
 Live site: https://zwly-lab.vercel.app · Public repository: https://github.com/zwly-lab/zwly-portfolio

@@ -4,6 +4,7 @@ import { useLayoutEffect, useRef, useState } from "react";
 import type { Project } from "@/data/projects";
 import { ProjectCard } from "./ProjectCard";
 import { ActiveUnderline } from "./ActiveUnderline";
+import { motionTiming } from "@/lib/motion";
 
 const categories = ["全部", "应用工具", "教学可视化", "视觉创作"] as const;
 
@@ -33,13 +34,14 @@ export function ProjectCollection({ projects }: { projects: Project[] }) {
     previous.current = null;
     if (!positions || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     const cards = grid.current?.querySelectorAll<HTMLElement>("[data-project]");
+    const timing = motionTiming("change");
     cards?.forEach((card) => {
       const before = positions.get(card.dataset.project!);
       const after = card.getBoundingClientRect();
       card.animate(before ? [
         { transform: `translate(${before.left - after.left}px, ${before.top - after.top}px)` },
         { transform: "none" },
-      ] : [{ opacity: 0 }, { opacity: 1 }], { duration: 320, easing: "cubic-bezier(0.16, 1, 0.3, 1)" });
+      ] : [{ opacity: 0 }, { opacity: 1 }], timing);
     });
     return () => { cards?.forEach((card) => card.getAnimations().forEach((animation) => animation.cancel())); };
   }, [category]);

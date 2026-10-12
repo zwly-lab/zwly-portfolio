@@ -17,6 +17,6 @@ Questions skipped: the user confirmed identity, Style B, no avatar, reference sc
 ## Requested text, page and image motion
 
 Focal moment: the existing retained-preview direction change remains the main interaction; original visual prints unfold within their frames as that part of the collection enters view.
-Continuity: a new route's heading receives one 320ms mask expansion, without delaying navigation or moving the page layout. Rapid navigation cancels the prior animation.
+Continuity: one entry controller connects the heading (480ms), immediate summary (40ms offset) and homepage overview (80ms offset), without delaying navigation or moving the page layout. Interaction cancels entry before selection; shared previews, filters and highlights use 300ms. Gallery images keep their aspect ratio and an existing thumbnail while loading; 180ms departure releases the panel and backdrop together, preserving native return focus.
 Feedback: work/note titles gain a fine underline on hover/focus; preview images enlarge 1.8% on fine pointers or keyboard focus inside their existing composition.
 Budget: native Web Animations and CSS only, no perpetual loops or new dependency. Scroll-linked masking is limited to two homepage prints and falls back to static full imagery. Reduced motion removes spatial effects and keeps selection, underline and action states.
