@@ -619,3 +619,24 @@ button:disabled { cursor: default; opacity: .4; }
 }
 
 .lightbox-image { animation: none; }
+
+/* Text and image feedback joins the existing selection and gallery motion. */
+.work-card h3, .note-card h2, .note-feature h2, .note-list h3, .article-navigation strong {
+  text-decoration: underline;
+  text-decoration-color: transparent;
+  text-decoration-thickness: 1px;
+  text-underline-offset: .2em;
+  transition: color var(--motion-quick), text-decoration-color var(--motion-standard);
+}
+:is(.work-card, .note-card, .note-feature, .note-list a, .article-navigation a):is(:hover, :focus-visible) :is(h2, h3, strong) { text-decoration-color: currentColor; }
+@media (prefers-reduced-motion: no-preference) {
+  .thumbnail-frame img, .note-cover, .poster-open img, .overview-work img { transition: transform 280ms var(--motion-arrive), opacity var(--motion-standard), border-color var(--motion-standard); }
+  :is(.work-card, .note-card, .poster-open, .overview-work):focus-visible img { transform: scale(1.018); }
+  @media (hover: hover) and (pointer: fine) {
+    :is(.work-card, .note-card, .poster-open, .overview-work):hover img { transform: scale(1.018); }
+  }
+  @supports (animation-timeline: view()) and (animation-range: entry 0% entry 100%) {
+    .visual-print img { animation: print-unfold linear both; animation-timeline: view(); animation-range: entry 15% entry 100%; }
+  }
+}
+@keyframes print-unfold { from { clip-path: inset(8% 6%); } to { clip-path: inset(0); } }

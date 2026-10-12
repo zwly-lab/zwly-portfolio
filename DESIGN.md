@@ -189,6 +189,15 @@ The signature overview offers four text choices and reuses preview identity by i
 
 The task, code, and result steps share one overlay with fixed base geometry. State classes preserve that approved geometry by applying `translateX(...) scaleX(...)`; only `transform` transitions for 280ms with the arrival easing. Reduced-motion browsers remove the transition.
 
+### Page and Image Motion
+
+- **Route title:** On each pathname change, the first `h1` inside `#main-content` reveals from `clip-path: inset(0 12% 0 0)` to no inset over 320ms with the arrival easing. The native Web Animation is skipped when no heading exists or reduced motion is already active, and is cancelled on route cleanup or a motion-preference change.
+- **Linked titles:** Project, note, featured-note, note-list, and article-navigation titles keep a transparent one-pixel underline at rest. Hover and keyboard focus reveal the underline in the current text color while the existing 140ms color and 220ms decoration feedback run.
+- **Preview images:** Work, note, poster, and overview previews scale to `1.018` over 280ms. Keyboard focus enables the response; pointer hover enables it only for fine pointers that support hover. The effect exists only when reduced motion is not requested.
+- **Home visual prints:** The two `.visual-print` images use native CSS view timelines to unfold from `clip-path: inset(8% 6%)` to no inset across `entry 15%` through `entry 100%`. Browsers without the required `animation-timeline` and `animation-range` support keep the images static, and reduced-motion users receive no animation.
+
+These additions use native Web Animations and CSS only; they add no runtime dependency.
+
 ## Do's and Don'ts
 
 ### Do:

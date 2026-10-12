@@ -67,6 +67,24 @@ async function main() {
 
   await page.setViewportSize({ width: 1440, height: 1000 });
   await page.goto(origin);
+  await page.getByRole("link", { name: "作品", exact: true }).click();
+  await page.waitForURL(origin + "/projects");
+  await page.waitForFunction(() => document.querySelector("#main-content h1").getAnimations().some((animation) => animation.playState === "running"));
+  await page.waitForFunction(() => document.querySelector("#main-content h1").getAnimations().length === 0);
+  assert.equal(await page.locator("h1").evaluate((element) => getComputedStyle(element).clipPath), "none", "route title finishes fully visible");
+  const card = page.locator(".work-card").first();
+  const frameWidth = await card.locator(".thumbnail-frame").evaluate((element) => element.getBoundingClientRect().width);
+  await card.hover();
+  await page.waitForFunction(() => new DOMMatrix(getComputedStyle(document.querySelector(".work-card img")).transform).a > 1.01);
+  assert.equal(await card.locator(".thumbnail-frame").evaluate((element) => element.getBoundingClientRect().width), frameWidth, "preview feedback does not resize its frame");
+  assert.notEqual(await card.locator("h3").evaluate((element) => getComputedStyle(element).textDecorationColor), "rgba(0, 0, 0, 0)", "hover emphasizes linked title");
+  await page.goto(origin);
+  const print = page.locator(".visual-print img").first();
+  await print.scrollIntoViewIfNeeded();
+  if (await page.evaluate(() => CSS.supports("animation-timeline", "view()") && CSS.supports("animation-range", "entry 0% entry 100%"))) {
+    await page.waitForFunction(() => ["inset(0px)", "inset(0%)", "inset(0% 0%)"].includes(getComputedStyle(document.querySelector(".visual-print img")).clipPath));
+  }
+  await page.goto(origin);
   assert.ok((await page.locator("h1").textContent()).includes("Vibe Coding."));
   assert.equal(await page.locator("#portfolio-overview .overview-work").count(), 3, "three directions visible by default");
   await page.getByRole("button", { name: "应用作品", exact: true }).click();
@@ -138,6 +156,8 @@ async function main() {
   assert.equal(await page.locator(".lightbox-image").evaluate((element) => element.getAnimations().length), 0);
   await page.keyboard.press("Escape");
   await page.goto(origin);
+  assert.equal(await page.locator("h1").evaluate((element) => element.getAnimations().length), 0, "reduced motion skips route title animation");
+  assert.equal(await page.locator(".visual-print img").first().evaluate((element) => getComputedStyle(element).animationName), "none", "reduced motion shows full static artwork");
   await page.getByRole("button", { name: "应用作品", exact: true }).click();
   assert.equal(await page.locator("#portfolio-overview").evaluate((element) => element.getAnimations({ subtree: true }).length), 0, "reduced motion keeps direction changes immediate");
   await page.goto(origin + "/projects/pyscreen");
@@ -149,7 +169,7 @@ async function main() {
   await page.getByText("收起归并步骤", { exact: true }).click();
   assert.equal(await page.locator(".feedback-example").evaluate((element) => element.open), false);
   assert.deepEqual(errors, [], "browser runtime errors");
-  console.log("PASS: 40 page/viewport checks, intact images, portfolio directions, project filtering, live demo, rapid gallery navigation/bounds/focus, reduced motion.");
+  console.log("PASS: 40 page/viewport checks, route/title/image motion, intact images, portfolio directions, project filtering, live demo, rapid gallery navigation/bounds/focus, reduced motion.");
   } finally { await browser.close(); }
 }
 main().catch((error) => { console.error(error); process.exitCode = 1; });

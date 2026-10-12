@@ -25,6 +25,10 @@
       { "name": "state-change", "value": "220ms ease", "purpose": "Underlines, borders, disclosures, and image state changes." },
       { "name": "retained-preview", "value": "280ms cubic-bezier(0.16, 1, 0.3, 1)", "purpose": "Native Web Animations geometry transition for retained hero previews." },
       { "name": "process-spotlight", "value": "transform 280ms cubic-bezier(0.16, 1, 0.3, 1)", "purpose": "Moves and scales the fixed process annotation without changing its base left or width." },
+      { "name": "route-title-reveal", "value": "clip-path 320ms cubic-bezier(0.16, 1, 0.3, 1); inset(0 12% 0 0) to inset(0)", "purpose": "Native Web Animation for the first main heading after a pathname change; cancelled on cleanup or motion-preference change." },
+      { "name": "linked-title-underline", "value": "color 140ms; text-decoration-color 220ms", "purpose": "Reveals a one-pixel title underline on linked-card hover and keyboard focus." },
+      { "name": "preview-image-zoom", "value": "transform 280ms cubic-bezier(0.16, 1, 0.3, 1); scale(1.018)", "purpose": "Fine-pointer hover and keyboard-focus feedback for work, note, poster, and overview preview images." },
+      { "name": "visual-print-view-reveal", "value": "view(); entry 15% entry 100%; inset(8% 6%) to inset(0)", "purpose": "Native CSS scroll reveal for the two homepage visual-print images, with a static unsupported-browser fallback." },
       { "name": "product-arrival", "value": "500ms cubic-bezier(0.16, 1, 0.3, 1)", "purpose": "One bounded arrival for the process showcase." }
     ],
     "breakpoints": [
