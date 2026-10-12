@@ -333,6 +333,15 @@ button:disabled { cursor: default; opacity: .4; }
 .overview-view-2 .overview-work img { height: 310px; background: #f3f1eb; }
 .selected-work { gap: 32px; }
 .selected-work .thumbnail-frame { aspect-ratio: 1.45; }
+@media (min-width: 1051px) {
+  .selected-work { grid-template-columns: 1.1fr 1fr; align-items: stretch; }
+  .selected-work > .work-card:first-child { grid-row: span 2; }
+  .selected-work > .work-card:not(:first-child) { display: grid; grid-template-columns: .9fr 1fr; gap: 24px; align-items: center; }
+  .selected-work > .work-card:not(:first-child) .thumbnail-frame { height: 100%; aspect-ratio: auto; }
+  .selected-work > .work-card:not(:first-child) .work-card-body { padding: 18px 0; }
+  .selected-work > .work-card:not(:first-child) h3 { font-size: 24px; }
+  .selected-work > .work-card:not(:first-child) .work-card-body > p { font-size: 15px; }
+}
 .home-page .live-demo:not(:has(iframe)) { display: grid; grid-template-columns: 1fr 1.3fr; gap: 40px; align-items: center; }
 .home-page .live-demo:not(:has(iframe)) .demo-intro { flex-direction: column; align-items: start; gap: 24px; margin: 0; }
 .home-page .live-demo .demo-actions { flex-wrap: wrap; gap: 12px 24px; }
@@ -421,7 +430,6 @@ button:disabled { cursor: default; opacity: .4; }
 .gallery-archive { border-top: 1px solid var(--line); padding-top: 36px; }
 .gallery-archive .series-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .poster-dialog { border: 0; padding: 24px; }
-.lightbox-image { view-transition-name: poster-artwork; }
 .note-index-header { border: 0; }
 .note-feature { display: grid; grid-template-columns: 1.4fr 1fr; align-items: center; gap: 48px; padding: 32px 0 56px; border-bottom: 1px solid var(--line); }
 .note-feature > img { width: 100%; height: auto; }
@@ -467,8 +475,6 @@ button:disabled { cursor: default; opacity: .4; }
   .poster-dialog[open] { animation: gallery-arrive 250ms var(--motion-arrive); }
   .poster-dialog[open]::backdrop { animation: appear 220ms ease-out; }
   .gallery-series details[open] .series-grid { animation: appear var(--motion-standard) ease-out; }
-  ::view-transition-group(poster-artwork) { animation-duration: 240ms; animation-timing-function: var(--motion-arrive); }
-  ::view-transition-old(root), ::view-transition-new(root) { animation: none; }
 }
 @keyframes product-arrive { from { opacity: .6; clip-path: inset(0 0 5%); } to { opacity: 1; clip-path: inset(0); } }
 @keyframes gallery-arrive { from { opacity: 0; transform: scale(.985); } to { opacity: 1; transform: scale(1); } }
@@ -552,5 +558,52 @@ button:disabled { cursor: default; opacity: .4; }
 @media (max-width: 350px) { .site-header { flex-wrap: wrap; } .site-nav { width: 100%; } }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { scroll-behavior: auto !important; animation: none !important; transition: none !important; }
-  ::view-transition-group(*), ::view-transition-old(*), ::view-transition-new(*) { animation: none; }
 }
+/* Shared feedback across navigation, work, reading and visual surfaces. */
+.site-nav, .project-filters, .showcase-choices, .article-toc { position: relative; }
+.active-underline { position: absolute; inset: 0 auto auto 0; width: 1px; height: 2px; background: var(--accent); transform-origin: left top; opacity: 0; pointer-events: none; transition: transform 320ms var(--motion-arrive), opacity var(--motion-quick); }
+.site-nav a { position: relative; }
+.site-nav a:not([aria-current])::after { content: ""; position: absolute; inset: auto 0 -1px; height: 1px; background: var(--accent); transform: scaleX(0); transform-origin: left; transition: transform var(--motion-standard) var(--motion-arrive); }
+.site-nav a:hover { border-color: transparent; }
+.site-nav a:hover::after, .site-nav a:focus-visible::after { transform: scaleX(1); }
+.project-filters { gap: 4px; border-bottom: 1px solid var(--line); }
+.project-filters button { border-color: transparent; background: transparent; }
+.project-filters button[aria-pressed="true"] { color: var(--accent); background: transparent; border-color: transparent; border-bottom-color: var(--accent); }
+.project-filters button:hover { border-color: transparent; background: var(--footer); }
+.project-filters button:active, .lightbox-toolbar button:active, .lightbox-controls button:not(:disabled):active { background: #dce8dc; }
+.work-card .thumbnail-frame, .note-card img { transition: border-color var(--motion-standard); }
+.work-card:is(:hover, :focus-visible) .thumbnail-frame, .note-card:is(:hover, :focus-visible) img { border-color: var(--accent); }
+.poster-open { position: relative; overflow: hidden; }
+.poster-open-label { position: absolute; right: 12px; bottom: 12px; display: inline-flex; gap: 10px; align-items: center; padding: 8px 12px; font-size: 14px; background: var(--background); color: var(--ink); opacity: 0; transform: translateY(8px); transition: opacity var(--motion-standard), transform var(--motion-standard) var(--motion-arrive); }
+.poster-open:is(:hover, :focus-visible) .poster-open-label { opacity: 1; transform: none; }
+.poster-dialog { position: fixed; inset: 0; height: fit-content; margin: auto; overflow: visible; }
+.poster-dialog[open] { animation: none; }
+.lightbox-image { transform-origin: left top; }
+.poster-dialog::backdrop { animation: appear 220ms ease-out; }
+.feedback-example summary { display: flex; justify-content: space-between; align-items: center; gap: 16px; list-style: none; transition: background var(--motion-quick); }
+.feedback-example summary::-webkit-details-marker { display: none; }
+.feedback-example summary:hover { background: var(--footer); }
+.disclosure-icon { width: 18px; height: 18px; flex-shrink: 0; transition: transform var(--motion-standard) var(--motion-arrive); }
+.feedback-example[open] .disclosure-icon { transform: rotate(180deg); }
+.disclosure-close-text, .feedback-example[open] .disclosure-open-text { display: none; }
+.feedback-example[open] .disclosure-close-text { display: inline; }
+@supports (interpolate-size: allow-keywords) {
+  .feedback-example { interpolate-size: allow-keywords; }
+  .feedback-example::details-content { block-size: 0; overflow: clip; transition: block-size var(--motion-standard) var(--motion-arrive), content-visibility var(--motion-standard) allow-discrete; }
+  .feedback-example[open]::details-content { block-size: auto; }
+  .feedback-example[open] ol { animation: none; }
+}
+.article-navigation a { transition: color var(--motion-quick); }
+.article-navigation a:is(:hover, :focus-visible) strong { color: var(--accent); }
+.project-grid { overflow-anchor: none; }
+.visual-pair .project-media > a { display: block; outline-offset: 6px; transition: opacity var(--motion-standard); }
+.visual-pair .project-media > a:is(:hover, :focus-visible) { opacity: .85; }
+@media (hover: none) { .poster-open-label { opacity: 1; transform: none; } }
+@media (max-width: 760px) { .project-filters { width: 100%; } .project-filters button { padding-inline: 10px; font-size: 14px; } }
+@media (prefers-reduced-motion: reduce) {
+  .active-underline, .text-link::after, .site-nav a::after, .poster-open-label, .disclosure-icon, .feedback-example::details-content { transition: none; }
+  .poster-open-label { transform: none; }
+  .poster-dialog::backdrop { animation: none; }
+}
+
+.lightbox-image { animation: none; }

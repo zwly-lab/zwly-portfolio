@@ -1,8 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useRef, useState } from "react";
-import { flushSync } from "react-dom";
+import { useLayoutEffect, useRef, useState } from "react";
 import type { Project } from "@/data/projects";
 import { Arrow } from "./Arrow";
 
@@ -10,7 +9,12 @@ export function PosterGallery({ posters }: { posters: NonNullable<Project["galle
   const dialog = useRef<HTMLDialogElement>(null);
   const [index, setIndex] = useState<number | null>(null);
   const poster = index === null ? null : posters[index];
-  const transition = useRef<ViewTransition | null>(null);
+  const image = useRef<HTMLImageElement>(null);
+  const thumbnails = useRef<(HTMLImageElement | null)[]>([]);
+  const source = useRef<DOMRect | null>(null);
+  const direction = useRef(0);
+  const animation = useRef<Animation | null>(null);
+  const closing = useRef(false);
   const activeIndex = useRef<number | null>(null);
   const groups = [
     { title: "旅行与日常", text: "纸张、手写标记和暖色，串起海岛与餐桌的记忆。", items: posters.filter((item) => /food-|travel-|santorini-/.test(item.src)), selected: ["travel-diary.png", "food-diary-corgi.png", "santorini-illustration.png"] },
@@ -19,28 +23,60 @@ export function PosterGallery({ posters }: { posters: NonNullable<Project["galle
     { title: "界面方向归档", text: "四套早期网站概念，记录方向选择。概念图中的界面与数字不代表实际产品状态。", items: posters.filter((item) => item.src.includes("portfolio-style-")), archive: true },
   ];
 
-  function change(next: number) {
-    if (!dialog.current?.open || next < 0 || next >= posters.length) return;
-    activeIndex.current = next;
-    transition.current?.skipTransition();
-    if (!document.startViewTransition || window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      setIndex(next);
-      return;
-    }
-    transition.current = document.startViewTransition(() => {
-      if (activeIndex.current === next) flushSync(() => setIndex(next));
-    });
-    // Interrupting the animation rejects ready; unexpected transition errors still surface.
-    void transition.current.ready.catch((error: unknown) => {
-      if (!(error instanceof DOMException && error.name === "AbortError")) throw error;
-    });
-  }
-
   function open(index: number) {
     if (dialog.current?.open) return;
     activeIndex.current = index;
+    source.current = thumbnails.current[index]?.getBoundingClientRect() ?? null;
+    direction.current = 0;
     setIndex(index);
     dialog.current?.showModal();
+  }
+
+  useLayoutEffect(() => {
+    const element = image.current;
+    if (index === null || !element || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const start = source.current;
+    source.current = null;
+    const end = element.getBoundingClientRect();
+    const transform = start && end.width && end.height
+      ? `translate(${start.left - end.left}px, ${start.top - end.top}px) scale(${start.width / end.width}, ${start.height / end.height})`
+      : `translateX(${direction.current * 32}px)`;
+    const motion = element.animate([{ transform, opacity: start ? 1 : 0 }, { transform: "none", opacity: 1 }], {
+      duration: start ? 400 : 220, easing: "cubic-bezier(0.16, 1, 0.3, 1)",
+    });
+    animation.current = motion;
+    return () => motion.cancel();
+  }, [index]);
+
+  function change(next: number) {
+    const current = activeIndex.current;
+    if (closing.current || !dialog.current?.open || current === null || next < 0 || next >= posters.length || next === current) return;
+    direction.current = next > current ? 1 : -1;
+    activeIndex.current = next;
+    setIndex(next);
+  }
+
+  async function close() {
+    if (closing.current || !dialog.current?.open) return;
+    const element = image.current;
+    const destination = activeIndex.current === null ? null : thumbnails.current[activeIndex.current]?.getBoundingClientRect();
+    closing.current = true;
+    if (element && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      const current = element.getBoundingClientRect();
+      animation.current?.cancel();
+      const base = element.getBoundingClientRect();
+      const toThumbnail = destination && destination.bottom > 0 && destination.top < window.innerHeight;
+      const motion = element.animate([
+        { transform: `translate(${current.left - base.left}px, ${current.top - base.top}px) scale(${current.width / base.width}, ${current.height / base.height})`, opacity: 1 },
+        { transform: toThumbnail ? `translate(${destination.left - base.left}px, ${destination.top - base.top}px) scale(${destination.width / base.width}, ${destination.height / base.height})` : "none", opacity: toThumbnail ? 1 : 0 },
+      ], { duration: 220, easing: "cubic-bezier(0.4, 0, 1, 1)", fill: "forwards" });
+      animation.current = motion;
+      // Cancellation (including navigation) must still release the native modal.
+      await motion.finished.catch(() => {});
+    }
+    dialog.current?.close();
+    animation.current?.cancel();
+    closing.current = false;
   }
 
   return <>
@@ -48,20 +84,20 @@ export function PosterGallery({ posters }: { posters: NonNullable<Project["galle
       const featured = group.selected ? group.selected.map((file) => group.items.find((item) => item.src.endsWith(file))!).filter(Boolean) : group.items;
       const variants = group.items.filter((item) => !featured.includes(item));
       const render = (items: typeof posters) => <div className="poster-grid series-grid">{items.map((item) => <figure key={item.src} className="project-media">
-        <button className="poster-open" type="button" aria-haspopup="dialog" aria-label={"放大查看：" + item.title} onClick={() => open(posters.indexOf(item))}><Image src={item.src} alt={item.title} width={item.width} height={item.height} sizes="(max-width: 760px) 100vw, 420px" /></button>
+        <button className="poster-open" type="button" aria-haspopup="dialog" aria-label={"放大查看：" + item.title} onClick={() => open(posters.indexOf(item))}><Image ref={(element) => { thumbnails.current[posters.indexOf(item)] = element; }} src={item.src} alt={item.title} width={item.width} height={item.height} sizes="(max-width: 760px) 100vw, 420px" /><span className="poster-open-label">放大查看 <Arrow /></span></button>
         <figcaption>{item.title}<a href={item.src} target="_blank" rel="noopener noreferrer">查看原图 <Arrow /></a></figcaption>
       </figure>)}</div>;
       return <section key={group.title} className={"gallery-series " + (group.archive ? "gallery-archive" : "")} aria-label={group.title}><div className="gallery-series-header"><h3>{group.title}</h3><p>{group.text}</p></div>
         {group.archive ? <details><summary>展开四套界面概念</summary>{render(featured)}</details> : <>{render(featured)}{variants.length > 0 && <details><summary>查看这个系列的其他 {variants.length} 张作品</summary>{render(variants)}</details>}</>}
       </section>;
     })}
-    <dialog ref={dialog} className="poster-dialog" aria-labelledby="poster-dialog-title" onClose={() => { activeIndex.current = null; transition.current?.skipTransition(); setIndex(null); }} onClick={(event) => { if (event.target === event.currentTarget) dialog.current?.close(); }} onKeyDown={(event) => {
+    <dialog ref={dialog} className="poster-dialog" aria-labelledby="poster-dialog-title" onCancel={(event) => { event.preventDefault(); void close(); }} onClose={() => { activeIndex.current = null; animation.current?.cancel(); closing.current = false; setIndex(null); }} onClick={(event) => { if (event.target === event.currentTarget) void close(); }} onKeyDown={(event) => {
       if (activeIndex.current === null) return;
       if (event.key === "ArrowRight") { event.preventDefault(); change(activeIndex.current + 1); }
       if (event.key === "ArrowLeft") { event.preventDefault(); change(activeIndex.current - 1); }
     }}>
-      <div className="lightbox-toolbar"><h2 id="poster-dialog-title">{poster?.title ?? "视觉作品"}</h2><button type="button" onClick={() => { transition.current?.skipTransition(); dialog.current?.close(); }}>关闭</button></div>
-      {poster && <Image key={poster.src} className="lightbox-image" src={poster.src} alt={poster.title} width={poster.width} height={poster.height} sizes="90vw" />}
+      <div className="lightbox-toolbar"><h2 id="poster-dialog-title">{poster?.title ?? "视觉作品"}</h2><button type="button" onClick={() => void close()}>关闭</button></div>
+      {poster && <Image ref={image} key={poster.src} className="lightbox-image" src={poster.src} alt={poster.title} width={poster.width} height={poster.height} sizes="90vw" />}
       <div className="lightbox-controls"><button type="button" disabled={index === null || index === 0} onClick={() => { if (activeIndex.current !== null) change(activeIndex.current - 1); }}>上一张</button><p role="status">{index === null ? 0 : index + 1} / {posters.length}</p><button type="button" disabled={index === null || index === posters.length - 1} onClick={() => { if (activeIndex.current !== null) change(activeIndex.current + 1); }}>下一张</button></div>
     </dialog>
   </>;

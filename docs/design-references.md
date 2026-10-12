@@ -36,11 +36,13 @@ Replacing it with the two-frame movement code and running again yielded x=3,
 y=4, 2/2 frames and 15 trace steps. This verifies the observed interaction,
 not educational effectiveness. Original upstream demo code remains untouched.
 
-The gallery uses a progressively enhanced native
-[View Transition API](https://developer.mozilla.org/en-US/docs/Web/API/Document/startViewTransition).
-Unsupported/reduced-motion browsers update directly. An active selection ref
-keeps rapid key presses ordered while pending transitions are interrupted.
-Closing invalidates deferred updates and preserves the native focus restoration.
+The release integrates the previously published interaction refinement: bounded
+native Web Animations connect gallery thumbnails to the modal and move images in
+the navigation direction. Reduced-motion browsers update directly. An active
+selection ref keeps rapid key presses ordered; cancellation still releases the
+native modal and restores focus. Shared underlines and retained-card layout
+animation now connect navbar, portfolio directions and work filters. The native
+disclosure retains its state labels, licensed chevron and progressive size animation.
 No animation dependency was added.
 
 Reviewed on 2026-10-11. These sources inform information hierarchy. The MIT Magic UI Portfolio card structure is adapted into the existing ProjectCard, and reused for the shared NoteCard. External image assets and dependencies are not copied.
@@ -126,3 +128,9 @@ Found and fixed two runtime issues in the embedded KMP path: a static #app node 
 Verification for the runtime correction: blocking the actual KMP app script produced a Script loadingFailed event and left the static root present but the initialization marker absent. Restoring the script set ready=true. Replacing the embedded document with a missing same-origin page produced the error message; closing/reopening restored the real demo. Network emulation and temporary DOM changes were removed. At 375px, visible KMP controls/inputs measured 44px tall; reduced-motion advanced directly to STEP 1 with no scene/flying tokens, and reset returned STEP 0. Reviewed 21 page/viewport combinations at 375/820/1440px with no document overflow or broken loaded images. Darkened the secondary text token so it also clears 4.5:1 on the tinted footer background.
 
 A final online article check exposed a clamped-scroll edge case: clicking section 3 in the short poster article could leave section 2 active while the browser did not retain the fragment. The TOC now remembers the click target independently of the fragment and releases it on manual wheel/touch/scroll-key input. Fresh local regression checks passed the clamped desktop anchor, Control+Home returning to section 1, and a 375px mobile anchor.
+
+## Site-wide continuity refinement (2026-10-11)
+
+The subsequent refinement expands resource screening to design, navigation, layouts, components, dynamic components, icons and motion. See [resource-screening.md](resource-screening.md) for the 20 entry URLs, access limitations, selected implementations and pinned license provenance.
+
+It supersedes the earlier gallery-only opacity behavior: thumbnail expansion/return and directional navigation now use bounded native Web Animations. Work filtering animates retained-card positions; a shared selection underline connects the global navbar, homepage preview controls, filters and article directory. Native disclosure gains a state label, a licensed chevron and progressive CSS size animation. Global link/card feedback reaches all routes. The editorial palette, real media, native keyboard behavior and reduced-motion paths remain the design authority.

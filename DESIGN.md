@@ -15,14 +15,21 @@ experiments; visuals are curated series. Concepts remain quiet archives.
 The site has three reading densities: visual product introduction, scannable
 collection, and single-column short articles. Do not reuse one huge header and
 one uniform media box for every surface. Fine rules mark real content changes.
+The desktop homepage selection uses a larger preview beside two compact entries;
+the work directory retains its scan-friendly groups. Taste frontend principles
+inform hierarchy, restrained color, stable media and complete interaction states.
+The video-specific ECC taste packs are not a website template. Existing native
+motion, typography and truthful content take precedence over generic skill defaults.
 
 ## States and motion
 
 140ms local feedback; 220–280ms state/series changes; one 500ms product arrival.
 No automatic hero cycling. Screenshot annotations follow the selected step.
-Gallery uses native modal focus/Escape behavior. Image changes progressively use
-the native View Transition API; unsupported/reduced-motion browsers update
-immediately. A new input interrupts a pending image transition.
+Gallery uses native modal focus/Escape behavior, with bounded native Web Animations
+for thumbnail expansion/return and directional image changes. Reduced-motion
+browsers update immediately. A new input interrupts a pending image transition.
+Shared selection underlines and retained-card position changes reuse the upstream
+interaction refinement without changing the new collection hierarchy.
 All content is available without waiting for motion.
 
 ## Truth and evidence

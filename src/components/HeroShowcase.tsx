@@ -2,7 +2,8 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
+import { useRef, useState } from "react";
+import { ActiveUnderline } from "./ActiveUnderline";
 import { Arrow } from "./Arrow";
 
 const views = [
@@ -22,9 +23,10 @@ const views = [
 
 export function HeroShowcase() {
   const [selected, setSelected] = useState(0);
+  const controls = useRef<HTMLDivElement>(null);
   const view = views[selected];
   return <div className="hero-showcase portfolio-showcase">
-    <div className="showcase-choices" role="group" aria-label="切换作品方向">{views.map((item, index) => <button key={item.label} type="button" aria-pressed={index === selected} aria-controls="portfolio-overview" onClick={() => setSelected(index)}>{item.label}</button>)}</div>
+    <div ref={controls} className="showcase-choices" role="group" aria-label="切换作品方向"><ActiveUnderline target={controls} value={view.label} />{views.map((item, index) => <button key={item.label} type="button" aria-pressed={index === selected} aria-controls="portfolio-overview" onClick={() => setSelected(index)}>{item.label}</button>)}</div>
     <div id="portfolio-overview" key={view.label} className={"overview-images overview-view-" + selected}>
       {view.items.map((item, index) => <Link key={item.src} href={"/projects/" + item.slug} className="overview-work"><Image src={item.src} alt={item.alt} width={item.width} height={item.height} sizes={index === 0 ? "(max-width: 760px) 60vw, 580px" : "(max-width: 760px) 30vw, 300px"} loading={selected === 0 ? "eager" : "lazy"} /><span>{item.title}<Arrow /></span></Link>)}
     </div>

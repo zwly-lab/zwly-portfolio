@@ -59,8 +59,14 @@ async function main() {
 
   await page.goto(origin + "/projects");
   assert.equal(await page.locator("#filtered-projects .work-card").count(), 9);
+  assert.equal(await page.locator("#filtered-projects [data-project]").count(), 9);
   await page.getByRole("button", { name: "应用工具", exact: true }).click();
   assert.equal(await page.locator("#filtered-projects .work-card").count(), 4);
+  await page.waitForFunction(() => {
+    const line = document.querySelector(".project-filters .active-underline").getBoundingClientRect();
+    const selected = document.querySelector('.project-filters [aria-pressed="true"]').getBoundingClientRect();
+    return Math.abs(line.left - selected.left) < 2 && Math.abs(line.width - selected.width) < 2;
+  });
   assert.ok((await page.locator("#filtered-projects").textContent()).includes("探索中的方向"));
   await page.getByRole("button", { name: "教学可视化", exact: true }).click();
   assert.equal(await page.locator("#filtered-projects .work-card").count(), 4);
@@ -92,9 +98,16 @@ async function main() {
   await page.keyboard.press("ArrowRight");
   await page.locator(".lightbox-controls p").filter({ hasText: "7 / 18" }).waitFor();
   assert.equal(await page.locator("dialog").evaluate((element) => getComputedStyle(element).animationName), "none");
+  assert.equal(await page.locator(".lightbox-image").evaluate((element) => element.getAnimations().length), 0);
   await page.keyboard.press("Escape");
   await page.goto(origin + "/projects/pyscreen");
   assert.equal(await page.locator(".process-spotlight").evaluate((element) => getComputedStyle(element).transitionDuration), "0s");
+  await page.goto(origin + "/blog/motion-for-understanding");
+  await page.getByText("展开归并步骤", { exact: true }).click();
+  assert.equal(await page.locator(".feedback-example").evaluate((element) => element.open), true);
+  assert.equal(await page.getByText("收起归并步骤", { exact: true }).isVisible(), true);
+  await page.getByText("收起归并步骤", { exact: true }).click();
+  assert.equal(await page.locator(".feedback-example").evaluate((element) => element.open), false);
   assert.deepEqual(errors, [], "browser runtime errors");
   console.log("PASS: 40 page/viewport checks, intact images, portfolio directions, project filtering, live demo, rapid gallery navigation/bounds/focus, reduced motion.");
   } finally { await browser.close(); }
