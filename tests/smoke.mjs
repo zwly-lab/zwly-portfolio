@@ -2,9 +2,9 @@ import assert from "node:assert/strict";
 
 const origin = process.argv[2] ?? "http://localhost:3000";
 const pages = [
-  ["/", "让想法，", "ZWLY Lab"],
-  ["/projects", "值得展开的作品。", "作品"],
-  ["/about", "把复杂的过程，", "关于"],
+  ["/", "Vibe Coding.", "ZWLY Lab"],
+  ["/projects", "作品与实验。", "作品"],
+  ["/about", "想法由我提出，", "关于"],
   ["/blog", "把构建中的判断，", "手记"],
   ["/projects/campus-takeout", "Campus Takeout", "Campus Takeout"],
   ["/projects/pyscreen", "PyScreen", "PyScreen"],
@@ -35,6 +35,8 @@ for (const [path, heading, title] of pages) {
   assert.ok(!html.includes('href="#"'), path + " inert link");
   if (path === "/projects") assert.ok(html.includes('aria-controls="filtered-projects"'), "accessible project filters");
   if (path === "/") {
+    assert.ok(html.includes("Vibe Coding 作品集"), "portfolio positioning in metadata");
+    assert.ok(html.includes("与 AI 协作"), "portfolio approach is visible");
     assert.ok(html.includes('aria-label="切换作品方向"'), "curated portfolio directions");
     assert.ok(html.includes('id="portfolio-overview"'), "portfolio preview target");
     assert.ok(html.includes('aria-controls="live-demo-stage"'), "embedded demo trigger");

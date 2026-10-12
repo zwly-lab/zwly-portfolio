@@ -1,0 +1,115 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-12T11:33:23+08:00",
+  "title": "Design System: ZWLY Lab — Vibe Coding Portfolio",
+  "extensions": {
+    "colorMeta": {
+      "paper-white": { "role": "neutral", "displayName": "Paper White", "tonalRamp": ["oklch(15% 0 0)", "oklch(27% 0 0)", "oklch(39% 0 0)", "oklch(51% 0 0)", "oklch(63% 0 0)", "oklch(75% 0 0)", "oklch(87% 0 0)", "oklch(95% 0 0)"] },
+      "charcoal-ink": { "role": "neutral", "displayName": "Charcoal Ink", "tonalRamp": ["oklch(15% 0.015 150)", "oklch(27% 0.015 150)", "oklch(39% 0.015 150)", "oklch(51% 0.015 150)", "oklch(63% 0.015 150)", "oklch(75% 0.015 150)", "oklch(87% 0.015 150)", "oklch(95% 0.015 150)"] },
+      "forest-green": { "role": "primary", "displayName": "Forest Green", "tonalRamp": ["oklch(15% 0.055 155)", "oklch(27% 0.055 155)", "oklch(39% 0.055 155)", "oklch(51% 0.055 155)", "oklch(63% 0.055 155)", "oklch(75% 0.055 155)", "oklch(87% 0.055 155)", "oklch(95% 0.055 155)"] },
+      "quiet-copy": { "role": "neutral", "displayName": "Quiet Copy", "tonalRamp": ["oklch(15% 0.025 150)", "oklch(27% 0.025 150)", "oklch(39% 0.025 150)", "oklch(51% 0.025 150)", "oklch(63% 0.025 150)", "oklch(75% 0.025 150)", "oklch(87% 0.025 150)", "oklch(95% 0.025 150)"] },
+      "fine-rule": { "role": "neutral", "displayName": "Fine Rule", "tonalRamp": ["oklch(15% 0.012 145)", "oklch(27% 0.012 145)", "oklch(39% 0.012 145)", "oklch(51% 0.012 145)", "oklch(63% 0.012 145)", "oklch(75% 0.012 145)", "oklch(87% 0.012 145)", "oklch(95% 0.012 145)"] },
+      "soft-field": { "role": "neutral", "displayName": "Soft Field", "tonalRamp": ["oklch(15% 0.012 145)", "oklch(27% 0.012 145)", "oklch(39% 0.012 145)", "oklch(51% 0.012 145)", "oklch(63% 0.012 145)", "oklch(75% 0.012 145)", "oklch(87% 0.012 145)", "oklch(95% 0.012 145)"] },
+      "media-field": { "role": "neutral", "displayName": "Media Field", "tonalRamp": ["oklch(15% 0.01 105)", "oklch(27% 0.01 105)", "oklch(39% 0.01 105)", "oklch(51% 0.01 105)", "oklch(63% 0.01 105)", "oklch(75% 0.01 105)", "oklch(87% 0.01 105)", "oklch(95% 0.01 105)"] }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Display", "purpose": "Vibe Coding hero identity." },
+      "headline": { "displayName": "Headline", "purpose": "Page-level headings." },
+      "title": { "displayName": "Title", "purpose": "Section and collection headings." },
+      "body": { "displayName": "Body", "purpose": "Explanations and reading copy." },
+      "label": { "displayName": "Label", "purpose": "Metadata and compact controls." },
+      "link": { "displayName": "Text Link", "purpose": "Primary inline routes into work." }
+    },
+    "motion": [
+      { "name": "quick-feedback", "value": "140ms ease", "purpose": "Local color, opacity, and press feedback." },
+      { "name": "state-change", "value": "220ms ease", "purpose": "Underlines, borders, disclosures, and image state changes." },
+      { "name": "retained-preview", "value": "280ms cubic-bezier(0.16, 1, 0.3, 1)", "purpose": "Native Web Animations geometry transition for retained hero previews." },
+      { "name": "process-spotlight", "value": "transform 280ms cubic-bezier(0.16, 1, 0.3, 1)", "purpose": "Moves and scales the fixed process annotation without changing its base left or width." },
+      { "name": "product-arrival", "value": "500ms cubic-bezier(0.16, 1, 0.3, 1)", "purpose": "One bounded arrival for the process showcase." }
+    ],
+    "breakpoints": [
+      { "name": "wide-grid", "value": "1051px" },
+      { "name": "tablet-max", "value": "1050px" },
+      { "name": "mobile-max", "value": "760px" },
+      { "name": "compact-nav", "value": "440px" },
+      { "name": "nav-wrap", "value": "350px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Demo Action",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Opens or closes the embedded interactive demo.",
+      "html": "<button class=\"ds-button-primary\" type=\"button\">在此体验</button>",
+      "css": ".ds-button-primary { min-height: 44px; padding: 10px 20px; border: 1px solid var(--accent); background: var(--accent); color: #fff; font: 400 16px/1.45 var(--font-archivo), 'PingFang SC', 'Microsoft YaHei', sans-serif; cursor: pointer; transition: opacity var(--motion-quick) ease; } .ds-button-primary:hover, .ds-button-primary:focus-visible { opacity: .85; } .ds-button-primary:focus-visible { outline: 2px solid var(--accent); outline-offset: 6px; } .ds-button-primary:active { opacity: .7; }"
+    },
+    {
+      "name": "Editorial Text Link",
+      "kind": "button",
+      "refersTo": "text-link",
+      "description": "Routes readers into a project, collection, or full demo.",
+      "html": "<a class=\"ds-text-link\" href=\"#\">浏览作品集 <svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M6 18 18 6M6 6h12v12\"/></svg></a>",
+      "css": ".ds-text-link { position: relative; display: inline-flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 44px; width: fit-content; padding: 10px 0; color: var(--ink); border-bottom: 1px solid var(--line); font: 400 16px/1.45 var(--font-archivo), 'PingFang SC', 'Microsoft YaHei', sans-serif; text-decoration: none; } .ds-text-link::after { content: ''; position: absolute; inset: auto 0 -1px; height: 1px; background: var(--accent); transform: scaleX(0); transform-origin: left; transition: transform var(--motion-standard) var(--motion-arrive); } .ds-text-link svg { width: 19px; height: 19px; transition: transform 160ms ease; } .ds-text-link:hover, .ds-text-link:focus-visible { color: var(--accent); } .ds-text-link:hover::after, .ds-text-link:focus-visible::after { transform: scaleX(1); } .ds-text-link:hover svg { transform: translate(2px, -2px); } .ds-text-link:focus-visible { outline: 2px solid var(--accent); outline-offset: 6px; } @media (prefers-reduced-motion: reduce) { .ds-text-link::after, .ds-text-link svg { transition: none; } .ds-text-link:hover svg { transform: none; } }"
+    },
+    {
+      "name": "Site Navigation",
+      "kind": "nav",
+      "description": "Compact editorial navigation with green active and focus states.",
+      "html": "<nav class=\"ds-nav\" aria-label=\"主导航\"><a href=\"#\" aria-current=\"page\">首页</a><a href=\"#\">作品</a><a href=\"#\">手记</a><a href=\"#\">关于</a></nav>",
+      "css": ".ds-nav { display: flex; gap: 32px; align-items: center; font: 400 16px/1.45 var(--font-archivo), 'PingFang SC', 'Microsoft YaHei', sans-serif; } .ds-nav a { position: relative; display: inline-flex; min-height: 44px; align-items: center; padding: 12px 0; color: var(--ink); text-decoration: none; } .ds-nav a::after { content: ''; position: absolute; inset: auto 0 -1px; height: 1px; background: var(--accent); transform: scaleX(0); transform-origin: left; transition: transform var(--motion-standard) var(--motion-arrive); } .ds-nav a:hover, .ds-nav a:focus-visible, .ds-nav a[aria-current='page'] { color: var(--accent); } .ds-nav a:hover::after, .ds-nav a:focus-visible::after, .ds-nav a[aria-current='page']::after { transform: scaleX(1); } .ds-nav a:focus-visible { outline: 2px solid var(--accent); outline-offset: 6px; } @media (prefers-reduced-motion: reduce) { .ds-nav a::after { transition: none; } }"
+    },
+    {
+      "name": "Direction Choices",
+      "kind": "chip",
+      "refersTo": "direction-choice",
+      "description": "Four accessible text controls switch the hero among mixed, interactive, application, and visual work.",
+      "html": "<div class=\"ds-directions\" role=\"group\" aria-label=\"切换作品方向\"><button type=\"button\" aria-pressed=\"true\">精选一览</button><button type=\"button\" aria-pressed=\"false\">交互实验</button><button type=\"button\" aria-pressed=\"false\">应用作品</button><button type=\"button\" aria-pressed=\"false\">视觉创作</button></div>",
+      "css": ".ds-directions { display: flex; flex-wrap: wrap; gap: 12px 28px; } .ds-directions button { min-height: 44px; padding: 8px 0; border: 0; border-bottom: 1px solid transparent; background: transparent; color: var(--muted); font: 400 13px/1.5 var(--font-archivo), 'PingFang SC', 'Microsoft YaHei', sans-serif; cursor: pointer; } .ds-directions button:hover, .ds-directions button:focus-visible, .ds-directions button[aria-pressed='true'] { color: var(--accent); border-bottom-color: var(--accent); } .ds-directions button:focus-visible { outline: 2px solid var(--accent); outline-offset: 6px; }"
+    },
+    {
+      "name": "Work Card",
+      "kind": "card",
+      "description": "A flat project entry that leads with title and description, followed by category and status metadata.",
+      "html": "<a class=\"ds-work-card\" href=\"#\"><span class=\"ds-work-media\" aria-hidden=\"true\"></span><span class=\"ds-work-body\"><strong>JD · 本地任务控制台</strong><span>围绕真实任务组织界面与操作路径。</span><small>应用界面 · 成果展示</small></span></a>",
+      "css": ".ds-work-card { display: flex; flex-direction: column; color: var(--ink); border-bottom: 1px solid var(--line); text-decoration: none; transition: border-color var(--motion-standard) ease, opacity var(--motion-quick) ease; } .ds-work-media { display: block; aspect-ratio: 16 / 10; background: var(--footer); border: 1px solid var(--line); transition: border-color var(--motion-standard) ease; } .ds-work-body { display: flex; flex-direction: column; gap: 14px; padding: 22px 0; } .ds-work-body small { color: var(--muted); font: 400 13px/1.5 var(--font-archivo), 'PingFang SC', 'Microsoft YaHei', sans-serif; letter-spacing: .035em; } .ds-work-body strong { font: 500 27px/1.4 var(--font-archivo), 'PingFang SC', 'Microsoft YaHei', sans-serif; letter-spacing: -.035em; transition: color var(--motion-quick) ease; } .ds-work-body > span { color: var(--muted); font: 400 16px/1.8 var(--font-archivo), 'PingFang SC', 'Microsoft YaHei', sans-serif; } .ds-work-card:hover, .ds-work-card:focus-visible { border-color: var(--accent); } .ds-work-card:hover .ds-work-media, .ds-work-card:focus-visible .ds-work-media { border-color: var(--accent); } .ds-work-card:hover strong, .ds-work-card:focus-visible strong { color: var(--accent); } .ds-work-card:focus-visible { outline: 2px solid var(--accent); outline-offset: 8px; } .ds-work-card:active { opacity: .78; }"
+    },
+    {
+      "name": "Note Card",
+      "kind": "card",
+      "description": "A media-first note entry that places type and date after the title and summary.",
+      "html": "<a class=\"ds-note-card\" href=\"#\"><span class=\"ds-note-media\" aria-hidden=\"true\"></span><strong>为理解而动</strong><span>一次运动应该解释一次真实的状态变化。</span><small>构建记录 · <time datetime=\"2026-10-12\">2026.10.12</time></small></a>",
+      "css": ".ds-note-card { display: flex; flex-direction: column; gap: 18px; padding-bottom: 28px; color: var(--ink); border-bottom: 1px solid var(--line); text-decoration: none; transition: border-color var(--motion-standard) ease, opacity var(--motion-quick) ease; } .ds-note-media { display: block; aspect-ratio: 16 / 10; background: var(--footer); border: 1px solid var(--line); transition: border-color var(--motion-standard) ease; } .ds-note-card strong { font: 500 27px/1.4 var(--font-archivo), 'PingFang SC', 'Microsoft YaHei', sans-serif; letter-spacing: -.035em; transition: color var(--motion-quick) ease; } .ds-note-card > span:not(.ds-note-media) { color: var(--muted); font: 400 16px/1.8 var(--font-archivo), 'PingFang SC', 'Microsoft YaHei', sans-serif; } .ds-note-card small { color: var(--muted); font: 400 13px/1.5 var(--font-archivo), 'PingFang SC', 'Microsoft YaHei', sans-serif; letter-spacing: .035em; } .ds-note-card time { font-variant-numeric: tabular-nums; } .ds-note-card:hover, .ds-note-card:focus-visible { border-color: var(--accent); } .ds-note-card:hover .ds-note-media, .ds-note-card:focus-visible .ds-note-media { border-color: var(--accent); } .ds-note-card:hover strong, .ds-note-card:focus-visible strong { color: var(--accent); } .ds-note-card:focus-visible { outline: 2px solid var(--accent); outline-offset: 8px; } .ds-note-card:active { opacity: .78; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Working Collection",
+    "overview": "The site presents Vibe Coding as a considered body of finished and in-progress work. Its white editorial field, charcoal type, restrained forest-green emphasis, fine rules, and generous whitespace keep real interfaces and original artwork ahead of decorative effects.\n\nThe world is quiet but active: selection, disclosure, and gallery motion explain a state change and then settle. It avoids avatars, fake consoles, invented metrics, ambient particles, and decorative device renders. Claims stay attached to visible work and explicit evidence boundaries.",
+    "keyCharacteristics": [
+      "Light editorial surfaces with forest-green interaction emphasis.",
+      "Real applications, interactive experiments, and original visual work share one collection.",
+      "Stable media geometry and native controls make state changes legible.",
+      "Chinese-first copy uses self-hosted Archivo with system Chinese fallbacks."
+    ],
+    "rules": [
+      { "name": "The Green as Evidence Rule", "body": "Use green to show selection, focus, or a meaningful route into the work; it is not a decorative wash.", "section": "colors" },
+      { "name": "The Canonical Color Rule", "body": "The frontmatter hex values are the normative runtime colors. Tonal ramps in `.impeccable/design.json` are optional synthesized UI-editor preview metadata, not application tokens.", "section": "colors" },
+      { "name": "The One Family Rule", "body": "Keep Archivo and the established Chinese fallbacks across display, body, labels, and controls; create hierarchy with the existing scale rather than introducing another typeface.", "section": "typography" },
+      { "name": "The Flat by Default Rule", "body": "Keep surfaces flat at rest; use rules, spacing, and tonal fields to express structure.", "section": "elevation" },
+      { "name": "The Identity Before Metadata Rule", "body": "Put the work or note title and its summary before category, status, note type, date, or technology metadata.", "section": "components" }
+    ],
+    "dos": [
+      "Do lead with real interfaces, operable demos, original visual work, and clearly labeled historical or exploratory material.",
+      "Do keep the white, charcoal, forest-green, Archivo, fine-rule, and generous-whitespace identity across new surfaces.",
+      "Do preserve keyboard states, native dialog focus and Escape behavior, interruptible selection motion, and immediate reduced-motion updates.",
+      "Do keep source references in `docs/design-references.md` and reuse notices in `licenses/`.",
+      "Do treat desktop and mobile rendering, demo ready/error states, rapid image changes, gallery focus restoration, and reduced motion as verification boundaries."
+    ],
+    "donts": [
+      "Don't invent roles, prompts, metrics, clients, testimonials, or completed outcomes that the visible work cannot support.",
+      "Don't add an avatar, fake console, ambient particle background, autoplay, or decorative device mockup.",
+      "Don't replace distinct phone, desktop, visual-series, and reading proportions with one uniform media box.",
+      "Don't treat reference-site permission as permission to reuse external articles or media."
+    ]
+  }
+}

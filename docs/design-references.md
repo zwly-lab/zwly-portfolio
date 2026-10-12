@@ -1,7 +1,32 @@
 # Portfolio presentation references
 
-Current direction is the portfolio-wide redesign below; earlier sections remain
+Current direction is the Vibe Coding extension below; earlier sections remain
 as a chronological record and do not override the current layout.
+
+## Vibe Coding identity and quality calibration (2026-10-12)
+
+The user confirmed a Vibe Coding portfolio. This extends Style B rather than
+borrowing an award winner's identity: Vibe Coding becomes the main heading;
+the first view shows applications, interaction and visual work simultaneously.
+Shared media retains its relationship across four choices. Mobile keeps a readable
+primary image and descriptive secondary entries. Plain technology lines replace
+boxed tags; live-demo introduction and stage widths stay anchored when opened.
+
+| Reference and verified status | Applied principle | Boundary |
+| --- | --- | --- |
+| [Lovable Editorial Studio](https://lovable.dev/en/templates/websites/portfolio/editorial-portfolio), [live template](https://editorial-portfolio-9d8e325b.lovable.app/) | Work/archive/method hierarchy and editorial spacing | No copied portrait, identity, availability claims or text |
+| [Lovable Green Design](https://lovable.dev/templates/websites/portfolio/graphic-designer-5), [live template](https://graphic-designer-05.lovable.app/) | One forest-green identity and selected-work navigation | Live template mixes example identities; no wholesale content reuse |
+| [The Way of Code](https://www.thewayofcode.com/), [Anthropic artifact case](https://claude.com/resources/articles/build-artifacts) | A Vibe Coding collection where the artifact itself carries the experience | No copied poetry, artwork, numbered chapters or bulk WebGL runtime |
+| [8bit AI / Awwwards](https://www.awwwards.com/sites/8bit-ai), [live site](https://8bit.ai/) — Site of the Day 2025-07-21 and Developer Award | One purposeful authored motion within a clear visual language | No particles, camera travel or claims of our own award |
+| [Bézier / Webby official list](https://winners.webbyawards.com/winners/websites-and-mobile-sites/features-design/best-visual-design-function?years=0), [creator case](https://www.buildinamsterdam.com/case/bezier) — 2025 Webby Winner, Best Visual Design – Function | Real interaction proves the artifact; keep inline demonstration | No font-store features, commerce or copied type assets |
+| [Stefan Vitasović Portfolio25 / FWA](https://thefwa.com/cases/stefan-vitasovic-portfolio25-p3), [live site](https://stefanvitasovic.dev/) — FWA of the Day 2025-09-28 | Author identity can be distinct without an avatar; terse portfolio navigation | No copied kinetic signature, glitch effect or annual-winner claim |
+
+Official recognition entries and selected live views were checked; this does not
+certify every external site's mobile, performance or accessibility behavior.
+The website uses its own media, existing licensed components and native Web
+Animations. External references inform design decisions; their source code,
+images and writing are not bundled. Award-level is a requested quality benchmark,
+not an objective claim that this portfolio has won or will win an award.
 
 ## Portfolio-wide redesign (2026-10-11)
 

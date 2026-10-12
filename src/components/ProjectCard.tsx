@@ -10,9 +10,9 @@ export function ProjectCard({ project }: { project: Project }) {
     <Link href={"/projects/" + project.slug} className={"work-card work-" + project.slug} data-project={project.slug}>
       {cover && <div className={"thumbnail-frame " + (project.preview ?? "")}><Image className="project-thumbnail" src={cover.src} alt={project.title + (project.status === "exploring" ? "概念预览" : project.preview === "art" ? "作品局部预览" : project.preview ? "实际界面局部" : "效果预览")} width={cover.width} height={cover.height} sizes="(max-width: 760px) 100vw, (max-width: 1050px) 50vw, 400px" /></div>}
       <div className="work-card-body">
-        <div className="card-heading"><span className="section-label">{project.category} · {project.status === "exploring" ? "探索中" : project.demo ? "在线体验" : "成果展示"}</span><Arrow /></div>
         <h3>{project.title}</h3><p>{project.description}</p>
-        <div className="card-tags">{project.stack.map((tag) => <span key={tag}>{tag}</span>)}</div>
+        <div className="card-heading"><span className="section-label">{project.category} · {project.status === "exploring" ? "探索中" : project.demo ? "在线体验" : "成果展示"}</span><Arrow /></div>
+        <div className="card-tags" aria-label="技术组成">{project.stack.join(" / ")}</div>
       </div>
     </Link>
   );

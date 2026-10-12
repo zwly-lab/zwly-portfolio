@@ -1,6 +1,6 @@
 # ZWLY Lab Portfolio
 
-A light, editorial portfolio built with Next.js 16.4, React 19.3, TypeScript and Tailwind CSS 4.
+A light, editorial Vibe Coding portfolio: applications, interactive experiments and visual work created through AI collaboration. Built with Next.js 16.4, React 19.3, TypeScript and Tailwind CSS 4.
 
 ## Local development
 
@@ -30,7 +30,7 @@ Open http://localhost:3000. Production preview: `npm run build`, then `npm run s
 - `src/components`: navigation, footer, shared project/note cards and stack display.
 - `src/app/globals.css`: shared design tokens, typography and responsive layout.
 
-The portfolio overview introduces interactive learning, applications/interfaces and visual expression through selectable paired previews. Selected work then leads to PyScreen, Campus Takeout and JD Protocol Engine. Product walkthroughs belong in their detail pages. Algorithms/data practice, visual series and unimplemented concepts have separate hierarchy. Existing filters, actual demos, native gallery and licensed link/article components are reused. No fabricated metrics or contact addresses are included. See DESIGN.md for the current composition and motion rules.
+The portfolio overview initially shows applications, interactive experiments and visual expression together. Four selectable directions retain shared media as their positions change. Mobile presents one readable preview with descriptive secondary links. Selected work then leads to PyScreen, Campus Takeout and JD Protocol Engine. Product walkthroughs belong in their detail pages. Algorithms/data practice, visual series and unimplemented concepts have separate hierarchy. Existing filters, actual demos, native gallery and licensed link/article components are reused. No fabricated metrics, prompt histories or contact addresses are included. See PRODUCT.md, DESIGN.md and docs/vibe-direction.md for the positioning, composition and motion rules.
 
 ## Existing results
 
