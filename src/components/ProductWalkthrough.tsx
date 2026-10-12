@@ -26,7 +26,7 @@ export function ProductWalkthrough() {
       <div className="showcase-choices process-choices" role="group" aria-label="选择产品步骤">
         {views.map((item, index) => <button key={item.label} type="button" aria-pressed={selected === index} aria-controls="process-explanation" onClick={() => setSelected(index)}><span>{index + 1}</span>{item.label}<Arrow /></button>)}
       </div>
-      <p id="process-explanation" className="process-explanation" role="status">{view.text}</p>
+      <p id="process-explanation" className="process-explanation" role="status"><span key={view.region} className="state-arrival">{view.text}</span></p>
 
       <a className="text-link secondary" href="/demos/pyscreen/playground.html?level=6">打开练习台 <Arrow /></a>
     </div>

@@ -3,7 +3,8 @@
 :root { --background: #fff; --ink: #202621; --accent: #345646; --muted: #626c66; --line: #dce0da; --footer: #eef2ec; }
 @theme inline { --color-background: var(--background); --color-foreground: var(--ink); --font-sans: var(--font-archivo), "PingFang SC", "Microsoft YaHei", sans-serif; }
 * { box-sizing: border-box; }
-html { color-scheme: light; scroll-behavior: smooth; scrollbar-gutter: stable; }
+html { color-scheme: light; scroll-behavior: auto; scrollbar-gutter: stable; }
+html:has(:target) { scroll-behavior: smooth; }
 html:has(.poster-dialog[open]) { overflow: hidden; }
 body { margin: 0; background: var(--background); color: var(--ink); font-family: var(--font-archivo), "PingFang SC", "Microsoft YaHei", sans-serif; -webkit-font-smoothing: antialiased; }
 a { color: inherit; text-decoration: none; }
@@ -641,3 +642,30 @@ button:disabled { cursor: default; opacity: .4; }
   }
 }
 @keyframes print-unfold { from { clip-path: inset(8% 6%); } to { clip-path: inset(0); } }
+
+/* Route snapshots blend once; the navigation remains available for another choice. */
+::view-transition { pointer-events: none; }
+::view-transition-group(.route-content) { animation-duration: var(--motion-change); animation-timing-function: var(--motion-arrive); }
+::view-transition-old(.route-content) { animation: route-leave var(--motion-exit) var(--motion-depart) both; }
+::view-transition-new(.route-content) { animation: appear var(--motion-change) var(--motion-arrive) var(--motion-exit) both; }
+::view-transition-old(.route-content), ::view-transition-new(.route-content) { height: auto; }
+::view-transition-old(root), ::view-transition-new(root) { animation: none; }
+@keyframes route-leave { to { opacity: 0; } }
+@media (prefers-reduced-motion: no-preference) {
+  .state-arrival { display: inline-block; animation: appear var(--motion-standard) var(--motion-arrive); }
+  .demo-stage > img { animation: appear var(--motion-standard) var(--motion-arrive); }
+  .note-feature > img, .about-intro figure > a img { transition: transform var(--motion-change) var(--motion-arrive); }
+  .note-feature:focus-visible > img, .about-intro figure > a:focus-visible img { transform: scale(1.018); }
+  @media (hover: hover) and (pointer: fine) {
+    .note-feature:hover > img, .about-intro figure > a:hover img { transform: scale(1.018); }
+  }
+}
+@supports (interpolate-size: allow-keywords) {
+  .gallery-series details { interpolate-size: allow-keywords; }
+  .gallery-series details::details-content { block-size: 0; overflow: clip; transition: block-size var(--motion-change) var(--motion-arrive), content-visibility var(--motion-change) allow-discrete; }
+  .gallery-series details[open]::details-content { block-size: auto; }
+  .gallery-series details[open] .series-grid { animation: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*), ::view-transition-old(*), ::view-transition-new(*) { animation-duration: 0s !important; animation-delay: 0s !important; }
+}

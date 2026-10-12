@@ -63,6 +63,6 @@ export function HeroShowcase() {
     <div ref={grid} id="portfolio-overview" className={"overview-images overview-" + view.kind}>
       {view.items.map((item, index) => <Link data-preview={item.src} key={item.src} href={"/projects/" + item.slug} className="overview-work"><Image src={item.src} alt={item.alt} width={item.width} height={item.height} sizes={index === 0 ? "(max-width: 760px) 100vw, 580px" : "(max-width: 760px) 50vw, 300px"} loading={selected === 0 ? "eager" : "lazy"} /><span>{item.title}<Arrow /></span></Link>)}
     </div>
-    <p className="overview-description" role="status">{view.text}</p>
+    <p className="overview-description" role="status"><span key={view.kind} className="state-arrival">{view.text}</span></p>
   </div>;
 }

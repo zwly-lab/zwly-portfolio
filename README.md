@@ -72,6 +72,8 @@ GitHub Actions runs install, lint, types, build and the production smoke test on
 
 With the same browser runtime, `node tests/motion.mjs [origin]` checks coordinated entry, CSS time-unit conversion in production, retained-preview geometry when interrupted, changes to reduced-motion preference during playback, slow-image frame stability, gallery exit opacity, return focus/reopening, and stable toolbar/control positions across all 18 artworks on desktop/mobile. These browser checks complement the CI smoke test; they do not claim physical-device frame-rate measurements.
 
+`node tests/routes.mjs [origin]` checks the actual route snapshot animations on desktop/mobile, original snapshot geometry, departure/arrival sequencing, adjacent article top position, browser back/forward reading restoration, rapid navigation, reduced motion, delayed route content and a browser without View Transitions. Installed React 19.3 handles the transition lifecycle; no custom router or animation dependency is used.
+
 ## Vercel
 
 Live site: https://zwly-lab.vercel.app · Public repository: https://github.com/zwly-lab/zwly-portfolio

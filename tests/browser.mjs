@@ -69,8 +69,9 @@ async function main() {
   await page.goto(origin);
   await page.getByRole("link", { name: "作品", exact: true }).click();
   await page.waitForURL(origin + "/projects");
-  await page.waitForFunction(() => document.querySelector("#main-content h1").getAnimations().some((animation) => animation.playState === "running"));
-  await page.waitForFunction(() => document.querySelector("#main-content h1").getAnimations().length === 0);
+  await page.waitForFunction(() => document.getAnimations().some((animation) => animation.effect?.pseudoElement?.startsWith("::view-transition-new(")));
+  assert.equal(await page.locator("h1").evaluate(element => element.getAnimations().length), 0, "route snapshot does not stack a second title entrance");
+  await page.waitForFunction(() => !document.getAnimations().some((animation) => animation.effect?.pseudoElement?.startsWith("::view-transition-")));
   assert.equal(await page.locator("h1").evaluate((element) => getComputedStyle(element).clipPath), "none", "route title finishes fully visible");
   const card = page.locator(".work-card").first();
   const frameWidth = await card.locator(".thumbnail-frame").evaluate((element) => element.getBoundingClientRect().width);
@@ -146,6 +147,7 @@ async function main() {
   await page.locator("dialog").waitFor({ state: "hidden" });
   assert.equal(await trigger.evaluate((element) => element === document.activeElement), true, "Escape restores focus to origin");
   await page.getByText("展开四套界面概念", { exact: true }).click();
+  await page.getByRole("button", { name: "放大查看：网站概念 · Style B 极简编辑", exact: true }).waitFor({ state: "visible" });
   assert.equal(await page.getByRole("button", { name: "放大查看：网站概念 · Style B 极简编辑", exact: true }).isVisible(), true);
 
   await page.emulateMedia({ reducedMotion: "reduce" });

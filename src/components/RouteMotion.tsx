@@ -1,12 +1,34 @@
 "use client";
 
-import { useEffect, useLayoutEffect } from "react";
+import { useEffect, useLayoutEffect, useRef, ViewTransition } from "react";
 import { usePathname } from "next/navigation";
 import { motionTiming } from "@/lib/motion";
 
+export function PageTransition({ children }: { children: React.ReactNode }) {
+  return <ViewTransition default="route-content" onUpdate={({ name }) => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const group = document.getAnimations().find((animation) => (animation.effect as KeyframeEffect)?.pseudoElement === `::view-transition-group(${name})`);
+    const frames = (group?.effect as KeyframeEffect | null)?.getKeyframes();
+    if (!group || !frames?.length || typeof frames[0].transform !== "string" || typeof frames.at(-1)?.transform !== "string" || typeof frames[0].width !== "string") return;
+    const before = new DOMMatrix(String(frames[0].transform));
+    const after = new DOMMatrix(String(frames.at(-1)?.transform));
+    // Keep the old snapshot at its original viewport position, including scroll offset.
+    group.finish();
+    const motion = document.documentElement.animate([
+      { transform: `translate(${before.e - after.e}px, ${before.f - after.f}px)`, width: frames[0].width, opacity: 1 },
+      { transform: `translate(${before.e - after.e}px, ${before.f - after.f}px)`, width: frames[0].width, opacity: 0 },
+    ], { ...motionTiming("exit"), pseudoElement: `::view-transition-old(${name})`, fill: "both" });
+    return () => motion.cancel();
+  }}>{children}</ViewTransition>;
+}
+
 export function RouteMotion() {
   const pathname = usePathname();
+  const entered = useRef(false);
   useLayoutEffect(() => {
+    const initial = !entered.current;
+    entered.current = true;
+    if (!initial && typeof document.startViewTransition === "function") return;
     const main = document.querySelector<HTMLElement>("#main-content");
     const heading = main?.querySelector<HTMLElement>("h1");
     const preference = window.matchMedia("(prefers-reduced-motion: reduce)");
