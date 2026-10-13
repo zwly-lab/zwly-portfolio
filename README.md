@@ -76,6 +76,8 @@ With the same browser runtime, `node tests/motion.mjs [origin]` checks coordinat
 
 `node tests/gallery.mjs [origin]` compares the displayed gallery order with all 18 successive enlarged originals, including collapsed variants and concepts, on desktop/mobile with normal/reduced motion. It checks keyboard boundaries, original-trigger focus restoration and stable controls. The general browser check also verifies that the first work image and title fit the mobile opening and that the mixed homepage retains three image previews.
 
+`node tests/rail.mjs [origin]` checks the three mobile visual-series rails at 390/360 pixels with normal/reduced motion: actual scroll position, partial next previews, keyboard and button boundaries, stable vertical page position, original image proportions, modal focus restoration, desktop grids and server-rendered artwork without JavaScript. The general browser check also exercises cancelled loading, failed demo recovery, preview focus contrast and article anchors below the sticky navigation.
+
 ## Vercel
 
 Live site: https://zwly-lab.vercel.app · Public repository: https://github.com/zwly-lab/zwly-portfolio

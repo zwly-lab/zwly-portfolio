@@ -5,6 +5,7 @@ import { useLayoutEffect, useRef, useState } from "react";
 import type { Project } from "@/data/projects";
 import { Arrow } from "./Arrow";
 import { motionTiming } from "@/lib/motion";
+import { GalleryRail } from "./GalleryRail";
 
 export function PosterGallery({ posters }: { posters: NonNullable<Project["gallery"]> }) {
   const dialog = useRef<HTMLDialogElement>(null);
@@ -92,12 +93,15 @@ export function PosterGallery({ posters }: { posters: NonNullable<Project["galle
   return <>
     {groups.map((group) => {
       const { featured, variants } = group;
-      const render = (items: typeof posters) => <div className="poster-grid series-grid">{items.map((item) => <figure key={item.src} className="project-media">
+      const render = (items: typeof posters, rail = false) => {
+        const figures = items.map((item) => <figure key={item.src} className="project-media">
         <button className="poster-open" type="button" aria-haspopup="dialog" aria-label={"放大查看：" + item.title} onClick={() => open(displayedPosters.indexOf(item))}><Image ref={(element) => { thumbnails.current[displayedPosters.indexOf(item)] = element; }} src={item.src} alt={item.title} width={item.width} height={item.height} sizes="(max-width: 760px) 100vw, 420px" /><span className="poster-open-label">放大查看 <Arrow /></span></button>
         <figcaption>{item.title}<a href={item.src} target="_blank" rel="noopener noreferrer">查看原图 <Arrow /></a></figcaption>
-      </figure>)}</div>;
+        </figure>);
+        return rail ? <GalleryRail label={group.title}>{figures}</GalleryRail> : <div className="poster-grid series-grid">{figures}</div>;
+      };
       return <section key={group.title} className={"gallery-series " + (group.archive ? "gallery-archive" : "")} aria-label={group.title}><div className="gallery-series-header"><h3>{group.title}</h3><p>{group.text}</p></div>
-        {group.archive ? <details><summary>展开四套界面概念</summary>{render(featured)}</details> : <>{render(featured)}{variants.length > 0 && <details><summary>查看这个系列的其他 {variants.length} 张作品</summary>{render(variants)}</details>}</>}
+        {group.archive ? <details><summary>展开四套界面概念</summary>{render(featured)}</details> : <>{render(featured, true)}{variants.length > 0 && <details><summary>查看这个系列的其他 {variants.length} 张作品</summary>{render(variants)}</details>}</>}
       </section>;
     })}
     <dialog ref={dialog} className="poster-dialog" aria-labelledby="poster-dialog-title" onCancel={(event) => { event.preventDefault(); void close(); }} onClose={() => { activeIndex.current = null; opener.current = null; animation.current?.cancel(); closing.current = false; delete dialog.current?.dataset.closing; setIndex(null); }} onClick={(event) => { if (event.target === event.currentTarget) void close(); }} onKeyDown={(event) => {

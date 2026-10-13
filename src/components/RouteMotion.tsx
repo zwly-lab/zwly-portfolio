@@ -33,14 +33,20 @@ export function RouteMotion() {
     const heading = main?.querySelector<HTMLElement>("h1");
     const preference = window.matchMedia("(prefers-reduced-motion: reduce)");
     if (!main || !heading || preference.matches) return;
-    const animations = [heading.animate([
+    const title = heading.querySelector<HTMLElement>(".hero-name") ?? heading;
+    const subtitle = heading.querySelector<HTMLElement>(".hero-subtitle");
+    const animations = [title.animate([
       { clipPath: "inset(0 12% 0 0)" },
       { clipPath: "inset(0)" },
     ], motionTiming("enter"))];
+    if (subtitle) animations.push(subtitle.animate([
+      { clipPath: "inset(0 0 18% 0)", opacity: .55, transform: "translateY(6px)" },
+      { clipPath: "inset(0)", opacity: 1, transform: "none" },
+    ], { ...motionTiming("change"), delay: 80, fill: "backwards" }));
     const intro = heading.nextElementSibling;
-    if (intro?.tagName === "P") animations.push(intro.animate([{ opacity: .65 }, { opacity: 1 }], { ...motionTiming("change"), delay: 40, fill: "backwards" }));
+    if (intro?.tagName === "P") animations.push(intro.animate([{ opacity: .65 }, { opacity: 1 }], { ...motionTiming("change"), delay: subtitle ? 120 : 40, fill: "backwards" }));
     const overview = main.querySelector<HTMLElement>(".overview-images");
-    if (overview) animations.push(overview.animate([{ opacity: .7, clipPath: "inset(0 0 5%)" }, { opacity: 1, clipPath: "inset(0)" }], { ...motionTiming("enter"), delay: 80, fill: "backwards" }));
+    if (overview) animations.push(overview.animate([{ opacity: .7, clipPath: "inset(0 0 5%)" }, { opacity: 1, clipPath: "inset(0)" }], { ...motionTiming("enter"), delay: 160, fill: "backwards" }));
     // Interaction takes priority over the entrance, before selection measures its geometry.
     const stop = () => animations.forEach((animation) => animation.cancel());
     main.addEventListener("pointerdown", stop, { once: true });

@@ -94,6 +94,12 @@ async function main() {
   await page.waitForFunction(() => new DOMMatrix(getComputedStyle(document.querySelector(".work-card img")).transform).a > 1.01);
   assert.equal(await card.locator(".thumbnail-frame").evaluate((element) => element.getBoundingClientRect().width), frameWidth, "preview feedback does not resize its frame");
   assert.notEqual(await card.locator("h3").evaluate((element) => getComputedStyle(element).textDecorationColor), "rgba(0, 0, 0, 0)", "hover emphasizes linked title");
+  await page.waitForFunction(() => Number(getComputedStyle(document.querySelectorAll('.work-group:first-child .thumbnail-frame')[1]).opacity) < .8);
+  assert.equal(await page.locator('.work-group:first-child .work-card-body').nth(1).evaluate(element => getComputedStyle(element).opacity), "1", "focusing a preview preserves neighbouring text contrast");
+  await page.mouse.move(0, 0);
+  await card.focus();
+  await page.waitForFunction(() => Number(getComputedStyle(document.querySelectorAll('.work-group:first-child .thumbnail-frame')[1]).opacity) < .8);
+  assert.equal(await card.locator('.thumbnail-frame').evaluate(element => getComputedStyle(element).opacity), "1", "keyboard focus keeps the selected preview clear");
   await page.goto(origin);
   const print = page.locator(".visual-print img").first();
   await print.scrollIntoViewIfNeeded();
@@ -119,6 +125,40 @@ async function main() {
   assert.ok(Math.abs((await page.locator(".demo-stage").evaluate((element) => element.getBoundingClientRect().width)) - stageBefore) < 2, "opening keeps stage width");
   await page.getByRole("button", { name: "收起演示", exact: true }).click();
   assert.equal(await page.locator("iframe").count(), 0, "closing removes the demo runtime");
+  let releaseLoad;
+  let requested;
+  let continued;
+  const held = new Promise(resolve => { releaseLoad = resolve; });
+  const request = new Promise(resolve => { requested = resolve; });
+  const completed = new Promise(resolve => { continued = resolve; });
+  await page.route('**/demos/kmp/index.html', async route => { requested(); await held; await route.continue(); continued(); });
+  await page.getByRole('button', { name: '在此体验', exact: true }).click();
+  await request;
+  await page.getByRole('button', { name: '取消加载', exact: true }).click();
+  assert.equal(await page.locator('iframe').count(), 0, 'pending runtime can be cancelled');
+  assert.equal(await page.getByRole('button', { name: '在此体验', exact: true }).isVisible(), true);
+  releaseLoad();
+  await completed;
+  await page.unroute('**/demos/kmp/index.html');
+  await page.route('**/demos/kmp/index.html', route => route.fulfill({ status: 503, contentType: 'text/html', body: '<p>Unavailable</p>' }));
+  await page.getByRole('button', { name: '在此体验', exact: true }).click();
+  await page.getByRole('button', { name: '返回预览', exact: true }).waitFor();
+  assert.ok((await page.locator('.demo-state').textContent()).includes('演示未能打开'), 'failed content has truthful feedback');
+  await page.getByRole('button', { name: '返回预览', exact: true }).click();
+  assert.equal(await page.locator('.demo-stage > img').isVisible(), true, 'error recovers to the original preview');
+  await page.unroute('**/demos/kmp/index.html');
+
+  for (const width of [1440, 390, 320]) {
+    await page.setViewportSize({ width, height: 1000 });
+    await page.goto(origin + '/blog/motion-for-understanding#section-2');
+    await page.waitForFunction(() => {
+      const header = document.querySelector('.site-header').getBoundingClientRect();
+      const section = document.querySelector('#section-2').getBoundingClientRect();
+      return scrollY > 100 && Math.abs(header.top) < 1 && section.top >= header.bottom && section.top < innerHeight;
+    });
+    assert.equal(await page.getByRole('link', { name: '作品', exact: true }).isVisible(), true, 'primary navigation remains available while reading');
+  }
+  await page.setViewportSize({ width: 1440, height: 1000 });
 
   await page.goto(origin + "/projects");
   assert.equal(await page.locator("#filtered-projects .work-card").count(), 9);

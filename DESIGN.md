@@ -181,7 +181,7 @@ Most containers, media, controls, and cards are square-edged. Fine borders frame
 
 ### Navigation
 
-The wordmark and compact horizontal links share the Archivo stack. Current, hovered, and keyboard-focused routes use forest green and a fine underline. The navigation stays on one row through 440px and wraps only below 350px.
+The wordmark and compact horizontal links share the Archivo stack. Current, hovered, and keyboard-focused routes use forest green and a fine underline. The white navigation remains available at the top while browsing; article anchors reserve space below it. The navigation stays on one row through 440px and wraps only below 350px.
 
 ### Directional Overview
 
@@ -194,7 +194,7 @@ The task, code, and result steps share one overlay with fixed base geometry. Sta
 ### Page and Image Motion
 
 - **Timing:** CSS owns 140ms immediate feedback, 220ms small disclosures/decoration, 300ms selection and image changes, 480ms entrances, and 180ms departures. Native animations read these tokens with both seconds and milliseconds supported. Arrivals use `cubic-bezier(0.16, 1, 0.3, 1)`; departures use `cubic-bezier(0.4, 0, 1, 1)`.
-- **Direct-load entry:** On the first load, one controller reveals the heading over 480ms. Its immediate summary follows after 40ms for 300ms; the homepage overview follows after 80ms for 480ms. Unsupported browsers retain this heading entrance on navigation. Content stays visible without JavaScript; interaction cancels entry before selection measures geometry.
+- **Direct-load entry:** On the first homepage load, one controller reveals the name over 480ms, the subtitle after 80ms for 300ms, the summary after 120ms for 300ms, and the overview after 160ms for 480ms. Only the headline leaves animate, so a parent entrance never competes with them. Other page headings retain a 480ms entrance with their summary following after 40ms. Unsupported browsers retain this entry on navigation. Content stays visible without JavaScript; interaction cancels entry before selection measures geometry.
 - **Page navigation:** React 19.3 ViewTransition covers route content while navigation and footer remain outside the named boundary. Old content departs over 180ms, then new content arrives over 300ms. The old snapshot retains its original width and viewport position, including scroll offset; the group settles to destination geometry immediately instead of morphing a whole page's height. Route changes do not replay the heading entrance. Native routing owns prefetch, history, errors and cancellation; no links are intercepted.
 - **Scrolling:** Smooth scrolling is limited to in-page targets. Next's `data-scroll-behavior` marker allows route navigation to override it. Adjacent articles use `#top`; browser history retains the reading position. Scroll restoration and snapshot motion do not compete.
 - **State explanations:** Direction, product-step and live-demo status text update immediately and arrive over 220ms. The closed demo screenshot uses the same short arrival without retaining an invisible iframe. Gallery series use native details height interpolation in both directions when supported, with a static native fallback.
@@ -204,6 +204,9 @@ The task, code, and result steps share one overlay with fixed base geometry. Sta
 - **Linked titles:** Project, note, featured-note, note-list, and article-navigation titles keep a transparent one-pixel underline at rest. Hover and keyboard focus reveal the underline in the current text color while the existing 140ms color and 220ms decoration feedback run.
 - **Preview images:** Work, note, poster, overview, featured-note and linked about-page previews scale to `1.018` over 300ms. Keyboard focus enables the response; pointer hover enables it only for fine pointers that support hover. The effect exists only when reduced motion is not requested.
 - **Home visual prints:** The two `.visual-print` images use native CSS view timelines to unfold from `clip-path: inset(8% 6%)` to no inset across `entry 15%` through `entry 100%`. Browsers without the required `animation-timeline` and `animation-range` support keep the images static, and reduced-motion users receive no animation.
+- **Collection focus:** Hover on a fine pointer or keyboard focus keeps the selected work preview clear and lowers only neighbouring media opacity. Titles, descriptions and controls retain their normal contrast.
+- **Mobile visual series:** The three featured series become native horizontal snap rails at 760px and below, with a partial next preview, real scroll-position count, previous/next controls and Home/End/arrow navigation. Equal-height paper frames contain each original aspect ratio without cropping and keep captions near the controls. Desktop, variants and archived concepts retain their grids. Reduced motion changes position immediately; opening and closing a picture retains the original trigger focus.
+- **Demo action:** The same button changes from opening to cancel-loading, collapse or return-to-preview according to the real iframe state. It reserves label width and uses the existing short arrival; there is no simulated progress. The desktop visual introduction stays within its own section while the two prints unfold.
 
 These additions use native Web Animations and CSS only; they add no runtime dependency.
 

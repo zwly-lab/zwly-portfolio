@@ -12,7 +12,7 @@ export default function Home() {
   const selectedPosts = ["motion-for-understanding", "chinese-product-posters"].map((slug) => posts.find((post) => post.slug === slug)!);
   return <main id="main-content" className="container home-page">
     <section className="hero hero-editorial" aria-labelledby="hero-title">
-      <div className="hero-intro"><h1 id="hero-title">Vibe Coding.<span className="hero-subtitle">把想法做成<span className="accent">作品</span>。</span></h1><p>与 AI 协作，从需求描述到运行验证。<br />这里收集我的应用、交互实验与视觉创作。</p><Link className="text-link" href="/projects">浏览作品集 <Arrow /></Link></div>
+      <div className="hero-intro"><h1 id="hero-title"><span className="hero-name">Vibe Coding.</span><span className="hero-subtitle">把想法做成<span className="accent">作品</span>。</span></h1><p>与 AI 协作，从需求描述到运行验证。<br />这里收集我的应用、交互实验与视觉创作。</p><Link className="text-link" href="/projects">浏览作品集 <Arrow /></Link></div>
       <HeroShowcase />
     </section>
     <section className="home-products" aria-labelledby="work-title">

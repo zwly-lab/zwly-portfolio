@@ -20,20 +20,23 @@ try {
   for (const width of [1440, 390]) {
     await page.setViewportSize({ width, height: 1000 });
     await page.goto(origin);
-    await page.waitForFunction(() => window.motionLog.some(item => item.target === "H1"));
+    await page.waitForFunction(() => window.motionLog.some(item => item.target === "hero-name"));
     const entry = await page.evaluate(() => ({ log: window.motionLog, css: getComputedStyle(document.querySelector(".overview-images")).animationName }));
-    assert.equal(entry.log.filter(item => item.target === "H1").length, 1, "title enters once");
-    assert.equal(entry.log.find(item => item.target === "H1").duration, 480, "CSS seconds/ms conversion survives production minification");
-    assert.equal(entry.log.find(item => item.target.startsWith("overview-images")).delay, 80, "overview follows title on one timeline");
+    assert.equal(entry.log.filter(item => item.target === "hero-name").length, 1, "name enters once");
+    assert.equal(entry.log.filter(item => item.target === "H1").length, 0, "headline leaves do not compete with a parent entrance");
+    assert.equal(entry.log.find(item => item.target === "hero-name").duration, 480, "CSS seconds/ms conversion survives production minification");
+    assert.equal(entry.log.find(item => item.target === "hero-subtitle").delay, 80, "subtitle follows the name");
+    assert.equal(entry.log.find(item => item.target === "hero-subtitle").duration, 300);
+    assert.equal(entry.log.find(item => item.target.startsWith("overview-images")).delay, 160, "overview joins the same entry timeline");
     assert.equal(entry.css, "none", "no second CSS entrance overlaps the overview");
     await page.evaluate(() => {
-      document.querySelector("h1").getAnimations().forEach(animation => { animation.pause(); animation.currentTime = 100; });
+      document.querySelector("h1").getAnimations({ subtree: true }).forEach(animation => { animation.pause(); animation.currentTime = 100; });
       const button = [...document.querySelectorAll(".showcase-choices button")].find(element => element.textContent === "应用作品");
       button.dispatchEvent(new PointerEvent("pointerdown", { bubbles: true }));
       button.click();
     });
     await page.waitForFunction(() => document.querySelector(".overview-images").classList.contains("overview-applications"));
-    assert.equal(await page.locator("h1").evaluate(element => element.getAnimations().length), 0, "interaction releases entrance before selection");
+    assert.equal(await page.locator("h1").evaluate(element => element.getAnimations({ subtree: true }).length), 0, "interaction releases all headline entrances before selection");
     assert.equal(await page.locator(".overview-images").evaluate(element => element.getAnimations().length), 0);
     await page.waitForFunction(() => document.querySelector(".overview-images").getAnimations({ subtree: true }).length === 0);
     const before = await page.locator('[data-preview="/images/projects/jd-dashboard.png"]').evaluate(element => ({ left: element.getBoundingClientRect().left, top: element.getBoundingClientRect().top, width: element.getBoundingClientRect().width }));
