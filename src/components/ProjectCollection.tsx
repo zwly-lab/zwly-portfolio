@@ -12,7 +12,7 @@ export function ProjectCollection({ projects }: { projects: Project[] }) {
   const [category, setCategory] = useState<(typeof categories)[number]>("全部");
   const filters = useRef<HTMLDivElement>(null);
   const grid = useRef<HTMLDivElement>(null);
-  const previous = useRef<Map<string, DOMRect> | null>(null);
+  const previous = useRef<Map<string, { bounds: DOMRect; opacity: string; clipPath: string }> | null>(null);
   const visible = projects.filter((project) => category === "全部" || project.category === category);
   const groups = [
     { title: "代表作品", description: "从学习反馈到任务界面，展开具体的问题与设计取舍。", slugs: ["pyscreen", "campus-takeout", "jd-protocol-engine"] },
@@ -24,8 +24,9 @@ export function ProjectCollection({ projects }: { projects: Project[] }) {
     if (item === category) return;
     previous.current = new Map(Array.from(grid.current?.querySelectorAll<HTMLElement>("[data-project]") ?? [], (card) => {
       const bounds = card.getBoundingClientRect();
+      const { opacity, clipPath } = getComputedStyle(card);
       card.getAnimations().forEach((animation) => animation.cancel());
-      return [card.dataset.project!, bounds];
+      return [card.dataset.project!, { bounds, opacity, clipPath }];
     }));
     setCategory(item);
   }
@@ -35,13 +36,13 @@ export function ProjectCollection({ projects }: { projects: Project[] }) {
     if (!positions || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     const cards = grid.current?.querySelectorAll<HTMLElement>("[data-project]");
     const timing = motionTiming("change");
-    cards?.forEach((card) => {
+    cards?.forEach((card, index) => {
       const before = positions.get(card.dataset.project!);
       const after = card.getBoundingClientRect();
       card.animate(before ? [
-        { transform: `translate(${before.left - after.left}px, ${before.top - after.top}px)` },
-        { transform: "none" },
-      ] : [{ opacity: 0 }, { opacity: 1 }], timing);
+        { transform: `translate(${before.bounds.left - after.left}px, ${before.bounds.top - after.top}px)`, opacity: before.opacity, clipPath: before.clipPath },
+        { transform: "none", opacity: 1, clipPath: "inset(0)" },
+      ] : [{ opacity: 0, transform: "translateY(8px)", clipPath: "inset(0 0 5%)" }, { opacity: 1, transform: "none", clipPath: "inset(0)" }], { ...timing, delay: before ? 0 : Math.min(index, 2) * 30, fill: "backwards" });
     });
     return () => { cards?.forEach((card) => card.getAnimations().forEach((animation) => animation.cancel())); };
   }, [category]);

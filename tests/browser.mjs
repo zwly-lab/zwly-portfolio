@@ -82,6 +82,32 @@ async function main() {
 
   await page.setViewportSize({ width: 1440, height: 1000 });
   await page.goto(origin);
+  const press = async target => {
+    await target.scrollIntoViewIfNeeded();
+    const bounds = await target.boundingBox();
+    await page.mouse.move(bounds.x + bounds.width / 2, bounds.y + bounds.height / 2);
+    await page.mouse.down();
+    await page.waitForFunction(selector => Number(getComputedStyle(document.querySelector(selector)).opacity) < .85, await target.evaluate(element => element.tagName === 'BUTTON' ? '.showcase-choices button:first-of-type' : '.wordmark'));
+    const held = await target.boundingBox();
+    assert.ok(Math.abs(held.x - bounds.x) < 1 && Math.abs(held.width - bounds.width) < 1, 'press feedback preserves the hit target');
+    await page.mouse.move(0, 0);
+    await page.mouse.up();
+  };
+  await press(page.getByRole('link', { name: 'ZWLY Lab 首页', exact: true }));
+  await press(page.getByRole('button', { name: '精选一览', exact: true }));
+  const browse = page.getByRole('link', { name: '浏览作品集', exact: true });
+  await page.keyboard.press('Tab');
+  await browse.focus();
+  await page.waitForFunction(() => {
+    const matrix = new DOMMatrix(getComputedStyle(document.querySelector('.hero-intro .text-link .arrow')).transform);
+    return Math.abs(matrix.e - 2) < .1 && Math.abs(matrix.f + 2) < .1;
+  });
+  await page.getByRole('link', { name: '走进视觉作品', exact: true }).focus();
+  const visual = page.locator('.visual-print').first();
+  await visual.focus();
+  await page.waitForFunction(() => Number(getComputedStyle(document.querySelector('.visual-print img')).opacity) < .95);
+  assert.notEqual(await visual.locator('span').evaluate(element => getComputedStyle(element).textDecorationColor), 'rgba(0, 0, 0, 0)', 'keyboard focus identifies the visual entrance');
+  await page.goto(origin);
   await page.getByRole("link", { name: "作品", exact: true }).click();
   await page.waitForURL(origin + "/projects");
   await page.waitForFunction(() => document.getAnimations().some((animation) => animation.effect?.pseudoElement?.startsWith("::view-transition-new(")));
@@ -97,6 +123,7 @@ async function main() {
   await page.waitForFunction(() => Number(getComputedStyle(document.querySelectorAll('.work-group:first-child .thumbnail-frame')[1]).opacity) < .8);
   assert.equal(await page.locator('.work-group:first-child .work-card-body').nth(1).evaluate(element => getComputedStyle(element).opacity), "1", "focusing a preview preserves neighbouring text contrast");
   await page.mouse.move(0, 0);
+  await page.keyboard.press('Tab');
   await card.focus();
   await page.waitForFunction(() => Number(getComputedStyle(document.querySelectorAll('.work-group:first-child .thumbnail-frame')[1]).opacity) < .8);
   assert.equal(await card.locator('.thumbnail-frame').evaluate(element => getComputedStyle(element).opacity), "1", "keyboard focus keeps the selected preview clear");
@@ -198,6 +225,13 @@ async function main() {
   for (let step = 0; step < 20; step++) await page.keyboard.press("ArrowLeft");
   await page.locator(".lightbox-controls p").filter({ hasText: "1 / 18" }).waitFor();
   assert.equal(await page.getByRole("button", { name: "上一张", exact: true }).isDisabled(), true);
+  const disabledPrevious = page.getByRole('button', { name: '上一张', exact: true });
+  const disabledOpacity = await disabledPrevious.evaluate(element => getComputedStyle(element).opacity);
+  const disabledBounds = await disabledPrevious.boundingBox();
+  await page.mouse.move(disabledBounds.x + disabledBounds.width / 2, disabledBounds.y + disabledBounds.height / 2);
+  await page.mouse.down();
+  assert.equal(await disabledPrevious.evaluate(element => getComputedStyle(element).opacity), disabledOpacity, 'disabled action does not mimic an enabled press');
+  await page.mouse.up();
   await page.keyboard.press("Escape");
   await page.locator("dialog").waitFor({ state: "hidden" });
   assert.equal(await trigger.evaluate((element) => element === document.activeElement), true, "Escape restores focus to origin");
@@ -214,6 +248,9 @@ async function main() {
   await page.keyboard.press("Escape");
   await page.goto(origin);
   assert.equal(await page.locator("h1").evaluate((element) => element.getAnimations().length), 0, "reduced motion skips route title animation");
+  await page.keyboard.press('Tab');
+  await page.getByRole('link', { name: '浏览作品集', exact: true }).focus();
+  assert.equal(await page.locator('.hero-intro .text-link .arrow').evaluate(element => getComputedStyle(element).transform), 'none', 'reduced motion keeps keyboard acknowledgment without arrow travel');
   assert.equal(await page.locator(".visual-print img").first().evaluate((element) => getComputedStyle(element).animationName), "none", "reduced motion shows full static artwork");
   await page.getByRole("button", { name: "应用作品", exact: true }).click();
   assert.equal(await page.locator("#portfolio-overview").evaluate((element) => element.getAnimations({ subtree: true }).length), 0, "reduced motion keeps direction changes immediate");

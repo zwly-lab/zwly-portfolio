@@ -78,6 +78,8 @@ With the same browser runtime, `node tests/motion.mjs [origin]` checks coordinat
 
 `node tests/rail.mjs [origin]` checks the three mobile visual-series rails at 390/360 pixels with normal/reduced motion: actual scroll position, partial next previews, keyboard and button boundaries, stable vertical page position, original image proportions, modal focus restoration, desktop grids and server-rendered artwork without JavaScript. The general browser check also exercises cancelled loading, failed demo recovery, preview focus contrast and article anchors below the sticky navigation.
 
+`node tests/showcase.mjs [origin]` checks all homepage directions on desktop/mobile with normal/reduced motion, consistent stage height, decoded images before entry, slow-load continuity, immediate requested-choice feedback, late request rejection, cancellation, navigation during loading, failed-image retry and visible server rendering without JavaScript. The motion test additionally checks that interrupted filtering preserves opacity, clipping and geometry; route tests verify the single bounded arrival without replaying a title entrance.
+
 ## Vercel
 
 Live site: https://zwly-lab.vercel.app · Public repository: https://github.com/zwly-lab/zwly-portfolio

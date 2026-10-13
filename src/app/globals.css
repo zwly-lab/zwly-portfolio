@@ -17,7 +17,7 @@ a { color: inherit; text-decoration: none; }
 .site-nav a { display: inline-flex; gap: 9px; align-items: center; padding: 12px 0; border-bottom: 1px solid transparent; }
 .site-nav a:hover, .site-nav a[aria-current="page"] { color: var(--accent); border-color: var(--accent); }
 .arrow { width: 19px; height: 19px; flex-shrink: 0; transition: transform 160ms ease; }
-a:hover .arrow { transform: translate(2px, -2px); }
+a:is(:hover, :focus-visible) .arrow { transform: translate(2px, -2px); }
 .hero { display: grid; grid-template-columns: .95fr 1.2fr; gap: 54px; align-items: center; padding: 40px 0 48px; border-bottom: 1px solid var(--line); }
 .hero h1 { margin: 0 0 28px; font-size: clamp(40px, 4.6vw, 64px); font-weight: 600; line-height: 1.35; letter-spacing: -.035em; }
 .hero h1 > span { display: block; }
@@ -325,7 +325,7 @@ button:disabled { cursor: default; opacity: .4; }
 .hero-editorial .hero-intro > .text-link { margin-top: 24px; }
 .portfolio-showcase { min-width: 0; }
 .portfolio-showcase .showcase-choices { gap: 12px 28px; }
-.overview-images { display: grid; grid-template-columns: 1.3fr 1fr; gap: 20px; min-height: 320px; align-items: center; }
+.overview-images { display: grid; grid-template-columns: 1.3fr 1fr; gap: 20px; min-height: 404px; align-items: center; }
 .overview-work { min-width: 0; transform-origin: left top; }
 .overview-frame { width: 100%; height: 310px; overflow: hidden; background: #f3f4ef; }
 .overview-work img { display: block; width: 100%; height: 100%; object-fit: contain; }
@@ -515,19 +515,20 @@ button:disabled { cursor: default; opacity: .4; }
   .hero-editorial h1 > .hero-subtitle { font-size: 29px; margin-top: 12px; }
   .hero-editorial .hero-intro > p { margin-top: 16px; font-size: 15px; }
   .hero-editorial .hero-intro > .text-link { margin-top: 12px; }
-  .overview-images { grid-template-columns: 1fr; min-height: 0; gap: 0; }
+  .overview-images { grid-template-columns: repeat(2, minmax(0, 1fr)); min-height: calc((100vw - 32px) / 1.6 + 220px); gap: 12px 16px; align-items: start; align-content: start; }
   .overview-frame { height: auto; aspect-ratio: 1.6; }
+  .overview-images .overview-work:first-child .overview-frame { height: auto; aspect-ratio: 1.6; }
   .overview-selected { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px 16px; }
   .overview-selected .overview-work:first-child { grid-column: 1 / -1; }
   .overview-selected .overview-work:not(:first-child) { border: 0; }
   .overview-selected .overview-work:not(:first-child) .overview-frame { height: 110px; }
   .overview-images.overview-selected .overview-work:not(:first-child) img { display: block; }
-  .overview-images .overview-work:first-child { grid-row: auto; }
-  .overview-images .overview-work:not(:first-child) { border-top: 1px solid var(--line); }
-  .overview-images .overview-work:not(:first-child) img { display: none; }
+  .overview-images .overview-work:first-child { grid-row: auto; grid-column: 1 / -1; }
+  .overview-images .overview-work:not(:first-child) { border: 0; }
+  .overview-images .overview-work:not(:first-child) img { display: block; }
   .overview-images .overview-work:not(:first-child) span { min-height: 48px; margin-top: 0; font-size: 13px; }
-  .overview-work:nth-child(2) .overview-frame { height: 145px; }
-  .overview-images:not(.overview-selected) .overview-work:not(:first-child) .overview-frame { display: none; }
+  .overview-work:nth-child(2) .overview-frame { height: 110px; }
+  .overview-images:not(.overview-selected) .overview-work:not(:first-child) .overview-frame { height: 110px; }
   .overview-description { font-size: 13px; margin-top: 12px; min-height: 46px; }
   .portfolio-showcase .showcase-choices { justify-content: space-between; gap: 8px; margin-bottom: 8px; }
   .home-page .live-demo { grid-template-columns: 1fr; gap: 24px; }
@@ -681,6 +682,15 @@ button:disabled { cursor: default; opacity: .4; }
 @media (max-width: 350px) { .article section, #main-content { scroll-margin-top: 140px; } }
 
 /* Text and image feedback joins the existing selection and gallery motion. */
+a[href] { transition: color var(--motion-quick), border-color var(--motion-standard), opacity var(--motion-quick); }
+button:not(:disabled):not([aria-disabled="true"]), summary { transition: color var(--motion-quick), opacity var(--motion-quick), background var(--motion-quick), border-color var(--motion-quick); }
+a[href]:active, button:not(:disabled):not([aria-disabled="true"]):active, summary:active { opacity: .78; }
+:is(.wordmark, .breadcrumb a, .experiment-links a, .prose a, .project-media figcaption a):is(:hover, :focus-visible) { color: var(--accent); }
+.visual-print img { transition: opacity var(--motion-standard); }
+.visual-print span { text-decoration: underline; text-decoration-color: transparent; text-underline-offset: .2em; transition: color var(--motion-quick), text-decoration-color var(--motion-standard); }
+.visual-print:is(:hover, :focus-visible) img { opacity: .88; }
+.visual-print:is(:hover, :focus-visible) span { color: var(--accent); text-decoration-color: currentColor; }
+.process-choices button:not(:disabled):is(:hover, :focus-visible) .arrow { transform: translate(2px, -2px); }
 .work-card h3, .note-card h2, .note-feature h2, .note-list h3, .article-navigation strong {
   text-decoration: underline;
   text-decoration-color: transparent;
@@ -705,10 +715,11 @@ button:disabled { cursor: default; opacity: .4; }
 ::view-transition { pointer-events: none; }
 ::view-transition-group(.route-content) { animation-duration: var(--motion-change); animation-timing-function: var(--motion-arrive); }
 ::view-transition-old(.route-content) { animation: route-leave var(--motion-exit) var(--motion-depart) both; }
-::view-transition-new(.route-content) { animation: appear var(--motion-change) var(--motion-arrive) var(--motion-exit) both; }
+::view-transition-new(.route-content) { animation: route-arrive var(--motion-change) var(--motion-arrive) var(--motion-exit) both; }
 ::view-transition-old(.route-content), ::view-transition-new(.route-content) { height: auto; }
 ::view-transition-old(root), ::view-transition-new(root) { animation: none; }
 @keyframes route-leave { to { opacity: 0; } }
+@keyframes route-arrive { from { opacity: 0; transform: translateY(6px); clip-path: inset(0 0 12px); } to { opacity: 1; transform: none; clip-path: inset(0); } }
 @media (prefers-reduced-motion: no-preference) {
   .state-arrival { display: inline-block; animation: appear var(--motion-standard) var(--motion-arrive); }
   .demo-stage > img { animation: appear var(--motion-standard) var(--motion-arrive); }

@@ -55,6 +55,26 @@ try {
     await page.emulateMedia({ reducedMotion: "no-preference" });
   }
   await page.setViewportSize({ width: 1440, height: 1000 });
+  await page.goto(origin + "/projects");
+  await page.getByRole("button", { name: "视觉创作", exact: true }).click();
+  await page.getByRole("button", { name: "全部", exact: true }).click();
+  const interruptedCard = page.locator('[data-project="pyscreen"]');
+  const partial = await interruptedCard.evaluate(element => {
+    const animation = element.getAnimations()[0];
+    animation.pause(); animation.currentTime = 75;
+    const bounds = element.getBoundingClientRect(), style = getComputedStyle(element);
+    return { opacity: Number(style.opacity), clipPath: style.clipPath, left: bounds.left, top: bounds.top };
+  });
+  assert.ok(partial.opacity > 0 && partial.opacity < 1, "test interrupts an actual card entrance");
+  await page.getByRole("button", { name: "教学可视化", exact: true }).click();
+  const continuation = await interruptedCard.evaluate(element => {
+    const animation = element.getAnimations()[0];
+    animation.pause(); animation.currentTime = 0;
+    const bounds = element.getBoundingClientRect(), style = getComputedStyle(element);
+    return { opacity: Number(style.opacity), clipPath: style.clipPath, left: bounds.left, top: bounds.top };
+  });
+  for (const key of ["opacity", "left", "top"]) assert.ok(Math.abs(partial[key] - continuation[key]) < .02, "filter interruption preserves visible " + key);
+  assert.equal(continuation.clipPath, partial.clipPath, "filter interruption continues its current reveal mask");
   await page.goto(origin + "/projects/poster-collection");
   const trigger = page.getByRole("button", { name: "放大查看：旅行拼贴 · 圣托里尼", exact: true });
   await trigger.scrollIntoViewIfNeeded();
@@ -95,7 +115,7 @@ try {
   await page.locator("dialog").waitFor({ state: "hidden" });
   assert.equal(await trigger.evaluate(element => element === document.activeElement), true, "mid-exit motion preference still closes and returns focus");
   await page.emulateMedia({ reducedMotion: "no-preference" });
-  await page.unroute("**/_next/image*");
+  await page.unrouteAll({ behavior: "wait" });
   await trigger.click();
   await page.keyboard.press("Escape");
   await page.locator("dialog").waitFor({ state: "hidden" });

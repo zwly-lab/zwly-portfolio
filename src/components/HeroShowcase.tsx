@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import Image, { getImageProps } from "next/image";
 import Link from "next/link";
 import { useLayoutEffect, useRef, useState } from "react";
 import { ActiveUnderline } from "./ActiveUnderline";
@@ -27,18 +27,45 @@ const views = [
   ] },
 ];
 
+const previewSizes = (index: number) => index === 0 ? "(max-width: 760px) 100vw, 580px" : "(max-width: 760px) 50vw, 380px";
+
 export function HeroShowcase() {
   const [selected, setSelected] = useState(0);
+  const [requested, setRequested] = useState(0);
+  const [failed, setFailed] = useState(false);
+  const request = useRef(0);
+  const requestedIndex = useRef(0);
   const controls = useRef<HTMLDivElement>(null);
   const grid = useRef<HTMLDivElement>(null);
-  const previous = useRef<Map<string, DOMRect> | null>(null);
+  const previous = useRef<Map<string, { bounds: DOMRect; opacity: string; clipPath: string }> | null>(null);
   const view = views[selected];
-  function select(next: number) {
+  useLayoutEffect(() => () => { request.current++; }, []);
+  async function select(next: number) {
+    if (next === requestedIndex.current) return;
+    requestedIndex.current = next;
+    setRequested(next);
+    setFailed(false);
+    const version = ++request.current;
     if (next === selected) return;
+    try {
+      await Promise.all(views[next].items.map((item, index) => {
+        const { props } = getImageProps({ src: item.src, alt: item.alt, width: item.width, height: item.height, sizes: previewSizes(index) });
+        const image = new window.Image();
+        image.sizes = props.sizes ?? "";
+        image.srcset = props.srcSet ?? "";
+        image.src = props.src;
+        return image.decode();
+      }));
+    } catch {
+      if (version === request.current) { requestedIndex.current = selected; setRequested(selected); setFailed(true); }
+      return;
+    }
+    if (version !== request.current) return;
     previous.current = new Map(Array.from(grid.current?.querySelectorAll<HTMLElement>("[data-preview]") ?? [], (item) => {
       const bounds = item.getBoundingClientRect();
+      const { opacity, clipPath } = getComputedStyle(item);
       item.getAnimations().forEach((animation) => animation.cancel());
-      return [item.dataset.preview!, bounds];
+      return [item.dataset.preview!, { bounds, opacity, clipPath }];
     }));
     setSelected(next);
   }
@@ -47,22 +74,21 @@ export function HeroShowcase() {
     previous.current = null;
     if (!positions || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     const items = grid.current?.querySelectorAll<HTMLElement>("[data-preview]");
-    const timing = motionTiming("change");
     items?.forEach((item) => {
       const before = positions.get(item.dataset.preview!);
       const after = item.getBoundingClientRect();
       item.animate(before ? [
-        { transform: `translate(${before.left - after.left}px, ${before.top - after.top}px) scale(${before.width / after.width}, ${before.height / after.height})` },
-        { transform: "none" },
-      ] : [{ opacity: .4, clipPath: "inset(0 0 5%)" }, { opacity: 1, clipPath: "inset(0)" }], timing);
+        { transform: `translate(${before.bounds.left - after.left}px, ${before.bounds.top - after.top}px) scale(${before.bounds.width / after.width}, ${before.bounds.height / after.height})`, opacity: before.opacity, clipPath: before.clipPath },
+        { transform: "none", opacity: 1, clipPath: "inset(0)" },
+      ] : [{ opacity: 0, transform: "translateY(8px)", clipPath: "inset(0 0 18%)" }, { opacity: 1, transform: "none", clipPath: "inset(0)" }], before ? motionTiming("change") : { ...motionTiming("enter"), delay: 40, fill: "backwards" });
     });
     return () => { items?.forEach((item) => item.getAnimations().forEach((animation) => animation.cancel())); };
   }, [selected]);
   return <div className="hero-showcase portfolio-showcase">
-    <div ref={controls} className="showcase-choices" role="group" aria-label="切换作品方向"><ActiveUnderline target={controls} value={view.label} />{views.map((item, index) => <button key={item.label} type="button" aria-pressed={index === selected} aria-controls="portfolio-overview" onClick={() => select(index)}>{item.label}</button>)}</div>
-    <div ref={grid} id="portfolio-overview" className={"overview-images overview-" + view.kind}>
-      {view.items.map((item, index) => <Link data-preview={item.src} key={item.src} href={"/projects/" + item.slug} className={"overview-work overview-work--" + item.slug}><div className="overview-frame"><Image src={item.src} alt={item.alt} width={item.width} height={item.height} sizes={index === 0 ? "(max-width: 760px) 100vw, 580px" : "(max-width: 760px) 50vw, 380px"} loading={selected === 0 ? "eager" : "lazy"} /></div><span>{item.title}<Arrow /></span></Link>)}
+    <div ref={controls} className="showcase-choices" role="group" aria-label="切换作品方向"><ActiveUnderline target={controls} value={views[requested].label} />{views.map((item, index) => <button key={item.label} type="button" aria-pressed={index === requested} aria-controls="portfolio-overview" onClick={() => void select(index)}>{item.label}</button>)}</div>
+    <div ref={grid} id="portfolio-overview" aria-busy={requested !== selected} className={"overview-images overview-" + view.kind}>
+      {view.items.map((item, index) => <Link data-preview={item.src} key={item.src} href={"/projects/" + item.slug} className={"overview-work overview-work--" + item.slug}><div className="overview-frame"><Image src={item.src} alt={item.alt} width={item.width} height={item.height} sizes={previewSizes(index)} loading="eager" /></div><span>{item.title}<Arrow /></span></Link>)}
     </div>
-    <p className="overview-description" role="status"><span key={view.kind} className="state-arrival">{view.text}</span></p>
+    <p className="overview-description" role="status"><span key={requested !== selected ? "loading" : failed ? "error" : view.kind} className="state-arrival">{requested !== selected ? "正在加载" + views[requested].label + "预览，当前作品仍可打开。" : failed ? "预览未能加载。请重试切换，或通过浏览作品集入口继续。" : view.text}</span></p>
   </div>;
 }

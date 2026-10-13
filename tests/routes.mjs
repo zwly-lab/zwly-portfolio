@@ -22,16 +22,19 @@ try {
     await page.waitForFunction(() => document.getAnimations().some(animation => animation.effect?.pseudoElement?.startsWith("::view-transition-new(")));
     const motion = await page.evaluate(() => {
       const animations = document.getAnimations();
-      const incoming = animations.find(animation => animation.animationName === "appear" && animation.effect?.pseudoElement?.startsWith("::view-transition-new("));
+      const incoming = animations.find(animation => animation.animationName === "route-arrive" && animation.effect?.pseudoElement?.startsWith("::view-transition-new("));
       const outgoing = animations.find(animation => !animation.animationName && animation.effect?.pseudoElement?.startsWith("::view-transition-old("));
       const group = animations.find(animation => animation.effect?.pseudoElement?.startsWith("::view-transition-group(") && animation.effect.pseudoElement !== "::view-transition-group(root)");
       const frames = group.effect.getKeyframes();
       const oldFrame = outgoing.effect.getKeyframes()[0];
       const before = new DOMMatrix(frames[0].transform), after = new DOMMatrix(frames.at(-1).transform), offset = new DOMMatrix(oldFrame.transform);
-      return { duration: incoming.effect.getTiming().duration, delay: incoming.effect.getTiming().delay, exit: outgoing.effect.getTiming().duration, width: oldFrame.width, oldWidth: frames[0].width, dx: after.e + offset.e - before.e, dy: after.f + offset.f - before.f, groupFinished: group.playState, titleAnimations: document.querySelector("h1").getAnimations().length };
+      const arrival = incoming.effect.getKeyframes();
+      return { duration: incoming.effect.getTiming().duration, delay: incoming.effect.getTiming().delay, arrivalY: new DOMMatrix(arrival[0].transform).f, endTransform: arrival.at(-1).transform, exit: outgoing.effect.getTiming().duration, width: oldFrame.width, oldWidth: frames[0].width, dx: after.e + offset.e - before.e, dy: after.f + offset.f - before.f, groupFinished: group.playState, titleAnimations: document.querySelector("h1").getAnimations().length };
     });
     assert.equal(motion.duration, 300);
     assert.equal(motion.delay, 180, "new content follows the old content's departure");
+    assert.equal(motion.arrivalY, 6, "page content receives one bounded spatial arrival");
+    assert.equal(motion.endTransform, "none", "arrival releases the snapshot to its natural position");
     assert.equal(motion.exit, 180);
     assert.equal(motion.width, motion.oldWidth, "old snapshot keeps its original text/image width");
     assert.ok(Math.abs(motion.dx) < 1 && Math.abs(motion.dy) < 1, "old snapshot stays at its original viewport position");
