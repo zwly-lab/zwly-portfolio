@@ -137,10 +137,13 @@ async function main() {
   assert.ok((await page.locator("h1").textContent()).includes("Vibe Coding."));
   assert.equal(await page.locator("#portfolio-overview .overview-work").count(), 3, "three directions visible by default");
   await page.getByRole("button", { name: "应用作品", exact: true }).click();
+  await page.waitForFunction(() => document.querySelector('.overview-applications[aria-busy="false"]'));
   assert.ok((await page.locator("#portfolio-overview").textContent()).includes("Campus"));
   await page.getByRole("button", { name: "视觉创作", exact: true }).click();
+  await page.waitForFunction(() => document.querySelector('.overview-visual[aria-busy="false"]'));
   assert.ok((await page.locator("#portfolio-overview").textContent()).includes("产品视觉"));
   for (const name of ["精选一览", "交互实验", "应用作品", "精选一览"]) await page.getByRole("button", { name, exact: true }).click();
+  await page.waitForFunction(() => document.querySelector('.overview-selected[aria-busy="false"]'));
   assert.equal(await page.getByRole("button", { name: "精选一览", exact: true }).getAttribute("aria-pressed"), "true");
   assert.equal(await page.locator("#portfolio-overview .overview-work").count(), 3, "rapid direction changes keep the final selection");
   assert.equal(await page.locator("iframe").count(), 0, "runtime is not loaded for passive viewing");
@@ -253,6 +256,7 @@ async function main() {
   assert.equal(await page.locator('.hero-intro .text-link .arrow').evaluate(element => getComputedStyle(element).transform), 'none', 'reduced motion keeps keyboard acknowledgment without arrow travel');
   assert.equal(await page.locator(".visual-print img").first().evaluate((element) => getComputedStyle(element).animationName), "none", "reduced motion shows full static artwork");
   await page.getByRole("button", { name: "应用作品", exact: true }).click();
+  await page.waitForFunction(() => document.querySelector('.overview-applications[aria-busy="false"]'));
   assert.equal(await page.locator("#portfolio-overview").evaluate((element) => element.getAnimations({ subtree: true }).length), 0, "reduced motion keeps direction changes immediate");
   await page.goto(origin + "/projects/pyscreen");
   assert.equal(await page.locator(".process-spotlight").evaluate((element) => getComputedStyle(element).transitionDuration), "0s");

@@ -41,6 +41,7 @@ try {
     await page.waitForFunction(() => document.querySelector(".overview-images").getAnimations({ subtree: true }).length === 0);
     const before = await page.locator('[data-preview="/images/projects/jd-dashboard.png"]').evaluate(element => ({ left: element.getBoundingClientRect().left, top: element.getBoundingClientRect().top, width: element.getBoundingClientRect().width }));
     await page.getByRole("button", { name: "精选一览", exact: true }).click();
+    await page.waitForFunction(() => document.querySelector('.overview-selected[aria-busy="false"]'));
     const beginning = await page.locator('[data-preview="/images/projects/jd-dashboard.png"]').evaluate(element => {
       const animation = element.getAnimations()[0];
       animation.pause(); animation.currentTime = 0;
