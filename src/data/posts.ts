@@ -1,6 +1,6 @@
 export const posts = [
   {
-    slug: "data-before-charts", title: "画图之前，先读懂数据", date: "2026-10-11", summary: "从 Python 可视化学习记录整理：时间范围、指标和单位，决定图表能说明什么。",
+    slug: "data-before-charts", title: "画图之前，先读懂数据", date: "2026-10-11", summary: "时间范围、指标和单位，决定一张图表能回答什么问题。",
     sourceNote: "《数据可视化与大数据资源索引》《黑马Python-10-数据可视化折线图》· 第二大脑课程学习记录精选，本文整理于 2026-10-11。",
     cover: { src: "/images/projects/gdp.png", width: 1440, height: 810, caption: "GDP 时间轴练习 · 2019 年视图，数据范围为 1960–2019 年" },
     sections: [
@@ -11,7 +11,7 @@ export const posts = [
     ],
   },
   {
-    slug: "chinese-product-posters", title: "中文产品海报：先把字排清楚", date: "2026-10-11", summary: "从已有宣传资产记录整理：中文字体、信息层级与多比例构图，让产品表达可读。",
+    slug: "chinese-product-posters", title: "中文产品海报：先把字排清楚", date: "2026-10-11", summary: "换一种画幅，重新安排标题、界面与说明，让中文产品信息清楚可读。",
     sourceNote: "《代码索引》《JD Protocol Engine-宣传资产同步记录》· 第二大脑项目实践精选，原资产记录为 2026-09-04，本文整理于 2026-10-11。",
     cover: { src: "/images/posters/jd-overview.png", width: 794, height: 1123, caption: "已有产品总览海报 · A4 画幅，文案属于历史宣传资产" },
     sections: [
@@ -40,7 +40,7 @@ export const posts = [
     ],
   },
   {
-    slug: "photo-to-visual-diary", title: "从照片到日记拼贴：视觉提示词笔记", date: "2026-09-30", summary: "从已有笔记精选：先保留人物与场景，再组织画风、纸张、留白和文字。",
+    slug: "photo-to-visual-diary", title: "从照片到日记拼贴：视觉提示词笔记", date: "2026-09-30", summary: "先保留人物与场景，再用纸边、留白和文字组织一段视觉叙事。",
     sourceNote: "《图片提示词-照片转绘与日记》· 第二大脑学习笔记精选，整理于 2026-09-30。",
     cover: { src: "/images/posters/travel-diary.png", width: 1122, height: 1402, caption: "已收藏的旅行日记视觉作品 · 用于展示拼贴方向，不代表下列模板的验收结果" },
     sections: [
@@ -51,7 +51,7 @@ export const posts = [
     ],
   },
   {
-    slug: "motion-for-understanding", title: "让动效帮助理解：交互设计笔记", date: "2026-09-30", summary: "从已有清单精选：来源明确、过程连续、落点可信，让反馈跟随真实状态。",
+    slug: "motion-for-understanding", title: "让动效帮助理解", date: "2026-09-30", summary: "从触发动作，到变化过程，再到稳定结果：让一次运动解释一次状态变化。",
     sourceNote: "《UI交互动效设计清单》· 第二大脑学习笔记精选，原笔记创建于 2026-09-12，更新于 2026-09-30。",
     cover: { src: "/images/projects/linked-list.png", width: 1440, height: 1000, caption: "有序链表二路归并 · 实际演示画面，作为学习过程可视化的配图" },
     sections: [

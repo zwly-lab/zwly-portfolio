@@ -71,7 +71,7 @@ try {
   const loadedSize = await page.locator(".lightbox-image").evaluate(element => ({ width: element.offsetWidth, height: element.offsetHeight }));
   assert.deepEqual(loadedSize, { width: preview.width, height: preview.height }, "image decoding does not resize the dialog");
   await page.keyboard.press("ArrowRight");
-  await page.waitForFunction(() => document.querySelector(".lightbox-controls p").textContent === "7 / 18");
+  await page.waitForFunction(() => document.querySelector(".lightbox-controls p").textContent === "2 / 18");
   await page.evaluate(() => {
     const animation = document.querySelector(".lightbox-image").getAnimations()[0];
     animation.pause(); animation.currentTime = 60;

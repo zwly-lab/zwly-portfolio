@@ -74,6 +74,8 @@ With the same browser runtime, `node tests/motion.mjs [origin]` checks coordinat
 
 `node tests/routes.mjs [origin]` checks the actual route snapshot animations on desktop/mobile, original snapshot geometry, departure/arrival sequencing, adjacent article top position, browser back/forward reading restoration, rapid navigation, reduced motion, delayed route content and a browser without View Transitions. Installed React 19.3 handles the transition lifecycle; no custom router or animation dependency is used.
 
+`node tests/gallery.mjs [origin]` compares the displayed gallery order with all 18 successive enlarged originals, including collapsed variants and concepts, on desktop/mobile with normal/reduced motion. It checks keyboard boundaries, original-trigger focus restoration and stable controls. The general browser check also verifies that the first work image and title fit the mobile opening and that the mixed homepage retains three image previews.
+
 ## Vercel
 
 Live site: https://zwly-lab.vercel.app · Public repository: https://github.com/zwly-lab/zwly-portfolio

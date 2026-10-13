@@ -7,7 +7,7 @@ export function NoteExample({ slug }: { slug: string }) {
   if (slug === "motion-for-understanding") return <div className="note-example">
     <h3>试一下：让操作结果立即可见</h3><p>下面是一个展开示例。点击后可以查看步骤，再点击即可收起；这里不执行链表算法。</p>
     <details className="feedback-example"><summary><span className="disclosure-open-text">展开归并步骤</span><span className="disclosure-close-text">收起归并步骤</span>{/* Lucide chevron-down; ISC/MIT notice in licenses/. */}<svg className="disclosure-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6" /></svg></summary><ol><li>比较两条链表的头节点。</li><li>将较小节点接到结果链表，移动对应指针。</li><li>重复比较；一条链表结束后，接上另一条的剩余部分。</li></ol></details>
-    <figure className="note-inline-image"><Image src="/images/projects/linked-list.png" alt="真实归并演示：结果链表连接完成后的界面" width={1440} height={1000} sizes="(max-width: 760px) 100vw, 760px" /><figcaption>真实演示截图 · 展开示例说明步骤，演示页负责执行算法。</figcaption></figure>
+    <figure className="note-inline-image"><div className="note-result-frame"><Image src="/images/projects/linked-list.png" alt="真实归并结果局部：2、2、4、8、9、9、13、16 通过连线组成结果链表" width={1440} height={1000} sizes="(max-width: 760px) 140vw, 1000px" /></div><figcaption>真实截图局部 · 节点与连线保留归并结果。展开示例说明步骤，演示页负责执行算法。</figcaption></figure>
     <Link className="text-link" href="/demos/linked-list/index.html">进入真实归并演示</Link>
   </div>;
   if (slug === "photo-to-visual-diary") return <figure className="note-example"><div className="note-image-pair">

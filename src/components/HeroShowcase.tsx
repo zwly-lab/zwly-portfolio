@@ -61,7 +61,7 @@ export function HeroShowcase() {
   return <div className="hero-showcase portfolio-showcase">
     <div ref={controls} className="showcase-choices" role="group" aria-label="切换作品方向"><ActiveUnderline target={controls} value={view.label} />{views.map((item, index) => <button key={item.label} type="button" aria-pressed={index === selected} aria-controls="portfolio-overview" onClick={() => select(index)}>{item.label}</button>)}</div>
     <div ref={grid} id="portfolio-overview" className={"overview-images overview-" + view.kind}>
-      {view.items.map((item, index) => <Link data-preview={item.src} key={item.src} href={"/projects/" + item.slug} className="overview-work"><Image src={item.src} alt={item.alt} width={item.width} height={item.height} sizes={index === 0 ? "(max-width: 760px) 100vw, 580px" : "(max-width: 760px) 50vw, 300px"} loading={selected === 0 ? "eager" : "lazy"} /><span>{item.title}<Arrow /></span></Link>)}
+      {view.items.map((item, index) => <Link data-preview={item.src} key={item.src} href={"/projects/" + item.slug} className={"overview-work overview-work--" + item.slug}><div className="overview-frame"><Image src={item.src} alt={item.alt} width={item.width} height={item.height} sizes={index === 0 ? "(max-width: 760px) 100vw, 580px" : "(max-width: 760px) 50vw, 380px"} loading={selected === 0 ? "eager" : "lazy"} /></div><span>{item.title}<Arrow /></span></Link>)}
     </div>
     <p className="overview-description" role="status"><span key={view.kind} className="state-arrival">{view.text}</span></p>
   </div>;

@@ -27,6 +27,6 @@ export default function Home() {
       <Link href="/projects/poster-collection" className="visual-print watercolor-print"><Image src="/images/posters/watercolor-space.png" alt="风筝与歌声的水彩留白构图" width={845} height={1860} sizes="(max-width: 760px) 46vw, 300px" /><span>水彩与留白</span></Link>
     </section>
     <section className="home-writing" aria-labelledby="notes-title"><div className="section-header"><div><h2 id="notes-title">构建手记。</h2><p className="section-description">保留设计判断，让下一次迭代有据可循。</p></div><Link className="text-link" href="/blog">阅读手记 <Arrow /></Link></div><div className="notes-grid">{selectedPosts.map((post) => <NoteCard key={post.slug} post={post} />)}</div></section>
-    <section className="home-about"><h2>提出想法，与 AI 协作，<br />再用实际结果继续迭代。</h2><Link className="text-link" href="/about">了解我的构建方式 <Arrow /></Link></section>
+    <section className="home-about"><h2>一次错误提示，<br />也可以成为设计的起点。</h2><Link className="text-link" href="/about">看我怎样检查反馈与恢复 <Arrow /></Link></section>
   </main>;
 }

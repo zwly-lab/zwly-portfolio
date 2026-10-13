@@ -9,7 +9,6 @@ import { motionTiming } from "@/lib/motion";
 export function PosterGallery({ posters }: { posters: NonNullable<Project["gallery"]> }) {
   const dialog = useRef<HTMLDialogElement>(null);
   const [index, setIndex] = useState<number | null>(null);
-  const poster = index === null ? null : posters[index];
   const image = useRef<HTMLImageElement>(null);
   const thumbnails = useRef<(HTMLImageElement | null)[]>([]);
   const source = useRef<DOMRect | null>(null);
@@ -23,7 +22,12 @@ export function PosterGallery({ posters }: { posters: NonNullable<Project["galle
     { title: "水彩与留白", text: "保留歌声与风筝，比较主体位置、画面重心和留白。", items: posters.filter((item) => item.src.includes("watercolor-")) },
     { title: "产品视觉", text: "同一个产品，面对 A4、竖屏与横屏，重新组织信息。", items: posters.filter((item) => item.src.includes("/jd-")) },
     { title: "界面方向归档", text: "四套早期网站概念，记录方向选择。概念图中的界面与数字不代表实际产品状态。", items: posters.filter((item) => item.src.includes("portfolio-style-")), archive: true },
-  ];
+  ].map((group) => {
+    const featured = group.selected ? group.selected.map((file) => group.items.find((item) => item.src.endsWith(file))!).filter(Boolean) : group.items;
+    return { ...group, featured, variants: group.items.filter((item) => !featured.includes(item)) };
+  });
+  const displayedPosters = groups.flatMap((group) => [...group.featured, ...group.variants]);
+  const poster = index === null ? null : displayedPosters[index];
 
   function open(index: number) {
     if (dialog.current?.open) return;
@@ -51,7 +55,10 @@ export function PosterGallery({ posters }: { posters: NonNullable<Project["galle
 
   function change(next: number) {
     const current = activeIndex.current;
-    if (closing.current || !dialog.current?.open || current === null || next < 0 || next >= posters.length || next === current) return;
+    if (closing.current || !dialog.current?.open || current === null || next < 0 || next >= displayedPosters.length || next === current) return;
+    // Move focus before disabling its button; Chrome otherwise sends it to body.
+    const boundary = next === 0 ? ".lightbox-controls button:first-child" : next === displayedPosters.length - 1 ? ".lightbox-controls button:last-child" : null;
+    if (boundary && document.activeElement === dialog.current.querySelector(boundary)) dialog.current.querySelector<HTMLButtonElement>(".lightbox-toolbar button")?.focus();
     direction.current = next > current ? 1 : -1;
     activeIndex.current = next;
     setIndex(next);
@@ -84,10 +91,9 @@ export function PosterGallery({ posters }: { posters: NonNullable<Project["galle
 
   return <>
     {groups.map((group) => {
-      const featured = group.selected ? group.selected.map((file) => group.items.find((item) => item.src.endsWith(file))!).filter(Boolean) : group.items;
-      const variants = group.items.filter((item) => !featured.includes(item));
+      const { featured, variants } = group;
       const render = (items: typeof posters) => <div className="poster-grid series-grid">{items.map((item) => <figure key={item.src} className="project-media">
-        <button className="poster-open" type="button" aria-haspopup="dialog" aria-label={"放大查看：" + item.title} onClick={() => open(posters.indexOf(item))}><Image ref={(element) => { thumbnails.current[posters.indexOf(item)] = element; }} src={item.src} alt={item.title} width={item.width} height={item.height} sizes="(max-width: 760px) 100vw, 420px" /><span className="poster-open-label">放大查看 <Arrow /></span></button>
+        <button className="poster-open" type="button" aria-haspopup="dialog" aria-label={"放大查看：" + item.title} onClick={() => open(displayedPosters.indexOf(item))}><Image ref={(element) => { thumbnails.current[displayedPosters.indexOf(item)] = element; }} src={item.src} alt={item.title} width={item.width} height={item.height} sizes="(max-width: 760px) 100vw, 420px" /><span className="poster-open-label">放大查看 <Arrow /></span></button>
         <figcaption>{item.title}<a href={item.src} target="_blank" rel="noopener noreferrer">查看原图 <Arrow /></a></figcaption>
       </figure>)}</div>;
       return <section key={group.title} className={"gallery-series " + (group.archive ? "gallery-archive" : "")} aria-label={group.title}><div className="gallery-series-header"><h3>{group.title}</h3><p>{group.text}</p></div>
@@ -105,7 +111,7 @@ export function PosterGallery({ posters }: { posters: NonNullable<Project["galle
         const thumbnail = thumbnails.current[index!]?.currentSrc || thumbnails.current[index!]?.src;
         if (element && !element.complete && thumbnail) element.style.backgroundImage = `url("${thumbnail}")`;
       }} key={poster.src} className="lightbox-image" src={poster.src} alt={poster.title} width={poster.width} height={poster.height} sizes="90vw" style={{ aspectRatio: `${poster.width} / ${poster.height}`, width: `min(100%, calc((100dvh - 220px) * ${poster.width / poster.height}))` }} onLoad={(event) => { event.currentTarget.style.backgroundImage = "none"; }} />}</div>
-      <div className="lightbox-controls"><button type="button" disabled={index === null || index === 0} onClick={() => { if (activeIndex.current !== null) change(activeIndex.current - 1); }}>上一张</button><p role="status">{index === null ? 0 : index + 1} / {posters.length}</p><button type="button" disabled={index === null || index === posters.length - 1} onClick={() => { if (activeIndex.current !== null) change(activeIndex.current + 1); }}>下一张</button></div>
+      <div className="lightbox-controls"><button type="button" disabled={index === null || index === 0} onClick={() => { if (activeIndex.current !== null) change(activeIndex.current - 1); }}>上一张</button><p role="status">{index === null ? 0 : index + 1} / {displayedPosters.length}</p><button type="button" disabled={index === null || index === displayedPosters.length - 1} onClick={() => { if (activeIndex.current !== null) change(activeIndex.current + 1); }}>下一张</button></div>
     </dialog>
   </>;
 }

@@ -51,7 +51,7 @@ export function ProjectCollection({ projects }: { projects: Project[] }) {
         <ActiveUnderline target={filters} value={category} />
         {categories.map((item) => <button key={item} type="button" aria-pressed={category === item} aria-controls="filtered-projects" onClick={() => select(item)}>{item}</button>)}
       </div>
-      <p className="article-meta" role="status">{category} · {visible.length} 件作品</p>
+      <p className="article-meta" role="status">{visible.length} 件作品</p>
     </div>
     <div ref={grid} id="filtered-projects" className="collection-results">{groups.map((group) => {
       const items = group.slugs.map((slug) => visible.find((project) => project.slug === slug)).filter((item): item is Project => !!item);

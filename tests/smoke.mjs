@@ -4,8 +4,8 @@ const origin = process.argv[2] ?? "http://localhost:3000";
 const pages = [
   ["/", "Vibe Coding.", "ZWLY Lab"],
   ["/projects", "作品与实验。", "作品"],
-  ["/about", "想法由我提出，", "关于"],
-  ["/blog", "把构建中的判断，", "手记"],
+  ["/about", "把想法，交给实际结果。", "关于"],
+  ["/blog", "构建中的判断。", "手记"],
   ["/projects/campus-takeout", "Campus Takeout", "Campus Takeout"],
   ["/projects/pyscreen", "PyScreen", "PyScreen"],
   ["/projects/kmp-visualizer", "KMP 算法可视化", "KMP 算法可视化"],
@@ -49,7 +49,7 @@ for (const [path, heading, title] of pages) {
     assert.ok(html.includes('id="case-question"'), path + " concrete product question");
     assert.ok(html.includes('id="case-decisions-title"'), path + " design choices");
     assert.ok(html.includes('id="case-verify-title"'), path + " observable walkthrough");
-    assert.ok(html.includes("现有成果与下一步"), path + " truthful evidence boundary");
+    assert.ok(html.includes(path === "/projects/jd-protocol-engine" ? "截图与视频属于已有本地界面记录" : "现有成果与下一步"), path + " truthful evidence boundary");
   }
   if (["/projects/ai-writing-coach", "/projects/ai-agent-lab"].includes(path)) {
     assert.ok(html.includes("研究方向 · 尚未实现"), path + " concept status");

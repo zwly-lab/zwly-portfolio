@@ -28,27 +28,30 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
   const related = projects.find((item) => item.slug === relatedSlug);
   const noteSlug = slug === "jd-protocol-engine" ? "chinese-product-posters" : slug === "poster-collection" ? "photo-to-visual-diary" : slug === "gdp-timeline" ? "data-before-charts" : "motion-for-understanding";
   const note = posts.find((item) => item.slug === noteSlug);
+  const relatedReason = relatedSlug === "kmp-visualizer" ? "继续观察单步过程怎样解释失配回退。" : relatedSlug === "jd-protocol-engine" ? "比较手机菜单与桌面控制台怎样组织操作入口。" : relatedSlug === "campus-takeout" ? "换到手机菜单，看看分类、价格与加购怎样相邻。" : "在练习台里对照代码、变量与画面的变化。";
+  const noteReason = noteSlug === "chinese-product-posters" ? "对照控制台与海报，理解界面证据怎样进入产品表达。" : noteSlug === "photo-to-visual-diary" ? "了解旅行拼贴背后关于场景、纸边与留白的约束。" : noteSlug === "data-before-charts" ? "补上时间范围、单位与数据来源的阅读方法。" : "继续读状态变化、错误反馈与动效之间的关系。";
   const coverKind = slug === "campus-takeout" ? "phone" : slug === "pyscreen" || slug === "jd-protocol-engine" ? "workspace" : "diagram";
 
   return <main id="main-content" className={"container page-body case-page case-page--" + (isConcept ? "concept" : project.gallery ? "gallery" : study?.kind ?? "product")}>
     <header className="page-header case-header case-header-v2">
       <ContentBreadcrumb href="/projects" label="作品" title={project.title} />
-      <h1>{project.title}</h1><p>{project.description}</p>
-      <dl className="case-facts">
-        <div><dt>展示范围</dt><dd>{isConcept ? "研究方向 · 尚未实现" : project.gallery ? "视觉系列 · 已有原作" : study?.label}</dd></div>
-        <div><dt>技术组成</dt><dd>{project.stack.join(" / ")}</dd></div>
-      </dl>
-      <div className="link-group">
+      <h1>{project.title}</h1><p>{project.gallery ? "AI 生成与风格化视觉 · 18 张已有原作，按系列观看与放大。" : project.description}</p>
+      {isConcept && <p className="article-meta">研究方向 · 尚未实现</p>}
+      {(project.demo || project.video) && <div className="link-group">
         {project.demo && <a className="text-link" href={project.demo}>体验作品 <Arrow /></a>}
         {project.video && <a className="text-link" href="#product-film">观看操作视频 <Arrow /></a>}
-        {project.gallery && <a className="text-link" href="#visual-works">进入视觉系列 <Arrow /></a>}
-      </div>
+      </div>}
     </header>
 
     {slug === "pyscreen" ? <ProductWalkthrough /> : project.image && <figure className={"project-media case-cover case-cover--" + coverKind}>
       <Image src={project.image.src} alt={project.title + " · " + project.image.caption} width={project.image.width} height={project.image.height} sizes={coverKind === "phone" ? "(max-width: 760px) 80vw, 392px" : "(max-width: 760px) 100vw, 1288px"} loading="eager" />
-      <figcaption>{project.image.caption}</figcaption>
+      <figcaption>{project.image.caption}{slug === "campus-takeout" && <p>“全部、招牌套餐、家常盖饭、加料、饮料”留在商品上方；每个条目把价格与加购放在一起，底部购物车保持可见。这张截图可核对布局，规格与订单行为仍需微信端验证。</p>}</figcaption>
     </figure>}
+
+    {!project.gallery && <dl className="case-facts">
+      <div><dt>展示范围</dt><dd>{isConcept ? "研究方向 · 尚未实现" : study?.label}</dd></div>
+      <div><dt>技术组成</dt><dd>{project.stack.join(" / ")}</dd></div>
+    </dl>}
 
     {study && <>
       <section className="editorial-grid case-lead" aria-labelledby="case-question"><h2 id="case-question">{study.question}</h2><div className="prose"><p>{study.context}</p></div></section>
@@ -69,10 +72,11 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
       </section>}
 
       {slug === "jd-protocol-engine" && <section className="case-evidence" aria-labelledby="console-views">
-        <div className="section-header"><h2 id="console-views">两种检查路径</h2></div>
+        <div className="section-header"><h2 id="console-views">总览看当前状态，任务页找具体任务</h2></div>
+        <div className="prose"><p>前面的总览把“空闲”和“当前任务：无”放在一起，并保留运行入口。任务页另设搜索、状态筛选与创建入口：把状态判断和任务操作分开，代价是检查细节需要再进一页。</p></div>
         <div className="visual-pair">
-          <figure className="project-media"><Image src="/images/projects/jd-tasks.png" alt="实际任务列表截图：任务入口与空任务状态" width={1600} height={1000} sizes="(max-width: 760px) 100vw, 628px" /><figcaption>任务页：查看任务入口 · 2026-09-04 空状态截图</figcaption></figure>
-          <figure className="project-media"><Image src="/images/projects/jd-logs.png" alt="实际日志面板截图：日志筛选与暂无日志状态" width={1600} height={1000} sizes="(max-width: 760px) 100vw, 628px" /><figcaption>日志页：筛选运行记录 · 2026-09-04 空状态截图</figcaption></figure>
+          <figure className="project-media"><Image src="/images/projects/jd-tasks.png" alt="实际任务页：搜索框、全部运行中失败筛选，以及还没有任务的空状态和创建任务按钮" width={1600} height={1000} sizes="(max-width: 760px) 100vw, 628px" /><figcaption>任务页回答“有哪些任务” · 创建入口与空列表，2026-09-04</figcaption></figure>
+          <figure className="project-media"><Image src="/images/projects/jd-logs.png" alt="实际日志页：来源与INFO WARN ERROR筛选，0条日志及暂无匹配日志的空状态" width={1600} height={1000} sizes="(max-width: 760px) 100vw, 628px" /><figcaption>日志页回答“发生过什么” · 来源与等级筛选，2026-09-04 空状态</figcaption></figure>
         </div>
       </section>}
 
@@ -80,14 +84,18 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
         <div className="section-header"><h2 id="case-verify-title">{slug === "campus-takeout" ? "接下来，沿完整流程验证" : slug === "jd-protocol-engine" ? "从界面记录到运行证据" : "带着一个问题，试一次"}</h2></div>
         <ol>{study.verify.map((step, index) => <li key={step.title}><span className="step-number" aria-hidden="true">0{index + 1}</span><h3>{step.title}</h3><p>{step.text}</p></li>)}</ol>
         {project.demo && <a className="text-link" href={project.demo}>打开演示，按步骤观察 <Arrow /></a>}
+        {slug === "jd-protocol-engine" && <div className="prose"><p>{study.boundary}</p></div>}
       </section>
-      <section className="editorial-grid"><h2>现有成果与下一步</h2><div className="prose"><p>{study.boundary}</p></div></section>
+      {slug !== "jd-protocol-engine" && <section className="editorial-grid"><h2>现有成果与下一步</h2><div className="prose"><p>{study.boundary}</p></div></section>}
     </>}
 
-    {project.gallery && <section id="visual-works" aria-labelledby="visual-works-title">
-      <div className="section-header"><h2 id="visual-works-title">从日常记录，到产品表达</h2></div>
-      <div className="prose"><p>纸边与手写标记组织旅行和餐桌的记忆，水彩让主体与留白重新取得平衡，产品海报则把界面和信息层次放在一起。下面按系列观看，也可以打开完整原作。</p><p className="article-meta">AI 生成与风格化视觉作品。产品海报和网站概念保留当时的表达，不等同于已实现的产品能力。</p></div>
+    {project.gallery && <section id="visual-works" aria-label="视觉作品系列">
       <PosterGallery posters={project.gallery} />
+      <dl className="case-facts">
+        <div><dt>展示范围</dt><dd>视觉系列 · 18 张已有原作</dd></div>
+        <div><dt>技术组成</dt><dd>{project.stack.join(" / ")}</dd></div>
+      </dl>
+      <div className="prose"><p className="article-meta">AI 生成与风格化视觉作品。产品海报和网站概念保留当时的表达，不等同于已实现的产品能力。</p></div>
     </section>}
 
     {isConcept && <>
@@ -96,8 +104,8 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
     </>}
 
     <nav className="article-navigation case-navigation" aria-label="继续探索">
-      {related && <Link className="text-link" href={"/projects/" + related.slug}><span>继续看作品</span><strong>{related.title} <Arrow /></strong></Link>}
-      {note && <Link className="text-link" href={"/blog/" + note.slug}><span>相关方法手记</span><strong>{note.title} <Arrow /></strong></Link>}
+      {related && <Link className="text-link" href={"/projects/" + related.slug}><span>继续看作品</span><strong>{related.title} <Arrow /></strong><span>{relatedReason}</span></Link>}
+      {note && <Link className="text-link" href={"/blog/" + note.slug}><span>相关方法手记</span><strong>{note.title} <Arrow /></strong><span>{noteReason}</span></Link>}
     </nav>
   </main>;
 }

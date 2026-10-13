@@ -53,6 +53,17 @@ async function main() {
       }));
       assert.ok(checks.content <= checks.width + 1, route + " overflow at " + width);
       assert.deepEqual(checks.broken, [], route + " image load at " + width);
+      if (width < 760 && route === "/projects") {
+        const title = await page.locator(".work-card h3").first().boundingBox();
+        assert.ok(title && title.y + title.height < 844, "first work image and title fit the mobile opening viewport at " + width);
+      }
+      if (width < 760 && route === "/") {
+        assert.equal(await page.locator(".overview-selected img").evaluateAll(images => images.filter(image => getComputedStyle(image).display !== "none" && image.getBoundingClientRect().height > 0).length), 3, "all three creative directions retain image previews on mobile");
+      }
+      if (width < 760 && ["/projects/pyscreen", "/projects/campus-takeout", "/projects/jd-protocol-engine"].includes(route)) {
+        const image = await page.locator("main img").first().boundingBox();
+        assert.ok(image && image.y < 550, "real case media arrives early on mobile: " + route);
+      }
       if (output && name && [1440, 390].includes(width)) {
         if (route === "/") {
           await page.locator(".demo-stage > img").scrollIntoViewIfNeeded();
@@ -136,10 +147,10 @@ async function main() {
   const trigger = page.getByRole("button", { name: "放大查看：旅行拼贴 · 圣托里尼", exact: true });
   await trigger.click();
   assert.equal(await page.locator("dialog").evaluate((dialog) => dialog.open), true);
-  assert.equal(await page.locator(".lightbox-controls p").textContent(), "6 / 18");
+  assert.equal(await page.locator(".lightbox-controls p").textContent(), "1 / 18");
   await page.keyboard.press("ArrowLeft");
   for (let step = 0; step < 3; step++) await page.keyboard.press("ArrowRight");
-  await page.locator(".lightbox-controls p").filter({ hasText: "8 / 18" }).waitFor();
+  await page.locator(".lightbox-controls p").filter({ hasText: "4 / 18" }).waitFor();
   for (let step = 0; step < 20; step++) await page.keyboard.press("ArrowLeft");
   await page.locator(".lightbox-controls p").filter({ hasText: "1 / 18" }).waitFor();
   assert.equal(await page.getByRole("button", { name: "上一张", exact: true }).isDisabled(), true);
@@ -153,7 +164,7 @@ async function main() {
   await page.emulateMedia({ reducedMotion: "reduce" });
   await trigger.click();
   await page.keyboard.press("ArrowRight");
-  await page.locator(".lightbox-controls p").filter({ hasText: "7 / 18" }).waitFor();
+  await page.locator(".lightbox-controls p").filter({ hasText: "2 / 18" }).waitFor();
   assert.equal(await page.locator("dialog").evaluate((element) => getComputedStyle(element).animationName), "none");
   assert.equal(await page.locator(".lightbox-image").evaluate((element) => element.getAnimations().length), 0);
   await page.keyboard.press("Escape");

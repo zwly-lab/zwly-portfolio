@@ -12,10 +12,10 @@ export default function BlogPage() {
     { title: "构建记录", description: "保留作品集第一版的选择，也为下一次判断留下依据。", entries: archive.filter((post) => !post.sourceNote) },
   ];
   return <main id="main-content" className="container page-body">
-    <header className="page-header note-index-header"><h1>把构建中的判断，<br className="desktop-break" />留下来。</h1><p>与 AI 协作，需要把想法说明白，也需要判断实际结果。这里从真实作品与已有笔记出发，记录界面、图表和视觉表达的选择。</p></header>
+    <header className="page-header note-index-header"><h1>构建中的判断。</h1><p>关于界面、数据与视觉的实践手记。每篇留下一个选择，和可以对照的例子。</p></header>
     <Link className="note-feature" href={"/blog/" + featured.slug}>
-      <Image src={featured.cover.src} alt={featured.cover.caption} width={featured.cover.width} height={featured.cover.height} sizes="(max-width: 760px) 100vw, 720px" />
-      <div className="note-feature-copy"><h2>{featured.title}</h2><p className="article-meta"><time dateTime={featured.date}>{featured.date.replaceAll("-", ".")}</time> · 交互与反馈</p><p>{featured.summary}</p><p className="note-feature-judgment">一次运动应该解释一次状态变化。从哪里来，怎样变化，最终落在哪里，都要跟随真实的操作结果。</p><span className="text-link">读这篇手记 <Arrow /></span></div>
+      <div className="note-feature-image"><div className="note-result-frame"><Image src={featured.cover.src} alt="实际归并截图局部：结果链表中的节点与连线" width={featured.cover.width} height={featured.cover.height} sizes="(max-width: 760px) 140vw, 900px" loading="eager" /></div><span>一次归并结束，节点与连线留下过程的结果。</span></div>
+      <div className="note-feature-copy"><h2>{featured.title}</h2><p className="article-meta"><time dateTime={featured.date}>{featured.date.replaceAll("-", ".")}</time> · 交互与反馈</p><p>{featured.summary}</p><span className="text-link">读这篇手记 <Arrow /></span></div>
     </Link>
     {collections.map((collection) => <section className="note-section" key={collection.title} aria-label={collection.title}>
       <div className="section-header"><h2>{collection.title}</h2><p>{collection.description}</p></div>

@@ -5,7 +5,7 @@ import { Arrow } from "./Arrow";
 import type { Project } from "@/data/projects";
 
 export function ProjectCard({ project }: { project: Project }) {
-  const cover = project.image ?? project.gallery?.[0];
+  const cover = project.slug === "jd-protocol-engine" ? { src: "/images/projects/jd-tasks.png", width: 1600, height: 1000 } : project.image ?? project.gallery?.find((item) => item.src.endsWith("travel-diary.png")) ?? project.gallery?.[0];
   return (
     <Link href={"/projects/" + project.slug} className={"work-card work-" + project.slug} data-project={project.slug}>
       {cover && <div className={"thumbnail-frame " + (project.preview ?? "")}><Image className="project-thumbnail" src={cover.src} alt={project.title + (project.status === "exploring" ? "概念预览" : project.preview === "art" ? "作品局部预览" : project.preview ? "实际界面局部" : "效果预览")} width={cover.width} height={cover.height} sizes="(max-width: 760px) 100vw, (max-width: 1050px) 50vw, 400px" /></div>}
