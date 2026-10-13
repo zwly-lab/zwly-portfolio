@@ -324,7 +324,7 @@ button:disabled { cursor: default; opacity: .4; }
 .portfolio-showcase .showcase-choices { gap: 12px 28px; }
 .overview-images { display: grid; grid-template-columns: 1.3fr 1fr; gap: 20px; min-height: 320px; align-items: center; }
 .overview-work { min-width: 0; transform-origin: left top; }
-.overview-frame { height: 310px; overflow: hidden; background: #f3f4ef; }
+.overview-frame { width: 100%; height: 310px; overflow: hidden; background: #f3f4ef; }
 .overview-work img { display: block; width: 100%; height: 100%; object-fit: contain; }
 .overview-work--pyscreen .overview-frame img { width: 133%; max-width: none; height: auto; margin: -18% 0 0 -33%; }
 .overview-work:nth-child(2) { align-self: end; }

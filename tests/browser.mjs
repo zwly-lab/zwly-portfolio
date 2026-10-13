@@ -59,6 +59,10 @@ async function main() {
       }
       if (width < 760 && route === "/") {
         assert.equal(await page.locator(".overview-selected img").evaluateAll(images => images.filter(image => getComputedStyle(image).display !== "none" && image.getBoundingClientRect().height > 0).length), 3, "all three creative directions retain image previews on mobile");
+        assert.equal(await page.locator(".overview-work").evaluateAll(cards => cards.every(card => {
+          const parent = card.getBoundingClientRect(), frame = card.querySelector(".overview-frame").getBoundingClientRect();
+          return frame.left >= parent.left - 1 && frame.right <= parent.right + 1;
+        })), true, "preview frames stay within their columns and preserve mobile gutters");
       }
       if (width < 760 && ["/projects/pyscreen", "/projects/campus-takeout", "/projects/jd-protocol-engine"].includes(route)) {
         const image = await page.locator("main img").first().boundingBox();
