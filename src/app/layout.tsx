@@ -7,12 +7,12 @@ import { SiteOpening } from "@/components/SiteOpening";
 import "./globals.css";
 const archivo = localFont({ src: "../../public/fonts/Archivo.woff2", variable: "--font-archivo", display: "swap", weight: "100 900" });
 
-// Decide before first paint so slow hydration cannot cover an already-readable page.
+// Choose the lightweight cover before paint; readiness and visible playback have separate clocks.
 const openingScript = `(() => {
   const preference = matchMedia("(prefers-reduced-motion: reduce)");
   if (location.pathname !== "/" || location.hash || scrollY > 0 || document.hidden || preference.matches || performance.getEntriesByType("navigation")[0]?.type === "back_forward") return;
   const root = document.documentElement;
-  const events = ["pointerdown", "keydown", "wheel", "touchmove", "scroll", "pagehide", "resize"];
+  const events = ["click", "pointerdown", "keydown", "wheel", "touchmove", "scroll", "pagehide", "resize"];
   const animations = [];
   let timer;
   let depthReady;
@@ -67,18 +67,29 @@ const openingScript = `(() => {
       const x = centerX - bounds.left - bounds.width / 2;
       const y = centerY - bounds.top - bounds.height / 2;
       const spread = Math.min(stageWidth * (innerWidth <= 760 ? .13 : .23), 180) * position;
+      const openingScale = Math.min(innerWidth * .48, 280) / bounds.width;
+      const openingPose = "translate3d(" + (document.documentElement.clientWidth / 2 - bounds.left - bounds.width / 2 + position * 18) + "px," + (innerHeight * .57 - bounds.top - bounds.height / 2) + "px," + depth + "px) rotateX(8deg) rotateY(" + position * 5 + "deg) rotateZ(" + position * 6 + "deg) scale(" + openingScale + ")";
       const animation = preview.animate([
-        { transform: "translate3d(0,0,0) rotateX(0deg) rotateY(0deg) rotateZ(0deg) scale(1)", opacity: 1, filter: "blur(0px)", boxShadow: "0 0 0 #182b2000, 0 0 0 #182b2000", offset: 0, easing: "cubic-bezier(.22, .6, .36, 1)" },
-        { transform: "translate3d(" + (x + spread) + "px," + (y + Math.abs(position) * 26) + "px," + (depth + 12) + "px) rotateX(8deg) rotateY(" + position * 5 + "deg) rotateZ(" + position * 10 + "deg) scale(" + scale + ")", opacity: 1, filter: "blur(0px)", boxShadow: "5px 20px 32px -10px #182b203d, 1px 5px 8px -4px #182b2026", offset: .25, easing: "ease-in-out" },
-        { transform: "translate3d(" + (x + spread * 1.04) + "px," + (y + Math.abs(position) * 22 - 4) + "px," + (depth + 12) + "px) rotateX(8deg) rotateY(" + position * 5 + "deg) rotateZ(" + position * 9 + "deg) scale(" + scale + ")", opacity: 1, filter: "blur(0px)", boxShadow: "5px 20px 32px -10px #182b203d, 1px 5px 8px -4px #182b2026", offset: .48, easing: "cubic-bezier(.45, 0, .2, 1)" },
+        { transform: openingPose, opacity: 0, filter: "blur(0px)", boxShadow: "0 0 0 #182b2000, 0 0 0 #182b2000", offset: 0 },
+        { transform: openingPose, opacity: 1, filter: "blur(0px)", boxShadow: "5px 20px 32px -10px #182b203d, 1px 5px 8px -4px #182b2026", offset: .09, easing: "cubic-bezier(.22, .6, .36, 1)" },
+        { transform: "translate3d(" + (x + spread) + "px," + (y + Math.abs(position) * 26) + "px," + (depth + 12) + "px) rotateX(8deg) rotateY(" + position * 5 + "deg) rotateZ(" + position * 10 + "deg) scale(" + scale + ")", opacity: 1, filter: "blur(0px)", boxShadow: "5px 20px 32px -10px #182b203d, 1px 5px 8px -4px #182b2026", offset: .34, easing: "ease-in-out" },
+        { transform: "translate3d(" + (x + spread * 1.04) + "px," + (y + Math.abs(position) * 22 - 4) + "px," + (depth + 12) + "px) rotateX(8deg) rotateY(" + position * 5 + "deg) rotateZ(" + position * 9 + "deg) scale(" + scale + ")", opacity: 1, filter: "blur(0px)", boxShadow: "5px 20px 32px -10px #182b203d, 1px 5px 8px -4px #182b2026", offset: .52, easing: "cubic-bezier(.45, 0, .2, 1)" },
         { transform: "translate3d(0,0,0) rotateX(0deg) rotateY(0deg) rotateZ(0deg) scale(1)", opacity: 1, filter: "blur(0px)", boxShadow: "0 0 0 #182b2000, 0 0 0 #182b2000", offset: 1 },
       ], { duration: 2220, fill: "both" });
       animations.push(animation);
     });
+    const signature = document.querySelector(".site-opening-signature");
+    const wordmark = document.querySelector(".site-header > .wordmark");
+    const mark = wordmark.getBoundingClientRect();
+    const font = getComputedStyle(wordmark);
+    Object.assign(signature.style, { left: mark.left + "px", top: mark.top + "px", fontSize: font.fontSize, lineHeight: font.lineHeight });
+    const markScale = Math.min(80, Math.max(48, innerWidth * .056)) / parseFloat(font.fontSize);
+    const markPose = "translate(" + (document.documentElement.clientWidth / 2 - mark.left - mark.width * markScale / 2) + "px," + (innerHeight * .27 - mark.top - mark.height * markScale / 2) + "px) scale(" + markScale + ")";
+    animations.push(signature.animate([{ transform: markPose, offset: 0 }, { transform: markPose, offset: .12, easing: "cubic-bezier(.76, 0, .24, 1)" }, { transform: "translate(0,0) scale(1)", offset: .46 }, { transform: "translate(0,0) scale(1)" }], { duration: 2400, fill: "both" }));
     root.setAttribute("data-opening-artifacts", "ready");
     root.setAttribute("data-site-opening", "active");
     const epoch = document.timeline.currentTime;
-    [...animations, ...camera.getAnimations({ subtree: true }).filter(animation => ["site-unveil", "opening-label", "opening-light"].includes(animation.animationName))].forEach(animation => { animation.startTime = epoch; });
+    [...animations, ...camera.getAnimations({ subtree: true }).filter(animation => animation.animationName === "site-unveil" || animation.animationName?.startsWith("opening-"))].forEach(animation => { animation.startTime = epoch; });
     document.dispatchEvent(new Event("opening-play"));
     clearTimeout(timer);
     timer = setTimeout(stop, 3100);

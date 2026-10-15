@@ -17,12 +17,12 @@ async function check(name, options, run) {
     window.headingEntries = [];
     window.artifactAnimations = [];
     window.openingLanded = [];
-    window.openingLifted = [];
+    window.openingComposed = [];
+    window.openingMarkError = null;
     document.addEventListener("opening-play", () => queueMicrotask(() => {
-      window.openingLifted = [...document.querySelectorAll("[data-opening-preview]")].map(preview => {
-        const target = [...document.querySelectorAll(".portfolio-showcase [data-preview]")].find(item => item.dataset.preview === preview.dataset.openingPreview).querySelector(".overview-frame");
-        const before = preview.getBoundingClientRect(), after = target.getBoundingClientRect();
-        return Math.max(...["left", "top", "width", "height"].map(key => Math.abs(before[key] - after[key])));
+      window.openingComposed = [...document.querySelectorAll("[data-opening-preview]")].map(preview => {
+        const bounds = preview.getBoundingClientRect();
+        return Math.abs((bounds.left + bounds.right) / 2 - document.documentElement.clientWidth / 2) < 70 && bounds.top > innerHeight * .35 && bounds.bottom < innerHeight * .85;
       });
     }));
     window.depthDraws = 0;
@@ -93,6 +93,8 @@ async function check(name, options, run) {
     }, true);
     document.addEventListener("animationend", event => {
       if (event.animationName !== "site-unveil") return;
+      const mark = document.querySelector(".site-opening-signature").getBoundingClientRect(), destinationMark = document.querySelector(".site-header > .wordmark").getBoundingClientRect();
+      window.openingMarkError = Math.max(...["left", "top", "width", "height"].map(key => Math.abs(mark[key] - destinationMark[key])));
       window.openingLanded = [...document.querySelectorAll("[data-opening-preview]")].map(preview => {
         const target = [...document.querySelectorAll(".portfolio-showcase [data-preview]")].find(item => item.dataset.preview === preview.dataset.openingPreview).querySelector(".overview-frame");
         const bounds = preview.getBoundingClientRect(), destination = target.getBoundingClientRect();
@@ -119,7 +121,10 @@ async function check(name, options, run) {
         const decoded = [...document.querySelectorAll("[data-opening-preview] img")].every(image => image.complete && image.naturalWidth > 0);
         const contained = [...document.querySelectorAll("[data-opening-preview]")].every(element => { const bounds = element.getBoundingClientRect(); return bounds.left >= -1 && bounds.right <= document.documentElement.clientWidth + 1; });
         const clearOfIntro = planes.every(bounds => bounds.left >= intro.right + 16 || bounds.right <= intro.left - 16 || bounds.top >= intro.bottom + 16 || bounds.bottom <= intro.top - 16);
-        window.openingFrames.push({ time: performance.now(), decoded, contained, clearOfIntro, pageOpacity: focus.opacity, pageShadow: focus.boxShadow, light: Number(getComputedStyle(preview, "::after").opacity), opacity: Number(getComputedStyle(preview).opacity), cameraTilt: Math.atan2(camera.m23, camera.m22), cameraDepth: camera.m43, previewDepth: transform.m43, planes, blur: Number(focus.filter.match(/blur\(([\d.]+)px\)/)?.[1] || 0), rotation: Math.atan2(transform.b, transform.a), overflow: document.documentElement.scrollWidth > innerWidth + 1, pointer: getComputedStyle(curtain).pointerEvents });
+        const cover = new DOMMatrix(getComputedStyle(document.querySelector(".site-opening-cover > span")).transform).m22;
+        const line = new DOMMatrix(getComputedStyle(document.querySelector(".hero-name .opening-line-content")).transform).m42;
+        const navigation = Number(getComputedStyle(document.querySelector(".site-nav")).opacity);
+        window.openingFrames.push({ time: performance.now(), decoded, contained, clearOfIntro, cover, line, navigation, pageOpacity: focus.opacity, pageShadow: focus.boxShadow, light: Number(getComputedStyle(preview, "::after").opacity), opacity: Number(getComputedStyle(preview).opacity), cameraTilt: Math.atan2(camera.m23, camera.m22), cameraDepth: camera.m43, previewDepth: transform.m43, planes, blur: Number(focus.filter.match(/blur\(([\d.]+)px\)/)?.[1] || 0), rotation: Math.atan2(transform.b, transform.a), overflow: document.documentElement.scrollWidth > innerWidth + 1, pointer: getComputedStyle(curtain).pointerEvents });
       }
       if (performance.now() < 14000) requestAnimationFrame(sample);
     }
@@ -131,6 +136,8 @@ async function check(name, options, run) {
 async function settled(page) {
   await page.waitForFunction(() => !document.documentElement.hasAttribute("data-site-opening"));
   assert.equal(await page.locator(".site-opening").evaluate(element => getComputedStyle(element).display), "none");
+  assert.equal(await page.locator(".site-opening-signature").evaluate(element => getComputedStyle(element).display), "none");
+  assert.equal(await page.getByRole("button", { name: "跳过开场" }).count(), 0);
   assert.equal(await page.locator("#main-content").evaluate(element => getComputedStyle(element).transform), "none");
   assert.equal(await page.locator(".site-camera").evaluate(element => getComputedStyle(element).transform), "none");
   assert.equal(await page.locator(".site-page").evaluate(element => getComputedStyle(element).filter), "none");
@@ -152,8 +159,8 @@ try {
     await check(`showcase stays clear of the introduction ${width}`, { width }, async page => {
       await page.goto(origin); await settled(page);
       const frames = await page.evaluate(() => window.openingFrames);
-      assert.ok(frames.length > 5 && frames.every(frame => frame.contained && frame.clearOfIntro && frame.cameraTilt === 0));
-      assert.ok(await page.evaluate(() => window.openingLifted.length === 3 && window.openingLifted.every(error => error < 1)));
+      assert.ok(frames.length > 5 && frames.every(frame => frame.contained && (frame.cover > .01 || frame.clearOfIntro) && frame.cameraTilt === 0));
+      assert.ok(await page.evaluate(() => window.openingComposed.length === 3 && window.openingComposed.every(Boolean)));
       await usable(page);
     });
   }
@@ -181,8 +188,10 @@ try {
       assert.equal(await page.locator(".site-depth-canvas").count(), 0, "the short-lived renderer is released after landing");
       assert.equal(await page.evaluate(() => window.depthContexts.every(context => context.isContextLost())), true, "GPU contexts are released after landing");
       assert.ok(frames.every(frame => frame.cameraTilt === 0 && frame.cameraDepth === 0 && frame.blur === 0 && frame.pageOpacity === "1" && frame.pageShadow === "none"), "the page remains frontal, sharp and unframed throughout the physical card scene");
-      assert.ok(frames.every(frame => frame.clearOfIntro), "floating work never covers the headline or its primary action");
-      assert.ok(await page.evaluate(() => window.openingLifted.length === 3 && window.openingLifted.every(error => error < 1)), "cards lift from their actual homepage frames without teleporting into view");
+      assert.ok(frames.every(frame => frame.cover > .01 || frame.clearOfIntro), "floating work clears the headline and action when the cover has opened");
+      assert.ok(await page.evaluate(() => window.openingComposed.length === 3 && window.openingComposed.every(Boolean)), "the opening starts with one centered work stack");
+      assert.ok(frames.some(frame => frame.cover > .95 && frame.line > 20 && frame.navigation < .1) && frames.some(frame => frame.cover < .01 && frame.line < 1 && frame.navigation > .99), "the cover, heading lines and navigation reveal the entire homepage within the shared scene");
+      assert.ok(await page.evaluate(() => window.openingMarkError !== null && window.openingMarkError < 1), "the centered signature becomes the actual header wordmark within one pixel");
       assert.ok(frames.some(frame => frame.previewDepth > 20), "work lifts off the page in depth");
       const lit = frames.filter(frame => frame.previewDepth > 20 && frame.opacity > .8);
       assert.ok(lit.some(frame => frame.light > .8) && frames.at(-1).light < .05, "directional surface light fades away as the works land");
@@ -264,13 +273,14 @@ try {
     assert.deepEqual(state.entries, []);
     await usable(page);
   });
-  await check("five-second image loading preserves a usable page and the full opening", {}, async page => {
+  await check("five-second image loading preserves a skippable cover and the full opening", {}, async page => {
     await page.route("**/_next/image*", async route => { await new Promise(resolve => setTimeout(resolve, 5000)); await route.continue(); });
     await page.goto(origin, { waitUntil: "domcontentloaded" });
     await page.waitForTimeout(2200);
     assert.equal(await page.evaluate(() => document.documentElement.dataset.siteOpening), "pending", "the old 1.8s cutoff cannot cancel a not-yet-ready scene");
     assert.equal(await page.evaluate(() => window.artifactAnimations.length), 0);
-    assert.ok(await page.evaluate(() => document.documentElement.scrollHeight > innerHeight * 2 && getComputedStyle(document.querySelector(".site-camera")).transform === "none"), "preparation preserves the normal readable document");
+    assert.ok(await page.evaluate(() => document.documentElement.scrollHeight > innerHeight * 2 && getComputedStyle(document.querySelector(".site-camera")).transform === "none"), "preparation preserves the normal document geometry");
+    assert.ok(await page.getByRole("button", { name: "跳过开场" }).isVisible(), "a real skip action remains available during slow preparation");
     await settled(page);
     assert.equal(await page.evaluate(() => window.artifactAnimations.length), 3);
     assert.ok(await page.evaluate(() => window.openingFrames.every(frame => frame.decoded) && window.openingFrames.at(-1).time - window.openingFrames[0].time >= 2200), "slow media still receives a complete decoded opening");
@@ -286,6 +296,14 @@ try {
     await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
     assert.equal(await page.evaluate(() => window.artifactAnimations.length), 0);
     assert.equal(await page.evaluate(() => document.documentElement.hasAttribute("data-site-opening")), false);
+    await usable(page);
+  });
+  await check("assistive click on skip releases the cover during preparation", {}, async page => {
+    await page.route("**/_next/image*", async route => { await new Promise(resolve => setTimeout(resolve, 850)); await route.continue(); });
+    await page.goto(origin, { waitUntil: "domcontentloaded" });
+    await page.getByRole("button", { name: "跳过开场" }).evaluate(button => button.click());
+    await settled(page);
+    assert.equal(await page.evaluate(() => window.artifactAnimations.length), 0);
     await usable(page);
   });
   await check("unavailable media cannot leave preparation pending forever", {}, async page => {
