@@ -17,6 +17,14 @@ async function check(name, options, run) {
     window.headingEntries = [];
     window.artifactAnimations = [];
     window.openingLanded = [];
+    window.openingLifted = [];
+    document.addEventListener("opening-play", () => queueMicrotask(() => {
+      window.openingLifted = [...document.querySelectorAll("[data-opening-preview]")].map(preview => {
+        const target = [...document.querySelectorAll(".portfolio-showcase [data-preview]")].find(item => item.dataset.preview === preview.dataset.openingPreview).querySelector(".overview-frame");
+        const before = preview.getBoundingClientRect(), after = target.getBoundingClientRect();
+        return Math.max(...["left", "top", "width", "height"].map(key => Math.abs(before[key] - after[key])));
+      });
+    }));
     window.depthDraws = 0;
     window.depthCompilesDuringFlight = 0;
     window.depthContexts = [];
@@ -95,22 +103,25 @@ async function check(name, options, run) {
       const curtain = document.querySelector(".site-opening");
       const main = document.querySelector("#main-content");
       const header = document.querySelector(".site-header");
-      if (curtain && main && header && document.documentElement.hasAttribute("data-site-opening")) {
+      if (curtain && main && header && document.documentElement.dataset.siteOpening === "active") {
         if (document.documentElement.dataset.openingDepth === "ready" && document.documentElement.dataset.siteOpening === "active") window.depthSeen = true;
         const preview = document.querySelector("[data-opening-preview]");
         const transform = new DOMMatrix(getComputedStyle(preview).transform);
         const camera = new DOMMatrix(getComputedStyle(document.querySelector(".site-camera")).transform);
         const focus = getComputedStyle(document.querySelector(".site-page"));
+        const intro = document.querySelector(".hero-intro").getBoundingClientRect();
         const planes = [...document.querySelectorAll("[data-opening-preview]")].map(element => {
           const matrix = new DOMMatrix(getComputedStyle(element).transform);
           const radius = Math.abs(matrix.m13) * element.offsetWidth / 2 + Math.abs(matrix.m23) * element.offsetHeight / 2;
-          return { near: matrix.m43 + radius, far: matrix.m43 - radius };
+          const bounds = element.getBoundingClientRect();
+          return { near: matrix.m43 + radius, far: matrix.m43 - radius, left: bounds.left, top: bounds.top, right: bounds.right, bottom: bounds.bottom };
         });
         const decoded = [...document.querySelectorAll("[data-opening-preview] img")].every(image => image.complete && image.naturalWidth > 0);
         const contained = [...document.querySelectorAll("[data-opening-preview]")].every(element => { const bounds = element.getBoundingClientRect(); return bounds.left >= -1 && bounds.right <= document.documentElement.clientWidth + 1; });
-        window.openingFrames.push({ time: performance.now(), decoded, contained, light: Number(getComputedStyle(preview, "::after").opacity), opacity: Number(getComputedStyle(preview).opacity), cameraTilt: Math.atan2(camera.m23, camera.m22), cameraDepth: camera.m43, previewDepth: transform.m43, planes, blur: Number(focus.filter.match(/blur\(([\d.]+)px\)/)?.[1] || 0), rotation: Math.atan2(transform.b, transform.a), overflow: document.documentElement.scrollWidth > innerWidth + 1, pointer: getComputedStyle(curtain).pointerEvents });
+        const clearOfIntro = planes.every(bounds => bounds.left >= intro.right + 16 || bounds.right <= intro.left - 16 || bounds.top >= intro.bottom + 16 || bounds.bottom <= intro.top - 16);
+        window.openingFrames.push({ time: performance.now(), decoded, contained, clearOfIntro, pageOpacity: focus.opacity, pageShadow: focus.boxShadow, light: Number(getComputedStyle(preview, "::after").opacity), opacity: Number(getComputedStyle(preview).opacity), cameraTilt: Math.atan2(camera.m23, camera.m22), cameraDepth: camera.m43, previewDepth: transform.m43, planes, blur: Number(focus.filter.match(/blur\(([\d.]+)px\)/)?.[1] || 0), rotation: Math.atan2(transform.b, transform.a), overflow: document.documentElement.scrollWidth > innerWidth + 1, pointer: getComputedStyle(curtain).pointerEvents });
       }
-      if (performance.now() < 6500) requestAnimationFrame(sample);
+      if (performance.now() < 14000) requestAnimationFrame(sample);
     }
     requestAnimationFrame(sample);
   }, options);
@@ -137,6 +148,15 @@ async function usable(page) {
   await page.waitForURL("**/projects");
 }
 try {
+  for (const width of [360, 820]) {
+    await check(`showcase stays clear of the introduction ${width}`, { width }, async page => {
+      await page.goto(origin); await settled(page);
+      const frames = await page.evaluate(() => window.openingFrames);
+      assert.ok(frames.length > 5 && frames.every(frame => frame.contained && frame.clearOfIntro && frame.cameraTilt === 0));
+      assert.ok(await page.evaluate(() => window.openingLifted.length === 3 && window.openingLifted.every(error => error < 1)));
+      await usable(page);
+    });
+  }
   for (const width of [1440, 390]) {
     await check(`delayed images preserve the visible unfolded composition ${width}`, { width }, async page => {
       await page.route("**/_next/image*", async route => { await new Promise(resolve => setTimeout(resolve, 850)); await route.continue(); });
@@ -160,14 +180,15 @@ try {
       assert.equal(await page.evaluate(() => window.depthCompilesDuringFlight), 0, "shadow and surface shaders are warmed before the opening starts");
       assert.equal(await page.locator(".site-depth-canvas").count(), 0, "the short-lived renderer is released after landing");
       assert.equal(await page.evaluate(() => window.depthContexts.every(context => context.isContextLost())), true, "GPU contexts are released after landing");
-      assert.ok(frames.some(frame => frame.cameraTilt > .08 && frame.cameraDepth < -20), "the real page starts inside a tilted spatial view");
-      assert.ok(frames.every((frame, index) => !index || frame.cameraTilt <= frames[index - 1].cameraTilt + .002), "camera continuously straightens without reversing");
+      assert.ok(frames.every(frame => frame.cameraTilt === 0 && frame.cameraDepth === 0 && frame.blur === 0 && frame.pageOpacity === "1" && frame.pageShadow === "none"), "the page remains frontal, sharp and unframed throughout the physical card scene");
+      assert.ok(frames.every(frame => frame.clearOfIntro), "floating work never covers the headline or its primary action");
+      assert.ok(await page.evaluate(() => window.openingLifted.length === 3 && window.openingLifted.every(error => error < 1)), "cards lift from their actual homepage frames without teleporting into view");
       assert.ok(frames.some(frame => frame.previewDepth > 20), "work lifts off the page in depth");
       const lit = frames.filter(frame => frame.previewDepth > 20 && frame.opacity > .8);
       assert.ok(lit.some(frame => frame.light > .8) && frames.at(-1).light < .05, "directional surface light fades away as the works land");
-      const unfolded = frames.filter(frame => frame.time - frames[0].time < 900 && frame.previewDepth > 20);
-      assert.ok(unfolded.length > 2 && unfolded.every(frame => frame.planes.slice(1).every((plane, index) => plane.far > frame.planes[index].near)), "overlapping previews keep separate depth planes instead of cutting through each other");
-      assert.ok(frames.some(frame => frame.blur > .5) && frames.at(-1).blur < .05, "focus passes from work to the readable page");
+      const unfolded = frames.filter(frame => frame.previewDepth > 20);
+      const collisions = unfolded.filter(frame => frame.planes.some((plane, index) => frame.planes.slice(index + 1).some(other => other.left < plane.right && other.right > plane.left && other.top < plane.bottom && other.bottom > plane.top && other.far <= plane.near && plane.far <= other.near)));
+      assert.ok(unfolded.length > 2 && collisions.length === 0, "overlapping previews keep separate depth planes: " + JSON.stringify(collisions.slice(0, 1)));
       assert.ok(frames.every(frame => !frame.overflow), "camera never creates horizontal scrolling");
       assert.ok(frames.some(frame => Math.abs(frame.rotation) > .1), "real previews first form a rotated image stack");
       const landed = await page.evaluate(() => window.openingLanded);
@@ -234,21 +255,25 @@ try {
       }
     });
   }
-  await check("late hydration does not postpone or replay the opening", {}, async page => {
+  await check("late hydration cannot consume the visible scene before it starts", {}, async page => {
     await page.route("**/_next/static/**/*.js", async route => { await new Promise(resolve => setTimeout(resolve, 1600)); await route.continue(); });
     await page.goto(origin); await settled(page);
-    const state = await page.evaluate(() => ({ runs: window.openingRuns, last: window.openingFrames.at(-1)?.time, paint: performance.getEntriesByName("first-contentful-paint")[0]?.startTime, entries: window.headingEntries }));
+    const state = await page.evaluate(() => ({ runs: window.openingRuns, duration: window.openingFrames.at(-1)?.time - window.openingFrames[0]?.time, entries: window.headingEntries }));
     assert.equal(state.runs, 1);
-    assert.ok(state.paint !== undefined && state.last - state.paint < 3100, "opening finishes independently of the delayed framework bundle");
+    assert.ok(state.duration >= 2200 && state.duration < 2700, "the full scene plays after delayed scripts rather than spending its duration while loading");
     assert.deepEqual(state.entries, []);
     await usable(page);
   });
-  await check("slow images do not prolong the opening", {}, async page => {
+  await check("five-second image loading preserves a usable page and the full opening", {}, async page => {
     await page.route("**/_next/image*", async route => { await new Promise(resolve => setTimeout(resolve, 5000)); await route.continue(); });
     await page.goto(origin, { waitUntil: "domcontentloaded" });
+    await page.waitForTimeout(2200);
+    assert.equal(await page.evaluate(() => document.documentElement.dataset.siteOpening), "pending", "the old 1.8s cutoff cannot cancel a not-yet-ready scene");
+    assert.equal(await page.evaluate(() => window.artifactAnimations.length), 0);
+    assert.ok(await page.evaluate(() => document.documentElement.scrollHeight > innerHeight * 2 && getComputedStyle(document.querySelector(".site-camera")).transform === "none"), "preparation preserves the normal readable document");
     await settled(page);
-    assert.equal(await page.locator(".overview-work img").first().evaluate(image => image.complete), false);
-    assert.equal(await page.evaluate(() => window.artifactAnimations.length), 0, "over-budget image preparation skips flight instead of showing empty planes");
+    assert.equal(await page.evaluate(() => window.artifactAnimations.length), 3);
+    assert.ok(await page.evaluate(() => window.openingFrames.every(frame => frame.decoded) && window.openingFrames.at(-1).time - window.openingFrames[0].time >= 2200), "slow media still receives a complete decoded opening");
     await usable(page);
   });
   await check("input during image preparation cannot revive the scene after decoding", {}, async page => {
@@ -261,6 +286,16 @@ try {
     await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
     assert.equal(await page.evaluate(() => window.artifactAnimations.length), 0);
     assert.equal(await page.evaluate(() => document.documentElement.hasAttribute("data-site-opening")), false);
+    await usable(page);
+  });
+  await check("unavailable media cannot leave preparation pending forever", {}, async page => {
+    const held = [];
+    await page.route("**/_next/image*", route => held.push(route));
+    await page.goto(origin, { waitUntil: "domcontentloaded" });
+    await settled(page);
+    assert.equal(await page.evaluate(() => window.artifactAnimations.length), 0);
+    await Promise.all(held.map(route => route.abort("failed")));
+    await page.unrouteAll({ behavior: "ignoreErrors" });
     await usable(page);
   });
   await check("missing animation completion cannot leave a cover behind", { stall: true }, async page => {

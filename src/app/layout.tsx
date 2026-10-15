@@ -42,10 +42,12 @@ const openingScript = `(() => {
     await new Promise(requestAnimationFrame);
     if (!root.hasAttribute("data-site-opening")) return;
     const camera = document.querySelector(".site-camera");
-    // Measure the real landing frames at the neutral camera, without painting that pose.
-    camera.style.transform = "none";
     const destinations = targets.map(target => target.getBoundingClientRect());
-    camera.style.removeProperty("transform");
+    const stageLeft = Math.min(...destinations.map(bounds => bounds.left));
+    const stageRight = Math.max(...destinations.map(bounds => bounds.right));
+    const stageWidth = stageRight - stageLeft;
+    const centerX = (stageLeft + stageRight) / 2;
+    const centerY = destinations[0].top + destinations[0].height / 2;
     previews.forEach((preview, index) => {
       const bounds = destinations[index];
       Object.assign(preview.style, { left: bounds.left + "px", top: bounds.top + "px", width: bounds.width + "px", height: bounds.height + "px" });
@@ -60,23 +62,24 @@ const openingScript = `(() => {
     previews.forEach((preview, index) => {
       const bounds = destinations[index];
       const position = index - 1;
-      const depth = (innerWidth <= 760 ? 72 : 112) * (index + 1);
-      const scale = Math.min(innerWidth * (innerWidth <= 760 ? .44 : .56), 330) / bounds.width;
-      const x = (innerWidth <= 760 ? document.documentElement.clientWidth * .5 : innerWidth * .54) - bounds.left - bounds.width / 2;
-      const y = innerHeight * .48 - bounds.top - bounds.height / 2;
-      const spread = Math.min(innerWidth * (innerWidth <= 760 ? .11 : .16), 200) * position;
+      const depth = (innerWidth <= 760 ? 48 : 72) * (index + 1);
+      const scale = Math.min(stageWidth * (innerWidth <= 760 ? .5 : .4), 330) / bounds.width;
+      const x = centerX - bounds.left - bounds.width / 2;
+      const y = centerY - bounds.top - bounds.height / 2;
+      const spread = Math.min(stageWidth * (innerWidth <= 760 ? .13 : .23), 180) * position;
       const animation = preview.animate([
-        { transform: "translate3d(" + x + "px," + (y + 80) + "px," + depth + "px) rotateX(12deg) rotateY(" + position * 8 + "deg) rotateZ(" + position * 12 + "deg) scale(" + scale * .84 + ")", opacity: 0, filter: "blur(1px)", boxShadow: "0 0 0 #182b2000, 0 0 0 #182b2000", offset: 0, easing: "cubic-bezier(.22, .6, .36, 1)" },
-        { transform: "translate3d(" + (x + spread) + "px," + (y + Math.abs(position) * 26) + "px," + (depth + 12) + "px) rotateX(12deg) rotateY(" + position * 8 + "deg) rotateZ(" + position * 10 + "deg) scale(" + scale + ")", opacity: 1, filter: "blur(0px)", boxShadow: "8px 32px 42px -10px #182b2052, 2px 8px 12px -4px #182b2033", offset: .25, easing: "ease-in-out" },
-        { transform: "translate3d(" + (x + spread * 1.04) + "px," + (y + Math.abs(position) * 22 - 4) + "px," + (depth + 12) + "px) rotateX(12deg) rotateY(" + position * 8 + "deg) rotateZ(" + position * 9 + "deg) scale(" + scale + ")", opacity: 1, filter: "blur(0px)", boxShadow: "8px 32px 42px -10px #182b2052, 2px 8px 12px -4px #182b2033", offset: .48, easing: "cubic-bezier(.45, 0, .2, 1)" },
+        { transform: "translate3d(0,0,0) rotateX(0deg) rotateY(0deg) rotateZ(0deg) scale(1)", opacity: 1, filter: "blur(0px)", boxShadow: "0 0 0 #182b2000, 0 0 0 #182b2000", offset: 0, easing: "cubic-bezier(.22, .6, .36, 1)" },
+        { transform: "translate3d(" + (x + spread) + "px," + (y + Math.abs(position) * 26) + "px," + (depth + 12) + "px) rotateX(8deg) rotateY(" + position * 5 + "deg) rotateZ(" + position * 10 + "deg) scale(" + scale + ")", opacity: 1, filter: "blur(0px)", boxShadow: "5px 20px 32px -10px #182b203d, 1px 5px 8px -4px #182b2026", offset: .25, easing: "ease-in-out" },
+        { transform: "translate3d(" + (x + spread * 1.04) + "px," + (y + Math.abs(position) * 22 - 4) + "px," + (depth + 12) + "px) rotateX(8deg) rotateY(" + position * 5 + "deg) rotateZ(" + position * 9 + "deg) scale(" + scale + ")", opacity: 1, filter: "blur(0px)", boxShadow: "5px 20px 32px -10px #182b203d, 1px 5px 8px -4px #182b2026", offset: .48, easing: "cubic-bezier(.45, 0, .2, 1)" },
         { transform: "translate3d(0,0,0) rotateX(0deg) rotateY(0deg) rotateZ(0deg) scale(1)", opacity: 1, filter: "blur(0px)", boxShadow: "0 0 0 #182b2000, 0 0 0 #182b2000", offset: 1 },
-      ], { duration: 2220, delay: index * 30, fill: "both" });
+      ], { duration: 2220, fill: "both" });
       animations.push(animation);
     });
     root.setAttribute("data-opening-artifacts", "ready");
     root.setAttribute("data-site-opening", "active");
     const epoch = document.timeline.currentTime;
-    [...animations, ...camera.getAnimations({ subtree: true }).filter(animation => ["opening-camera", "opening-focus", "site-unveil", "opening-label", "opening-light"].includes(animation.animationName))].forEach(animation => { animation.startTime = epoch; });
+    [...animations, ...camera.getAnimations({ subtree: true }).filter(animation => ["site-unveil", "opening-label", "opening-light"].includes(animation.animationName))].forEach(animation => { animation.startTime = epoch; });
+    document.dispatchEvent(new Event("opening-play"));
     clearTimeout(timer);
     timer = setTimeout(stop, 3100);
   };
@@ -86,7 +89,7 @@ const openingScript = `(() => {
   preference.addEventListener("change", unavailable);
   root.setAttribute("data-site-opening", "pending");
   document.addEventListener("DOMContentLoaded", arrange, { once: true });
-  timer = setTimeout(stop, 1800);
+  timer = setTimeout(stop, 8000);
 })();`;
 
 export const metadata: Metadata = {
