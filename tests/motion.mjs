@@ -20,6 +20,7 @@ try {
   for (const width of [1440, 390]) {
     await page.setViewportSize({ width, height: 1000 });
     await page.goto(origin);
+    await page.waitForFunction(() => sessionStorage.getItem("zwly-home-intro-v1") === "1");
     await page.evaluate(() => sessionStorage.removeItem("zwly-home-intro-v1"));
     await page.reload();
     await page.waitForFunction(() => window.motionLog.some(item => item.target === "hero-name"));
