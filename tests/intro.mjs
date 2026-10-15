@@ -155,6 +155,25 @@ async function usable(page) {
   await page.waitForURL("**/projects");
 }
 try {
+  for (const width of [1440, 390]) {
+    await check(`opaque cover skips without clicking a hidden link ${width}`, { width }, async page => {
+      await page.route("**/_next/image*", async route => { await new Promise(resolve => setTimeout(resolve, 850)); await route.continue(); });
+      await page.goto(origin, { waitUntil: "domcontentloaded" });
+      assert.equal(await page.evaluate(() => document.documentElement.dataset.siteOpening), "pending");
+      const bounds = await page.locator(".hero-intro > .text-link").boundingBox();
+      await page.mouse.click(bounds.x + bounds.width / 2, bounds.y + bounds.height / 2);
+      await settled(page);
+      await page.locator(".overview-work img").evaluateAll(images => Promise.all(images.map(image => image.decode())));
+      assert.equal(new URL(page.url()).pathname, "/");
+      assert.equal(await page.evaluate(() => window.artifactAnimations.length), 0);
+      await usable(page);
+    });
+  }
+  await check("revealed homepage links stay usable during card landing", {}, async page => {
+    await page.goto(origin, { waitUntil: "domcontentloaded" });
+    await page.waitForFunction(() => document.documentElement.dataset.siteOpening === "active" && new DOMMatrix(getComputedStyle(document.querySelector(".site-opening-cover > span")).transform).m22 < .01);
+    await usable(page);
+  });
   for (const width of [360, 820]) {
     await check(`showcase stays clear of the introduction ${width}`, { width }, async page => {
       await page.goto(origin); await settled(page);
@@ -203,7 +222,7 @@ try {
       const landed = await page.evaluate(() => window.openingLanded);
       assert.equal(landed.length, 3);
       assert.ok(landed.every(item => item.error < 1 && item.sameImage && item.sameFit && item.sameRadius), "all previews hand off to the same image, crop, rounded corners and destination within one pixel");
-      assert.ok(frames.every(frame => frame.pointer === "none"), "curtain never captures a visitor action");
+      assert.ok(frames.every(frame => frame.pointer === "none"), "the transparent opening stage never traps a visitor action");
       assert.equal(await page.evaluate(() => window.headingEntries.length), 0, "no competing title entrance on hydration");
       assert.equal(await page.evaluate(() => window.openingRuns), 1);
       await page.reload();
