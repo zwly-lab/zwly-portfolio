@@ -80,6 +80,8 @@ With the same browser runtime, `node tests/motion.mjs [origin]` checks coordinat
 
 `node tests/showcase.mjs [origin]` checks all homepage directions on desktop/mobile with normal/reduced motion, consistent stage height, decoded images before entry, slow-load continuity, immediate requested-choice feedback, late request rejection, cancellation, navigation during loading, failed-image retry and visible server rendering without JavaScript. The motion test additionally checks that interrupted filtering preserves opacity, clipping and geometry; route tests verify the single bounded arrival without replaying a title entrance.
 
+`node tests/intro.mjs [origin]` checks the 760ms first-homepage sequence at desktop/mobile sizes, session repeat suppression, immediate browsing without JavaScript, reduced motion, fragments/restored scroll, storage failure, late hydration, input/background cancellation and late/failed images. Restored-scroll and visibility state are controlled browser fixtures; these checks do not measure physical-device frame rates.
+
 ## Vercel
 
 Live site: https://zwly-lab.vercel.app · Public repository: https://github.com/zwly-lab/zwly-portfolio

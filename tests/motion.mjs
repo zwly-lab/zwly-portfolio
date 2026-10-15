@@ -20,14 +20,19 @@ try {
   for (const width of [1440, 390]) {
     await page.setViewportSize({ width, height: 1000 });
     await page.goto(origin);
+    await page.evaluate(() => sessionStorage.removeItem("zwly-home-intro-v1"));
+    await page.reload();
     await page.waitForFunction(() => window.motionLog.some(item => item.target === "hero-name"));
     const entry = await page.evaluate(() => ({ log: window.motionLog, css: getComputedStyle(document.querySelector(".overview-images")).animationName }));
     assert.equal(entry.log.filter(item => item.target === "hero-name").length, 1, "name enters once");
     assert.equal(entry.log.filter(item => item.target === "H1").length, 0, "headline leaves do not compete with a parent entrance");
     assert.equal(entry.log.find(item => item.target === "hero-name").duration, 480, "CSS seconds/ms conversion survives production minification");
-    assert.equal(entry.log.find(item => item.target === "hero-subtitle").delay, 80, "subtitle follows the name");
+    assert.equal(entry.log.find(item => item.target === "hero-name").delay, 40, "name follows the signature");
+    assert.equal(entry.log.find(item => item.target === "hero-subtitle").delay, 100, "subtitle follows the name");
     assert.equal(entry.log.find(item => item.target === "hero-subtitle").duration, 300);
-    assert.equal(entry.log.find(item => item.target.startsWith("overview-images")).delay, 160, "overview joins the same entry timeline");
+    const previews = entry.log.filter(item => item.target.startsWith("overview-work "));
+    assert.deepEqual(previews.map(item => item.delay), [160, 220, 280], "three artifacts enter in one bounded sequence");
+    assert.equal(entry.log.filter(item => item.target.startsWith("overview-images")).length, 0, "no parent entrance competes with the individual artifacts");
     assert.equal(entry.css, "none", "no second CSS entrance overlaps the overview");
     await page.evaluate(() => {
       document.querySelector("h1").getAnimations({ subtree: true }).forEach(animation => { animation.pause(); animation.currentTime = 100; });

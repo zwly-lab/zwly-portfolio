@@ -159,3 +159,13 @@ A final online article check exposed a clamped-scroll edge case: clicking sectio
 The subsequent refinement expands resource screening to design, navigation, layouts, components, dynamic components, icons and motion. See [resource-screening.md](resource-screening.md) for the 20 entry URLs, access limitations, selected implementations and pinned license provenance.
 
 It supersedes the earlier gallery-only opacity behavior: thumbnail expansion/return and directional navigation now use bounded native Web Animations. Work filtering animates retained-card positions; a shared selection underline connects the global navbar, homepage preview controls, filters and article directory. Native disclosure gains a state label, a licensed chevron and progressive CSS size animation. Global link/card feedback reaches all routes. The editorial palette, real media, native keyboard behavior and reduced-motion paths remain the design authority.
+
+## First-visit opening (2026-10-15)
+
+Reviewed these primary implementation references for the existing light editorial homepage:
+
+- [Brittany Chiang v4](https://github.com/bchiang7/v4), pinned revision `539cef0bf60cad438499a69d76dba2c27cc16c9a`, `src/components/loader.js` and `sections/hero.js`: brand recognition preceding staggered content. Adapted the sequence to the existing wordmark/title/real work link, retaining the previously recorded MIT notice. The new implementation uses native Web Animations and an optional once-per-session flag.
+- [Codrops Grid Flow Effect](https://github.com/codrops/GridFlowEffect/) and its [author's explanation](https://tympanus.net/codrops/2023/07/27/grid-flow-animation/): related thumbnails arrive as a coordinated composition. Reused that relationship with our three real previews already in their final grid, capped sibling offsets and stable dimensions.
+- [R—K ’26 implementation case study](https://tympanus.net/codrops/2026/04/07/r-k-26-the-thinking-and-code-behind-a-portfolio-led-by-presence/): overlap the identity reveal and the content reveal so they feel continuous. Adapted the masking/rhythm principle to a 760ms editorial opening connected to the existing route and selection language.
+
+These are pattern adaptations using our existing components and media; no new upstream runtime, artwork, audio or WebGL scene is imported. A real delayed-chunk test exposed late hydration re-hiding an already visible heading; first contentful paint now guards that case. Pointer/keyboard/scroll cancel immediately, reduced motion remains direct, and the page is visible before JavaScript runs.
