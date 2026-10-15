@@ -33,21 +33,27 @@ const openingScript = `(() => {
     const targets = [...document.querySelectorAll(".portfolio-showcase [data-preview] .overview-frame")];
     const previews = [...document.querySelectorAll("[data-opening-preview]")];
     if (targets.length !== 3 || previews.length !== 3) return;
-    const epoch = document.querySelector(".site-opening-name span")?.getAnimations()[0]?.startTime ?? document.timeline.currentTime;
+    const camera = document.querySelector(".site-camera").getAnimations().find(animation => animation.animationName === "opening-camera");
+    const epoch = camera?.startTime ?? document.timeline.currentTime;
+    const current = camera?.currentTime ?? 0;
+    // Measure the real landing frames at the neutral camera, without painting that pose.
+    if (camera) { camera.pause(); camera.currentTime = 2400; }
+    const destinations = targets.map(target => target.getBoundingClientRect());
+    if (camera) { camera.currentTime = current; camera.play(); camera.startTime = epoch; }
     previews.forEach((preview, index) => {
-      const bounds = targets[index].getBoundingClientRect();
+      const bounds = destinations[index];
       const position = index - 1;
+      const depth = (innerWidth <= 760 ? 28 : 48) * (index + 1);
       const scale = Math.min(innerWidth * .56, 330) / bounds.width;
       const x = innerWidth * (innerWidth <= 760 ? .5 : .54) - bounds.left - bounds.width / 2;
       const y = innerHeight * .48 - bounds.top - bounds.height / 2;
       const spread = Math.min(innerWidth * .16, 200) * position;
       Object.assign(preview.style, { left: bounds.left + "px", top: bounds.top + "px", width: bounds.width + "px", height: bounds.height + "px" });
       const animation = preview.animate([
-        { transform: "translate(" + x + "px," + (y + 120) + "px) rotate(" + position * 14 + "deg) scale(" + scale * .84 + ")", opacity: 0, offset: 0, easing: "cubic-bezier(.22, 1, .36, 1)" },
-        { transform: "translate(" + (x + spread) + "px," + (y + Math.abs(position) * 26) + "px) rotate(" + position * 10 + "deg) scale(" + scale + ")", opacity: 1, offset: .28 },
-        { transform: "translate(" + (x + spread) + "px," + (y + Math.abs(position) * 26) + "px) rotate(" + position * 10 + "deg) scale(" + scale + ")", opacity: 1, offset: .43, easing: "cubic-bezier(.76, 0, .24, 1)" },
-        { transform: "none", opacity: 1, offset: 1 },
-      ], { duration: 1560, delay: index * 30, fill: "both" });
+        { transform: "translate3d(" + x + "px," + (y + 80) + "px," + depth + "px) rotateX(4deg) rotateY(" + position * 3 + "deg) rotateZ(" + position * 12 + "deg) scale(" + scale * .84 + ")", opacity: 0, filter: "blur(1px)", boxShadow: "0 0 0 #20262100", offset: 0, easing: "cubic-bezier(.22, .6, .36, 1)" },
+        { transform: "translate3d(" + (x + spread) + "px," + (y + Math.abs(position) * 26) + "px," + (depth + 12) + "px) rotateX(4deg) rotateY(" + position * 3 + "deg) rotateZ(" + position * 10 + "deg) scale(" + scale + ")", opacity: 1, filter: "blur(0px)", boxShadow: "0 18px 32px #20262124", offset: .32, easing: "cubic-bezier(.45, 0, .2, 1)" },
+        { transform: "translate3d(0,0,0) rotateX(0deg) rotateY(0deg) rotateZ(0deg) scale(1)", opacity: 1, filter: "blur(0px)", boxShadow: "0 0 0 #20262100", offset: 1 },
+      ], { duration: 2220, delay: index * 30, fill: "both" });
       animation.startTime = epoch;
       animations.push(animation);
     });
@@ -59,7 +65,7 @@ const openingScript = `(() => {
   preference.addEventListener("change", unavailable);
   root.setAttribute("data-site-opening", "active");
   document.addEventListener("DOMContentLoaded", arrange, { once: true });
-  timer = setTimeout(stop, 2300);
+  timer = setTimeout(stop, 3100);
 })();`;
 
 export const metadata: Metadata = {
@@ -71,8 +77,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return <html lang="zh-CN" data-scroll-behavior="smooth" suppressHydrationWarning>
     <head><script dangerouslySetInnerHTML={{ __html: openingScript }} /></head>
     <body className={archivo.variable}>
-      <SiteOpening />
-      <a className="skip-link" href="#main-content">跳到内容</a><Navbar /><RouteMotion /><PageTransition>{children}</PageTransition><Footer />
+      <a className="skip-link" href="#main-content">跳到内容</a>
+      <div className="site-camera"><div className="site-page"><Navbar /><RouteMotion /><PageTransition>{children}</PageTransition><Footer /></div><SiteOpening /></div>
     </body>
   </html>;
 }

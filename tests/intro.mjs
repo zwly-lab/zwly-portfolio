@@ -36,7 +36,7 @@ async function check(name, options, run) {
     }).observe(document, { subtree: true, attributes: true, attributeFilter: ["data-site-opening"] });
     let handled = false;
     document.addEventListener("animationstart", event => {
-      if (event.animationName !== "site-signature" || handled) return;
+      if (event.animationName !== "site-unveil" || handled) return;
       handled = true;
       if (options.stall) document.querySelector(".site-opening").getAnimations().forEach(animation => animation.pause());
       if (options.cancel) setTimeout(() => {
@@ -62,10 +62,16 @@ async function check(name, options, run) {
       const main = document.querySelector("#main-content");
       const header = document.querySelector(".site-header");
       if (curtain && main && header && document.documentElement.hasAttribute("data-site-opening")) {
-        const panels = [...document.querySelectorAll(".site-opening-panels > span")].map(panel => panel.getBoundingClientRect().bottom);
         const preview = document.querySelector("[data-opening-preview]");
         const transform = new DOMMatrix(getComputedStyle(preview).transform);
-        window.openingFrames.push({ time: performance.now(), panels, viewport: innerHeight, display: getComputedStyle(curtain).display, mainOpacity: Number(getComputedStyle(main).opacity), headerOpacity: Number(getComputedStyle(header).opacity), rotation: Math.atan2(transform.b, transform.a), pointer: getComputedStyle(curtain).pointerEvents });
+        const camera = new DOMMatrix(getComputedStyle(document.querySelector(".site-camera")).transform);
+        const focus = getComputedStyle(document.querySelector(".site-page"));
+        const planes = [...document.querySelectorAll("[data-opening-preview]")].map(element => {
+          const matrix = new DOMMatrix(getComputedStyle(element).transform);
+          const radius = Math.abs(matrix.m13) * element.offsetWidth / 2 + Math.abs(matrix.m23) * element.offsetHeight / 2;
+          return { near: matrix.m43 + radius, far: matrix.m43 - radius };
+        });
+        window.openingFrames.push({ time: performance.now(), cameraTilt: Math.atan2(camera.m23, camera.m22), cameraDepth: camera.m43, previewDepth: transform.m43, planes, blur: Number(focus.filter.match(/blur\(([\d.]+)px\)/)?.[1] || 0), rotation: Math.atan2(transform.b, transform.a), overflow: document.documentElement.scrollWidth > innerWidth + 1, pointer: getComputedStyle(curtain).pointerEvents });
       }
       if (performance.now() < 5000) requestAnimationFrame(sample);
     }
@@ -78,6 +84,9 @@ async function settled(page) {
   await page.waitForFunction(() => !document.documentElement.hasAttribute("data-site-opening"));
   assert.equal(await page.locator(".site-opening").evaluate(element => getComputedStyle(element).display), "none");
   assert.equal(await page.locator("#main-content").evaluate(element => getComputedStyle(element).transform), "none");
+  assert.equal(await page.locator(".site-camera").evaluate(element => getComputedStyle(element).transform), "none");
+  assert.equal(await page.locator(".site-page").evaluate(element => getComputedStyle(element).filter), "none");
+  assert.ok(await page.evaluate(() => document.documentElement.scrollHeight > innerHeight * 2), "full document height is released after entry");
   assert.equal(await page.evaluate(() => document.documentElement.hasAttribute("data-opening-artifacts")), false);
   assert.equal(await page.locator(".portfolio-showcase .overview-frame").first().evaluate(element => getComputedStyle(element).visibility), "visible");
 }
@@ -97,12 +106,15 @@ try {
       await settled(page);
       const frames = await page.evaluate(() => window.openingFrames);
       assert.ok(frames.length > 5, "actual CSS opening paints several frames");
-      assert.ok(frames.some(frame => frame.display === "block" && frame.panels.every(bottom => bottom >= frame.viewport - 2)), "paper panels cover the entire first viewport");
-      assert.ok(frames.some(frame => frame.panels.some(bottom => bottom > 20 && bottom < frame.viewport - 20)), "panels actually unveil the page");
-      assert.ok(frames.some(frame => Math.max(...frame.panels) - Math.min(...frame.panels) > 40), "columns unfold in a bounded cascade");
+      assert.equal(await page.evaluate(() => document.querySelector(".site-page").parentElement === document.querySelector(".site-opening").parentElement), true, "real page and artifacts share one camera");
+      assert.ok(frames.some(frame => frame.cameraTilt > .08 && frame.cameraDepth < -20), "the real page starts inside a tilted spatial view");
+      assert.ok(frames.every((frame, index) => !index || frame.cameraTilt <= frames[index - 1].cameraTilt + .002), "camera continuously straightens without reversing");
+      assert.ok(frames.some(frame => frame.previewDepth > 20), "work lifts off the page in depth");
+      const unfolded = frames.filter(frame => frame.time - frames[0].time < 900 && frame.previewDepth > 20);
+      assert.ok(unfolded.length > 2 && unfolded.every(frame => frame.planes.slice(1).every((plane, index) => plane.far > frame.planes[index].near)), "overlapping previews keep separate depth planes instead of cutting through each other");
+      assert.ok(frames.some(frame => frame.blur > .5) && frames.at(-1).blur < .05, "focus passes from work to the readable page");
+      assert.ok(frames.every(frame => !frame.overflow), "camera never creates horizontal scrolling");
       assert.ok(frames.some(frame => Math.abs(frame.rotation) > .1), "real previews first form a rotated image stack");
-      assert.ok(frames.some(frame => frame.mainOpacity < .5), "whole page participates in the scene");
-      assert.ok(frames.every(frame => Math.abs(frame.mainOpacity - frame.headerOpacity) < .02), "navigation and body share one continuous timeline");
       const landed = await page.evaluate(() => window.openingLanded);
       assert.equal(landed.length, 3);
       assert.ok(landed.every(item => item.error < 1 && item.sameImage && item.sameFit), "all previews hand off to the same image, crop and actual destination within one pixel");
@@ -158,12 +170,12 @@ try {
     await page.goto(origin); await settled(page);
     const state = await page.evaluate(() => ({ runs: window.openingRuns, last: window.openingFrames.at(-1)?.time, paint: performance.getEntriesByName("first-contentful-paint")[0]?.startTime, entries: window.headingEntries }));
     assert.equal(state.runs, 1);
-    assert.ok(state.paint !== undefined && state.last - state.paint < 2300, "opening finishes independently of the delayed framework bundle");
+    assert.ok(state.paint !== undefined && state.last - state.paint < 3100, "opening finishes independently of the delayed framework bundle");
     assert.deepEqual(state.entries, []);
     await usable(page);
   });
   await check("slow images do not prolong the opening", {}, async page => {
-    await page.route("**/_next/image*", async route => { await new Promise(resolve => setTimeout(resolve, 3000)); await route.continue(); });
+    await page.route("**/_next/image*", async route => { await new Promise(resolve => setTimeout(resolve, 5000)); await route.continue(); });
     await page.goto(origin, { waitUntil: "domcontentloaded" });
     await settled(page);
     assert.equal(await page.locator(".overview-work img").first().evaluate(image => image.complete), false);
@@ -184,6 +196,13 @@ try {
     await settled(page);
     assert.equal(await page.evaluate(() => window.artifactAnimations.every(animation => animation.playState === "idle")), true);
     await usable(page);
+  });
+  await check("real PageDown skips the camera and immediately scrolls the full document", {}, async page => {
+    await page.goto(origin, { waitUntil: "domcontentloaded" });
+    await page.waitForFunction(() => window.artifactAnimations.length === 3);
+    await page.keyboard.press("PageDown");
+    await settled(page);
+    await page.waitForFunction(() => scrollY > 0);
   });
   await check("failed artwork does not block entry or real navigation", {}, async page => {
     await page.route("**/_next/image*", route => route.abort("failed"));
