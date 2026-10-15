@@ -5,7 +5,7 @@ import { Footer } from "@/components/Footer";
 import { PageTransition, RouteMotion } from "@/components/RouteMotion";
 import { SiteOpening } from "@/components/SiteOpening";
 import "./globals.css";
-const archivo = localFont({ src: "../../public/fonts/Archivo.ttf", variable: "--font-archivo", display: "swap", weight: "100 900" });
+const archivo = localFont({ src: "../../public/fonts/Archivo.woff2", variable: "--font-archivo", display: "swap", weight: "100 900" });
 
 // Decide before first paint so slow hydration cannot cover an already-readable page.
 const openingScript = `(() => {
@@ -15,12 +15,16 @@ const openingScript = `(() => {
   const events = ["pointerdown", "keydown", "wheel", "touchmove", "scroll", "pagehide", "resize"];
   const animations = [];
   let timer;
+  let depthReady;
   const stop = () => {
     root.removeAttribute("data-site-opening");
     root.removeAttribute("data-opening-artifacts");
+    root.removeAttribute("data-opening-layout");
+    root.removeAttribute("data-opening-depth");
     clearTimeout(timer);
     animations.forEach(animation => animation.cancel());
     document.removeEventListener("DOMContentLoaded", arrange);
+    document.removeEventListener("opening-depth-ready", depthReady);
     events.forEach(type => window.removeEventListener(type, stop, true));
     window.removeEventListener("animationend", finish);
     document.removeEventListener("visibilitychange", unavailable);
@@ -28,44 +32,61 @@ const openingScript = `(() => {
   };
   const finish = event => { if (event.animationName === "site-unveil") stop(); };
   const unavailable = () => { if (document.hidden || preference.matches) stop(); };
-  const arrange = () => {
+  const arrange = async () => {
     if (!root.hasAttribute("data-site-opening") || !Element.prototype.animate) return;
     const targets = [...document.querySelectorAll(".portfolio-showcase [data-preview] .overview-frame")];
     const previews = [...document.querySelectorAll("[data-opening-preview]")];
-    if (targets.length !== 3 || previews.length !== 3) return;
-    const camera = document.querySelector(".site-camera").getAnimations().find(animation => animation.animationName === "opening-camera");
-    const epoch = camera?.startTime ?? document.timeline.currentTime;
-    const current = camera?.currentTime ?? 0;
+    if (targets.length !== 3 || previews.length !== 3) { stop(); return; }
+    try { await Promise.all([...previews.map(preview => { const image = preview.querySelector("img"); image.loading = "eager"; return image.decode(); }), document.fonts.ready]); }
+    catch { stop(); return; }
+    await new Promise(requestAnimationFrame);
+    if (!root.hasAttribute("data-site-opening")) return;
+    const camera = document.querySelector(".site-camera");
     // Measure the real landing frames at the neutral camera, without painting that pose.
-    if (camera) { camera.pause(); camera.currentTime = 2400; }
+    camera.style.transform = "none";
     const destinations = targets.map(target => target.getBoundingClientRect());
-    if (camera) { camera.currentTime = current; camera.play(); camera.startTime = epoch; }
+    camera.style.removeProperty("transform");
+    previews.forEach((preview, index) => {
+      const bounds = destinations[index];
+      Object.assign(preview.style, { left: bounds.left + "px", top: bounds.top + "px", width: bounds.width + "px", height: bounds.height + "px" });
+    });
+    await new Promise(resolve => {
+      depthReady = resolve;
+      document.addEventListener("opening-depth-ready", depthReady, { once: true });
+      root.setAttribute("data-opening-layout", "ready");
+      document.dispatchEvent(new Event("opening-layout-ready"));
+    });
+    if (!root.hasAttribute("data-site-opening")) return;
     previews.forEach((preview, index) => {
       const bounds = destinations[index];
       const position = index - 1;
-      const depth = (innerWidth <= 760 ? 28 : 48) * (index + 1);
-      const scale = Math.min(innerWidth * .56, 330) / bounds.width;
-      const x = innerWidth * (innerWidth <= 760 ? .5 : .54) - bounds.left - bounds.width / 2;
+      const depth = (innerWidth <= 760 ? 72 : 112) * (index + 1);
+      const scale = Math.min(innerWidth * (innerWidth <= 760 ? .44 : .56), 330) / bounds.width;
+      const x = (innerWidth <= 760 ? document.documentElement.clientWidth * .5 : innerWidth * .54) - bounds.left - bounds.width / 2;
       const y = innerHeight * .48 - bounds.top - bounds.height / 2;
-      const spread = Math.min(innerWidth * .16, 200) * position;
-      Object.assign(preview.style, { left: bounds.left + "px", top: bounds.top + "px", width: bounds.width + "px", height: bounds.height + "px" });
+      const spread = Math.min(innerWidth * (innerWidth <= 760 ? .11 : .16), 200) * position;
       const animation = preview.animate([
-        { transform: "translate3d(" + x + "px," + (y + 80) + "px," + depth + "px) rotateX(4deg) rotateY(" + position * 3 + "deg) rotateZ(" + position * 12 + "deg) scale(" + scale * .84 + ")", opacity: 0, filter: "blur(1px)", boxShadow: "0 0 0 #20262100", offset: 0, easing: "cubic-bezier(.22, .6, .36, 1)" },
-        { transform: "translate3d(" + (x + spread) + "px," + (y + Math.abs(position) * 26) + "px," + (depth + 12) + "px) rotateX(4deg) rotateY(" + position * 3 + "deg) rotateZ(" + position * 10 + "deg) scale(" + scale + ")", opacity: 1, filter: "blur(0px)", boxShadow: "0 18px 32px #20262124", offset: .32, easing: "cubic-bezier(.45, 0, .2, 1)" },
-        { transform: "translate3d(0,0,0) rotateX(0deg) rotateY(0deg) rotateZ(0deg) scale(1)", opacity: 1, filter: "blur(0px)", boxShadow: "0 0 0 #20262100", offset: 1 },
+        { transform: "translate3d(" + x + "px," + (y + 80) + "px," + depth + "px) rotateX(12deg) rotateY(" + position * 8 + "deg) rotateZ(" + position * 12 + "deg) scale(" + scale * .84 + ")", opacity: 0, filter: "blur(1px)", boxShadow: "0 0 0 #182b2000, 0 0 0 #182b2000", offset: 0, easing: "cubic-bezier(.22, .6, .36, 1)" },
+        { transform: "translate3d(" + (x + spread) + "px," + (y + Math.abs(position) * 26) + "px," + (depth + 12) + "px) rotateX(12deg) rotateY(" + position * 8 + "deg) rotateZ(" + position * 10 + "deg) scale(" + scale + ")", opacity: 1, filter: "blur(0px)", boxShadow: "8px 32px 42px -10px #182b2052, 2px 8px 12px -4px #182b2033", offset: .25, easing: "ease-in-out" },
+        { transform: "translate3d(" + (x + spread * 1.04) + "px," + (y + Math.abs(position) * 22 - 4) + "px," + (depth + 12) + "px) rotateX(12deg) rotateY(" + position * 8 + "deg) rotateZ(" + position * 9 + "deg) scale(" + scale + ")", opacity: 1, filter: "blur(0px)", boxShadow: "8px 32px 42px -10px #182b2052, 2px 8px 12px -4px #182b2033", offset: .48, easing: "cubic-bezier(.45, 0, .2, 1)" },
+        { transform: "translate3d(0,0,0) rotateX(0deg) rotateY(0deg) rotateZ(0deg) scale(1)", opacity: 1, filter: "blur(0px)", boxShadow: "0 0 0 #182b2000, 0 0 0 #182b2000", offset: 1 },
       ], { duration: 2220, delay: index * 30, fill: "both" });
-      animation.startTime = epoch;
       animations.push(animation);
     });
     root.setAttribute("data-opening-artifacts", "ready");
+    root.setAttribute("data-site-opening", "active");
+    const epoch = document.timeline.currentTime;
+    [...animations, ...camera.getAnimations({ subtree: true }).filter(animation => ["opening-camera", "opening-focus", "site-unveil", "opening-label", "opening-light"].includes(animation.animationName))].forEach(animation => { animation.startTime = epoch; });
+    clearTimeout(timer);
+    timer = setTimeout(stop, 3100);
   };
   events.forEach(type => window.addEventListener(type, stop, { capture: true, passive: true }));
   window.addEventListener("animationend", finish);
   document.addEventListener("visibilitychange", unavailable);
   preference.addEventListener("change", unavailable);
-  root.setAttribute("data-site-opening", "active");
+  root.setAttribute("data-site-opening", "pending");
   document.addEventListener("DOMContentLoaded", arrange, { once: true });
-  timer = setTimeout(stop, 3100);
+  timer = setTimeout(stop, 1800);
 })();`;
 
 export const metadata: Metadata = {

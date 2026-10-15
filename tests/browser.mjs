@@ -129,6 +129,7 @@ async function main() {
   assert.equal(await card.locator('.thumbnail-frame').evaluate(element => getComputedStyle(element).opacity), "1", "keyboard focus keeps the selected preview clear");
   await page.goto(origin);
   const print = page.locator(".visual-print img").first();
+  await page.waitForFunction(() => !document.documentElement.hasAttribute("data-site-opening"));
   await print.scrollIntoViewIfNeeded();
   if (await page.evaluate(() => CSS.supports("animation-timeline", "view()") && CSS.supports("animation-range", "entry 0% entry 100%"))) {
     await page.waitForFunction(() => ["inset(0px)", "inset(0%)", "inset(0% 0%)"].includes(getComputedStyle(document.querySelector(".visual-print img")).clipPath));
