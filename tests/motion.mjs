@@ -20,23 +20,15 @@ try {
   for (const width of [1440, 390]) {
     await page.setViewportSize({ width, height: 1000 });
     await page.goto(origin);
-    await page.waitForFunction(() => sessionStorage.getItem("zwly-home-intro-v1") === "1");
-    await page.evaluate(() => sessionStorage.removeItem("zwly-home-intro-v1"));
-    await page.reload();
-    await page.waitForFunction(() => window.motionLog.some(item => item.target === "hero-name"));
+    await page.waitForFunction(() => !document.documentElement.hasAttribute("data-site-opening"));
     const entry = await page.evaluate(() => ({ log: window.motionLog, css: getComputedStyle(document.querySelector(".overview-images")).animationName }));
-    assert.equal(entry.log.filter(item => item.target === "hero-name").length, 1, "name enters once");
+    assert.equal(entry.log.filter(item => item.target === "hero-name").length, 0, "the whole-page opening owns the initial headline");
     assert.equal(entry.log.filter(item => item.target === "H1").length, 0, "headline leaves do not compete with a parent entrance");
-    assert.equal(entry.log.find(item => item.target === "hero-name").duration, 480, "CSS seconds/ms conversion survives production minification");
-    assert.equal(entry.log.find(item => item.target === "hero-name").delay, 40, "name follows the signature");
-    assert.equal(entry.log.find(item => item.target === "hero-subtitle").delay, 100, "subtitle follows the name");
-    assert.equal(entry.log.find(item => item.target === "hero-subtitle").duration, 300);
-    const previews = entry.log.filter(item => item.target.startsWith("overview-work "));
-    assert.deepEqual(previews.map(item => item.delay), [160, 220, 280], "three artifacts enter in one bounded sequence");
+    assert.equal(entry.log.filter(item => item.target === "hero-subtitle").length, 0, "subtitle stays part of the whole composition");
+    assert.equal(entry.log.filter(item => item.target.startsWith("overview-work ")).length, 0, "artifact entrances do not compete with the whole page");
     assert.equal(entry.log.filter(item => item.target.startsWith("overview-images")).length, 0, "no parent entrance competes with the individual artifacts");
     assert.equal(entry.css, "none", "no second CSS entrance overlaps the overview");
     await page.evaluate(() => {
-      document.querySelector("h1").getAnimations({ subtree: true }).forEach(animation => { animation.pause(); animation.currentTime = 100; });
       const button = [...document.querySelectorAll(".showcase-choices button")].find(element => element.textContent === "应用作品");
       button.dispatchEvent(new PointerEvent("pointerdown", { bubbles: true }));
       button.click();
