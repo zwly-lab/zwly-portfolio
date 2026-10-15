@@ -15,10 +15,14 @@ async function check(name, options, run) {
     window.openingFrames = [];
     window.openingRuns = 0;
     window.headingEntries = [];
+    window.artifactAnimations = [];
+    window.openingLanded = [];
     const animate = Element.prototype.animate;
     Element.prototype.animate = function(frames, timing) {
       if (this.matches("#main-content h1, .hero-name")) window.headingEntries.push({ duration: timing.duration, delay: timing.delay || 0 });
-      return animate.call(this, frames, timing);
+      const animation = animate.call(this, frames, timing);
+      if (this.matches("[data-opening-preview]")) window.artifactAnimations.push(animation);
+      return animation;
     };
     if (options.hidden) Object.defineProperty(document, "hidden", { configurable: true, get: () => true });
     if (options.scrolled) Object.defineProperty(window, "scrollY", { configurable: true, get: () => 150 });
@@ -27,6 +31,7 @@ async function check(name, options, run) {
     new MutationObserver(() => {
       const active = document.documentElement?.hasAttribute("data-site-opening");
       if (active && !previous) window.openingRuns++;
+      if (active && !previous && options.cancelEarly) queueMicrotask(() => window.dispatchEvent(new Event("pointerdown")));
       previous = active;
     }).observe(document, { subtree: true, attributes: true, attributeFilter: ["data-site-opening"] });
     let handled = false;
@@ -44,13 +49,23 @@ async function check(name, options, run) {
         } else window.dispatchEvent(new Event(options.cancel));
       }, 80);
     }, true);
+    document.addEventListener("animationend", event => {
+      if (event.animationName !== "site-unveil") return;
+      window.openingLanded = [...document.querySelectorAll("[data-opening-preview]")].map(preview => {
+        const target = [...document.querySelectorAll(".portfolio-showcase [data-preview]")].find(item => item.dataset.preview === preview.dataset.openingPreview).querySelector(".overview-frame");
+        const bounds = preview.getBoundingClientRect(), destination = target.getBoundingClientRect();
+        return { error: Math.max(...["left", "top", "width", "height"].map(key => Math.abs(bounds[key] - destination[key]))), sameImage: preview.querySelector("img").currentSrc === target.querySelector("img").currentSrc, sameFit: getComputedStyle(preview.querySelector("img")).objectFit === getComputedStyle(target.querySelector("img")).objectFit };
+      });
+    }, true);
     function sample() {
       const curtain = document.querySelector(".site-opening");
       const main = document.querySelector("#main-content");
       const header = document.querySelector(".site-header");
       if (curtain && main && header && document.documentElement.hasAttribute("data-site-opening")) {
-        const bounds = curtain.getBoundingClientRect();
-        window.openingFrames.push({ time: performance.now(), top: bounds.top, bottom: bounds.bottom, height: bounds.height, viewport: innerHeight, display: getComputedStyle(curtain).display, mainY: new DOMMatrix(getComputedStyle(main).transform).f, headerY: new DOMMatrix(getComputedStyle(header).transform).f, pointer: getComputedStyle(curtain).pointerEvents });
+        const panels = [...document.querySelectorAll(".site-opening-panels > span")].map(panel => panel.getBoundingClientRect().bottom);
+        const preview = document.querySelector("[data-opening-preview]");
+        const transform = new DOMMatrix(getComputedStyle(preview).transform);
+        window.openingFrames.push({ time: performance.now(), panels, viewport: innerHeight, display: getComputedStyle(curtain).display, mainOpacity: Number(getComputedStyle(main).opacity), headerOpacity: Number(getComputedStyle(header).opacity), rotation: Math.atan2(transform.b, transform.a), pointer: getComputedStyle(curtain).pointerEvents });
       }
       if (performance.now() < 5000) requestAnimationFrame(sample);
     }
@@ -63,6 +78,8 @@ async function settled(page) {
   await page.waitForFunction(() => !document.documentElement.hasAttribute("data-site-opening"));
   assert.equal(await page.locator(".site-opening").evaluate(element => getComputedStyle(element).display), "none");
   assert.equal(await page.locator("#main-content").evaluate(element => getComputedStyle(element).transform), "none");
+  assert.equal(await page.evaluate(() => document.documentElement.hasAttribute("data-opening-artifacts")), false);
+  assert.equal(await page.locator(".portfolio-showcase .overview-frame").first().evaluate(element => getComputedStyle(element).visibility), "visible");
 }
 async function usable(page) {
   assert.equal(await page.locator(".hero-name").innerText(), "Vibe Coding.");
@@ -80,10 +97,15 @@ try {
       await settled(page);
       const frames = await page.evaluate(() => window.openingFrames);
       assert.ok(frames.length > 5, "actual CSS opening paints several frames");
-      assert.ok(frames.some(frame => frame.display === "grid" && frame.top > -2 && frame.bottom >= frame.viewport - 2), "curtain covers the entire first viewport");
-      assert.ok(frames.some(frame => frame.bottom > 20 && frame.bottom < frame.viewport - 20), "curtain actually unveils the page");
-      assert.ok(frames.some(frame => frame.mainY > 10), "whole main enters with the opening");
-      assert.ok(frames.every(frame => Math.abs(frame.mainY - frame.headerY) < 1), "navigation and body share one continuous timeline");
+      assert.ok(frames.some(frame => frame.display === "block" && frame.panels.every(bottom => bottom >= frame.viewport - 2)), "paper panels cover the entire first viewport");
+      assert.ok(frames.some(frame => frame.panels.some(bottom => bottom > 20 && bottom < frame.viewport - 20)), "panels actually unveil the page");
+      assert.ok(frames.some(frame => Math.max(...frame.panels) - Math.min(...frame.panels) > 40), "columns unfold in a bounded cascade");
+      assert.ok(frames.some(frame => Math.abs(frame.rotation) > .1), "real previews first form a rotated image stack");
+      assert.ok(frames.some(frame => frame.mainOpacity < .5), "whole page participates in the scene");
+      assert.ok(frames.every(frame => Math.abs(frame.mainOpacity - frame.headerOpacity) < .02), "navigation and body share one continuous timeline");
+      const landed = await page.evaluate(() => window.openingLanded);
+      assert.equal(landed.length, 3);
+      assert.ok(landed.every(item => item.error < 1 && item.sameImage && item.sameFit), "all previews hand off to the same image, crop and actual destination within one pixel");
       assert.ok(frames.every(frame => frame.pointer === "none"), "curtain never captures a visitor action");
       assert.equal(await page.evaluate(() => window.headingEntries.length), 0, "no competing title entrance on hydration");
       assert.equal(await page.evaluate(() => window.openingRuns), 1);
@@ -136,18 +158,35 @@ try {
     await page.goto(origin); await settled(page);
     const state = await page.evaluate(() => ({ runs: window.openingRuns, last: window.openingFrames.at(-1)?.time, paint: performance.getEntriesByName("first-contentful-paint")[0]?.startTime, entries: window.headingEntries }));
     assert.equal(state.runs, 1);
-    assert.ok(state.paint !== undefined && state.last - state.paint < 1800, "opening finishes independently of the delayed framework bundle");
+    assert.ok(state.paint !== undefined && state.last - state.paint < 2300, "opening finishes independently of the delayed framework bundle");
     assert.deepEqual(state.entries, []);
     await usable(page);
   });
   await check("slow images do not prolong the opening", {}, async page => {
-    await page.route("**/_next/image*", async route => { await new Promise(resolve => setTimeout(resolve, 2000)); await route.continue(); });
+    await page.route("**/_next/image*", async route => { await new Promise(resolve => setTimeout(resolve, 3000)); await route.continue(); });
     await page.goto(origin, { waitUntil: "domcontentloaded" });
     await settled(page);
     assert.equal(await page.locator(".overview-work img").first().evaluate(image => image.complete), false);
     await usable(page);
   });
   await check("missing animation completion cannot leave a cover behind", { stall: true }, async page => {
+    await page.goto(origin); await settled(page); await usable(page);
+  });
+  await check("input before DOM readiness cannot revive artifact motion later", { cancelEarly: true }, async page => {
+    await page.goto(origin); await settled(page);
+    assert.equal(await page.evaluate(() => window.artifactAnimations.length), 0);
+    await usable(page);
+  });
+  await check("viewport changes release measured artifact geometry", {}, async page => {
+    await page.goto(origin, { waitUntil: "domcontentloaded" });
+    await page.waitForFunction(() => window.artifactAnimations.length === 3);
+    await page.setViewportSize({ width: 640, height: 844 });
+    await settled(page);
+    assert.equal(await page.evaluate(() => window.artifactAnimations.every(animation => animation.playState === "idle")), true);
+    await usable(page);
+  });
+  await check("failed artwork does not block entry or real navigation", {}, async page => {
+    await page.route("**/_next/image*", route => route.abort("failed"));
     await page.goto(origin); await settled(page); await usable(page);
   });
   await check("other page entry retains its ordinary heading animation", {}, async page => {

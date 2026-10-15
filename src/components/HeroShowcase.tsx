@@ -6,13 +6,10 @@ import { useLayoutEffect, useRef, useState } from "react";
 import { ActiveUnderline } from "./ActiveUnderline";
 import { Arrow } from "./Arrow";
 import { motionTiming } from "@/lib/motion";
+import { featuredPreviews, previewSizes } from "@/data/featured";
 
 const views = [
-  { label: "精选一览", kind: "selected", text: "应用、交互与视觉，同一个作品集里的三种探索。选择方向，继续展开。", items: [
-    { title: "JD · 应用界面", src: "/images/projects/jd-dashboard.png", width: 1600, height: 1000, slug: "jd-protocol-engine", alt: "JD 实际任务控制台：应用界面作品" },
-    { title: "PyScreen · 交互实验", src: "/images/projects/pyscreen.png", width: 1440, height: 1000, slug: "pyscreen", alt: "PyScreen 实际运行界面：交互实验作品" },
-    { title: "旅行日记 · 视觉创作", src: "/images/posters/travel-diary.png", width: 1122, height: 1402, slug: "poster-collection", alt: "旅行日记拼贴原作：视觉创作作品" },
-  ] },
+  { label: "精选一览", kind: "selected", text: "应用、交互与视觉，同一个作品集里的三种探索。选择方向，继续展开。", items: featuredPreviews },
   { label: "交互实验", kind: "learning", text: "从代码执行到算法回退，让知识的变化过程可以被看见。", items: [
     { title: "PyScreen · Python 练习台", src: "/images/projects/pyscreen.png", width: 1440, height: 1000, slug: "pyscreen", alt: "真实 Python 练习台：任务、代码和运行反馈" },
     { title: "KMP · 字符串匹配", src: "/images/projects/kmp.png", width: 1440, height: 810, slug: "kmp-visualizer", alt: "KMP 真实演示：前缀与后缀的关系" },
@@ -26,8 +23,6 @@ const views = [
     { title: "产品视觉", src: "/images/posters/jd-overview.png", width: 794, height: 1123, slug: "poster-collection", alt: "已有 JD 产品海报：A4 画幅的信息构图" },
   ] },
 ];
-
-const previewSizes = (index: number) => index === 0 ? "(max-width: 760px) 100vw, 580px" : "(max-width: 760px) 50vw, 380px";
 
 export function HeroShowcase() {
   const [selected, setSelected] = useState(0);
