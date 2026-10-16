@@ -32,7 +32,7 @@ export default function Home() {
     <section className="visual-interlude" aria-labelledby="visual-title">
       <div className="visual-intro"><h2 id="visual-title">视觉创作。</h2><p>日常片段、纸张、水彩与光。<br />从同一个场景，探索不同的视觉表达。</p><Link className="text-link" href="/projects/poster-collection">走进视觉作品 <Arrow /></Link></div>
       <Link href="/projects/poster-collection" className="visual-print"><Image src="/images/posters/travel-diary.png" alt="旅行日记拼贴：海岛日落与纸张构图" width={1122} height={1402} sizes="(max-width: 760px) 46vw, 360px" /><span>旅行与日常</span></Link>
-      <Link href="/projects/poster-collection" className="visual-print watercolor-print"><Image src="/images/posters/watercolor-space.png" alt="风筝与歌声的水彩留白构图" width={845} height={1860} sizes="(max-width: 760px) 46vw, 300px" /><span>水彩与留白</span></Link>
+      <Link href="/projects/poster-collection" className="visual-print watercolor-print"><Image src="/images/posters/watercolor-kites.png" alt="风筝与歌声的水彩留白构图" width={919} height={1712} sizes="(max-width: 760px) 46vw, 300px" /><span>水彩与留白</span></Link>
     </section>
     <section className="home-writing" aria-labelledby="notes-title"><div className="section-header"><div><h2 id="notes-title">构建手记。</h2><p className="section-description">保留设计判断，让下一次迭代有据可循。</p></div><Link className="text-link" href="/blog">阅读手记 <Arrow /></Link></div><div className="notes-grid">{selectedPosts.map((post) => <NoteCard key={post.slug} post={post} />)}</div></section>
     <section className="home-about"><h2>一次错误提示，<br />也可以成为设计的起点。</h2><Link className="text-link" href="/about">看我怎样检查反馈与恢复 <Arrow /></Link></section>

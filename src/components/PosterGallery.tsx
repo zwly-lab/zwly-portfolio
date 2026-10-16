@@ -19,15 +19,12 @@ export function PosterGallery({ posters }: { posters: NonNullable<Project["galle
   const activeIndex = useRef<number | null>(null);
   const opener = useRef<number | null>(null);
   const groups = [
-    { title: "旅行与日常", text: "纸张、手写标记和暖色，串起海岛与餐桌的记忆。", items: posters.filter((item) => /food-|travel-|santorini-/.test(item.src)), selected: ["travel-diary.png", "food-diary-corgi.png", "santorini-illustration.png"] },
-    { title: "水彩与留白", text: "保留歌声与风筝，比较主体位置、画面重心和留白。", items: posters.filter((item) => item.src.includes("watercolor-")) },
-    { title: "产品视觉", text: "同一个产品，面对 A4、竖屏与横屏，重新组织信息。", items: posters.filter((item) => item.src.includes("/jd-")) },
-    { title: "界面方向归档", text: "四套早期网站概念，记录方向选择。概念图中的界面与数字不代表实际产品状态。", items: posters.filter((item) => item.src.includes("portfolio-style-")), archive: true },
-  ].map((group) => {
-    const featured = group.selected ? group.selected.map((file) => group.items.find((item) => item.src.endsWith(file))!).filter(Boolean) : group.items;
-    return { ...group, featured, variants: group.items.filter((item) => !featured.includes(item)) };
-  });
-  const displayedPosters = groups.flatMap((group) => [...group.featured, ...group.variants]);
+    { title: "旅行与日常", text: "纸张、手写标记和暖色，串起海岛与餐桌的记忆。", selected: ["travel-diary.png", "food-diary-corgi.png", "santorini-illustration.png"] },
+    { title: "水彩与留白", text: "留下风筝与歌声，用一张完整画面呈现水彩的轻盈与留白。", selected: ["watercolor-kites.png"] },
+    { title: "产品视觉", text: "同一个产品，面对 A4、竖屏与横屏，重新组织信息。", selected: ["jd-overview.png", "jd-recovery.png", "jd-privacy.png"] },
+    { title: "早期版式", text: "最初的 Style B 概念，记录这个网站轻色、编辑式排版的起点。图中的界面与数字属于早期构想。", selected: ["portfolio-style-b.png"], archive: true },
+  ].map((group) => ({ ...group, items: group.selected.flatMap((file) => posters.filter((item) => item.src.endsWith(file))) }));
+  const displayedPosters = groups.flatMap((group) => group.items);
   const poster = index === null ? null : displayedPosters[index];
 
   function open(index: number) {
@@ -92,7 +89,7 @@ export function PosterGallery({ posters }: { posters: NonNullable<Project["galle
 
   return <>
     {groups.map((group) => {
-      const { featured, variants } = group;
+      const { items } = group;
       const render = (items: typeof posters, rail = false) => {
         const figures = items.map((item) => <figure key={item.src} className="project-media">
         <button className="poster-open" type="button" aria-haspopup="dialog" aria-label={"放大查看：" + item.title} onClick={() => open(displayedPosters.indexOf(item))}><Image ref={(element) => { thumbnails.current[displayedPosters.indexOf(item)] = element; }} src={item.src} alt={item.title} width={item.width} height={item.height} sizes="(max-width: 760px) 100vw, 420px" /><span className="poster-open-label">放大查看 <Arrow /></span></button>
@@ -101,7 +98,7 @@ export function PosterGallery({ posters }: { posters: NonNullable<Project["galle
         return rail ? <GalleryRail label={group.title}>{figures}</GalleryRail> : <div className="poster-grid series-grid">{figures}</div>;
       };
       return <section key={group.title} className={"gallery-series " + (group.archive ? "gallery-archive" : "")} aria-label={group.title}><div className="gallery-series-header"><h2>{group.title}</h2><p>{group.text}</p></div>
-        {group.archive ? <details><summary>展开四套界面概念</summary>{render(featured)}</details> : <>{render(featured, true)}{variants.length > 0 && <details><summary>查看这个系列的其他 {variants.length} 张作品</summary>{render(variants)}</details>}</>}
+        {group.archive ? <details><summary>展开最初的版式方向</summary>{render(items)}</details> : render(items, items.length > 1)}
       </section>;
     })}
     <dialog ref={dialog} className="poster-dialog" aria-labelledby="poster-dialog-title" onCancel={(event) => { event.preventDefault(); void close(); }} onClose={() => { activeIndex.current = null; opener.current = null; animation.current?.cancel(); closing.current = false; delete dialog.current?.dataset.closing; setIndex(null); }} onClick={(event) => { if (event.target === event.currentTarget) void close(); }} onKeyDown={(event) => {

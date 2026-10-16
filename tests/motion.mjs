@@ -93,7 +93,7 @@ try {
   const loadedSize = await page.locator(".lightbox-image").evaluate(element => ({ width: element.offsetWidth, height: element.offsetHeight }));
   assert.deepEqual(loadedSize, { width: preview.width, height: preview.height }, "image decoding does not resize the dialog");
   await page.keyboard.press("ArrowRight");
-  await page.waitForFunction(() => document.querySelector(".lightbox-controls p").textContent === "2 / 18");
+  await page.waitForFunction(() => document.querySelector(".lightbox-controls p").textContent === "2 / 8");
   await page.evaluate(() => {
     const animation = document.querySelector(".lightbox-image").getAnimations()[0];
     animation.pause(); animation.currentTime = 60;
@@ -127,7 +127,7 @@ try {
     await page.setViewportSize({ width, height: width < 760 ? 844 : 1000 });
     await trigger.click();
     for (let step = 0; step < 20; step++) await page.keyboard.press("ArrowLeft");
-    await page.waitForFunction(() => document.querySelector(".lightbox-controls p").textContent === "1 / 18");
+    await page.waitForFunction(() => document.querySelector(".lightbox-controls p").textContent === "1 / 8");
     const bounds = () => page.evaluate(() => ({
       panel: document.querySelector("dialog").getBoundingClientRect().top,
       toolbar: document.querySelector(".lightbox-toolbar").getBoundingClientRect().top,
@@ -136,9 +136,9 @@ try {
       viewport: innerHeight,
     }));
     const initial = await bounds();
-    for (let index = 1; index < 18; index++) {
+    for (let index = 1; index < 8; index++) {
       await page.keyboard.press("ArrowRight");
-      await page.waitForFunction(value => document.querySelector(".lightbox-controls p").textContent === value, `${index + 1} / 18`);
+      await page.waitForFunction(value => document.querySelector(".lightbox-controls p").textContent === value, `${index + 1} / 8`);
       const current = await bounds();
       for (const key of ["panel", "toolbar", "controls"]) assert.ok(Math.abs(current[key] - initial[key]) < 1, `artwork ${index + 1} keeps ${key} stable at ${width}px`);
       assert.ok(current.bottom <= current.viewport, "gallery actions remain within the viewport");
@@ -148,5 +148,5 @@ try {
     assert.equal(await trigger.evaluate(element => element === document.activeElement), true);
   }
   assert.deepEqual(errors, []);
-  console.log("PASS: coordinated entry, production timing units, interrupted FLIP geometry, live reduced-motion changes, slow-image continuity, interrupted gallery exit/focus/reopen, stable controls across all 18 artworks on desktop/mobile.");
+  console.log("PASS: coordinated entry, production timing units, interrupted FLIP geometry, live reduced-motion changes, slow-image continuity, interrupted gallery exit/focus/reopen, stable controls across all 8 artworks on desktop/mobile.");
 } finally { await browser.close(); }

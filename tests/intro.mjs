@@ -124,7 +124,7 @@ async function check(name, options, run) {
         const cover = new DOMMatrix(getComputedStyle(document.querySelector(".site-opening-cover > span")).transform).m22;
         const line = new DOMMatrix(getComputedStyle(document.querySelector(".hero-name .opening-line-content")).transform).m42;
         const navigation = Number(getComputedStyle(document.querySelector(".site-nav")).opacity);
-        window.openingFrames.push({ time: performance.now(), decoded, contained, clearOfIntro, cover, line, navigation, pageOpacity: focus.opacity, pageShadow: focus.boxShadow, light: Number(getComputedStyle(preview, "::after").opacity), opacity: Number(getComputedStyle(preview).opacity), cameraTilt: Math.atan2(camera.m23, camera.m22), cameraDepth: camera.m43, previewDepth: transform.m43, planes, blur: Number(focus.filter.match(/blur\(([\d.]+)px\)/)?.[1] || 0), rotation: Math.atan2(transform.b, transform.a), overflow: document.documentElement.scrollWidth > innerWidth + 1, pointer: getComputedStyle(curtain).pointerEvents });
+        window.openingFrames.push({ followingOpacity: Number(getComputedStyle(document.querySelector(".live-demo")).opacity), time: performance.now(), decoded, contained, clearOfIntro, cover, line, navigation, pageOpacity: focus.opacity, pageShadow: focus.boxShadow, light: Number(getComputedStyle(preview, "::after").opacity), opacity: Number(getComputedStyle(preview).opacity), cameraTilt: Math.atan2(camera.m23, camera.m22), cameraDepth: camera.m43, previewDepth: transform.m43, planes, blur: Number(focus.filter.match(/blur\(([\d.]+)px\)/)?.[1] || 0), rotation: Math.atan2(transform.b, transform.a), overflow: document.documentElement.scrollWidth > innerWidth + 1, pointer: getComputedStyle(curtain).pointerEvents });
       }
       if (performance.now() < 14000) requestAnimationFrame(sample);
     }
@@ -169,9 +169,9 @@ try {
       await usable(page);
     });
   }
-  await check("revealed homepage links stay usable during card landing", {}, async page => {
+  await check("revealed homepage links stay usable after the staged handoff", {}, async page => {
     await page.goto(origin, { waitUntil: "domcontentloaded" });
-    await page.waitForFunction(() => document.documentElement.dataset.siteOpening === "active" && new DOMMatrix(getComputedStyle(document.querySelector(".site-opening-cover > span")).transform).m22 < .01);
+    await settled(page);
     await usable(page);
   });
   for (const width of [360, 820]) {
@@ -212,6 +212,8 @@ try {
       assert.ok(frames.some(frame => frame.cover > .95 && frame.line > 20 && frame.navigation < .1) && frames.some(frame => frame.cover < .01 && frame.line < 1 && frame.navigation > .99), "the cover, heading lines and navigation reveal the entire homepage within the shared scene");
       assert.ok(await page.evaluate(() => window.openingMarkError !== null && window.openingMarkError < 1), "the centered signature becomes the actual header wordmark within one pixel");
       assert.ok(frames.some(frame => frame.previewDepth > 20), "work lifts off the page in depth");
+      assert.ok(frames.every(frame => frame.cover >= .999 || frame.previewDepth < 1), "the homepage cover stays shut until the cards have finished landing");
+      assert.ok(frames.every(frame => frame.followingOpacity === 0), "the next homepage section never appears underneath an unfinished opening");
       const lit = frames.filter(frame => frame.previewDepth > 20 && frame.opacity > .8);
       assert.ok(lit.some(frame => frame.light > .8) && frames.at(-1).light < .05, "directional surface light fades away as the works land");
       const unfolded = frames.filter(frame => frame.previewDepth > 20);
@@ -293,7 +295,7 @@ try {
     await page.goto(origin); await settled(page);
     const state = await page.evaluate(() => ({ runs: window.openingRuns, duration: window.openingFrames.at(-1)?.time - window.openingFrames[0]?.time, entries: window.headingEntries }));
     assert.equal(state.runs, 1);
-    assert.ok(state.duration >= 2200 && state.duration < 2700, "the full scene plays after delayed scripts rather than spending its duration while loading");
+    assert.ok(state.duration >= 2600 && state.duration < 3100, "the full scene plays after delayed scripts rather than spending its duration while loading");
     assert.deepEqual(state.entries, []);
     await usable(page);
   });
@@ -307,7 +309,7 @@ try {
     assert.ok(await page.getByRole("button", { name: "跳过开场" }).isVisible(), "a real skip action remains available during slow preparation");
     await settled(page);
     assert.equal(await page.evaluate(() => window.artifactAnimations.length), 3);
-    assert.ok(await page.evaluate(() => window.openingFrames.every(frame => frame.decoded) && window.openingFrames.at(-1).time - window.openingFrames[0].time >= 2200), "slow media still receives a complete decoded opening");
+    assert.ok(await page.evaluate(() => window.openingFrames.every(frame => frame.decoded) && window.openingFrames.at(-1).time - window.openingFrames[0].time >= 2600), "slow media still receives a complete decoded opening");
     await usable(page);
   });
   await check("input during image preparation cannot revive the scene after decoding", {}, async page => {

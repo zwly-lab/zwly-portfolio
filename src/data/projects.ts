@@ -72,7 +72,7 @@ export const projects: Project[] = [
   {
     slug: "poster-collection", title: "海报与视觉作品", description: "从日常灵感到产品表达，让想法成为画面。", stack: ["AI 视觉", "海报", "拼贴", "界面概念"], status: "showcase",
     category: "视觉创作", preview: "art",
-    overview: "精选 18 张已有作品：旅行与美食拼贴、风景插画、水彩风格化、四套 ZWLY Lab 网站概念和产品海报。保留完整画幅，点击图片可查看原图。AI 生成或风格化画面作为视觉作品展示；网站概念图展示设计方向，图中的界面、数量与宣传文案不代表实际产品状态。",
+    overview: "精选 8 张已有作品：旅行与美食拼贴、风景插画、水彩风格化、最初的 Style B 版式和产品海报。相近构图收敛展示。保留完整画幅，点击图片可查看原图。AI 生成或风格化画面作为视觉作品展示；网站概念图展示设计方向，图中的界面、数量与宣传文案不代表实际产品状态。",
     gallery: [
       { src: "/images/posters/food-illustration.png", title: "美食手绘 · 日式餐桌", width: 1122, height: 1402 },
       { src: "/images/posters/food-diary-corgi.png", title: "美食拼贴 · More Good Days", width: 1122, height: 1402 },

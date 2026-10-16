@@ -222,12 +222,12 @@ async function main() {
   const trigger = page.getByRole("button", { name: "放大查看：旅行拼贴 · 圣托里尼", exact: true });
   await trigger.click();
   assert.equal(await page.locator("dialog").evaluate((dialog) => dialog.open), true);
-  assert.equal(await page.locator(".lightbox-controls p").textContent(), "1 / 18");
+  assert.equal(await page.locator(".lightbox-controls p").textContent(), "1 / 8");
   await page.keyboard.press("ArrowLeft");
   for (let step = 0; step < 3; step++) await page.keyboard.press("ArrowRight");
-  await page.locator(".lightbox-controls p").filter({ hasText: "4 / 18" }).waitFor();
+  await page.locator(".lightbox-controls p").filter({ hasText: "4 / 8" }).waitFor();
   for (let step = 0; step < 20; step++) await page.keyboard.press("ArrowLeft");
-  await page.locator(".lightbox-controls p").filter({ hasText: "1 / 18" }).waitFor();
+  await page.locator(".lightbox-controls p").filter({ hasText: "1 / 8" }).waitFor();
   assert.equal(await page.getByRole("button", { name: "上一张", exact: true }).isDisabled(), true);
   const disabledPrevious = page.getByRole('button', { name: '上一张', exact: true });
   const disabledOpacity = await disabledPrevious.evaluate(element => getComputedStyle(element).opacity);
@@ -239,14 +239,14 @@ async function main() {
   await page.keyboard.press("Escape");
   await page.locator("dialog").waitFor({ state: "hidden" });
   assert.equal(await trigger.evaluate((element) => element === document.activeElement), true, "Escape restores focus to origin");
-  await page.getByText("展开四套界面概念", { exact: true }).click();
+  await page.getByText("展开最初的版式方向", { exact: true }).click();
   await page.getByRole("button", { name: "放大查看：网站概念 · Style B 极简编辑", exact: true }).waitFor({ state: "visible" });
   assert.equal(await page.getByRole("button", { name: "放大查看：网站概念 · Style B 极简编辑", exact: true }).isVisible(), true);
 
   await page.emulateMedia({ reducedMotion: "reduce" });
   await trigger.click();
   await page.keyboard.press("ArrowRight");
-  await page.locator(".lightbox-controls p").filter({ hasText: "2 / 18" }).waitFor();
+  await page.locator(".lightbox-controls p").filter({ hasText: "2 / 8" }).waitFor();
   assert.equal(await page.locator("dialog").evaluate((element) => getComputedStyle(element).animationName), "none");
   assert.equal(await page.locator(".lightbox-image").evaluate((element) => element.getAnimations().length), 0);
   await page.keyboard.press("Escape");

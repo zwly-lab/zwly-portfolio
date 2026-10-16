@@ -25,4 +25,10 @@ The three JD posters are existing reviewed local exports: `marketing/images/hero
 
 Travel/family and watercolor subjects are visual artwork, not a claim about the site owner’s identity or real travel. Website mockups and marketing copy are concepts/presentation material, not evidence of implemented features. Avatars are intentionally excluded.
 
-To add a reviewed image: place its complete file in `public/images/posters`, add its title and actual dimensions to `src/data/projects.ts`, update the expected curated image count in `tests/smoke.mjs`, and run the documented checks.
+To add a reviewed image: place its complete file in `public/images/posters`, add its title and actual dimensions to `src/data/projects.ts`, then deliberately select it for public display as described below and run the documented checks.
+
+## Public selection
+
+The gallery shows eight distinct works: `travel-diary`, `food-diary-corgi`, `santorini-illustration`, `watercolor-kites`, `jd-overview`, `jd-recovery`, `jd-privacy` and the historical `portfolio-style-b` concept. Related crops and near duplicates remain as source files, without appearing as additional gallery entries. Multi-image travel and product series use native horizontal rails; the single watercolour and historical concept keep complete, flat presentations.
+
+To change the public selection, update the explicit selection in `PosterGallery.tsx` and its order/count assertions in the smoke, gallery and motion checks; adding a source asset alone does not publish another gallery entry.

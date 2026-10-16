@@ -16,13 +16,15 @@ try {
       await page.goto(origin + "/projects/poster-collection");
       const triggers = page.locator(".poster-open");
       const order = await triggers.locator("img").evaluateAll(images => images.map(image => image.alt));
-      assert.equal(order.length, 18, "all originals remain in the gallery, including collapsed variants/archive");
-      assert.equal(new Set(order).size, 18, "each original appears once");
+      assert.equal(order.length, 8, "only eight curated works appear, including the historical Style B concept");
+      assert.equal(new Set(order).size, 8, "each curated work appears once");
+      const sources = await triggers.locator("img").evaluateAll(images => images.map(image => new URL(image.src).searchParams.get("url") || new URL(image.src).pathname));
+      assert.deepEqual(sources.map(src => src.split("/").pop()), ["travel-diary.png", "food-diary-corgi.png", "santorini-illustration.png", "watercolor-kites.png", "jd-overview.png", "jd-recovery.png", "jd-privacy.png", "portfolio-style-b.png"], "all public thumbnails follow the explicit curated order");
       assert.equal(order[0], "旅行拼贴 · 圣托里尼", "travel diary leads the displayed collection");
       const first = triggers.first();
       await first.click();
       const assertArtwork = async index => {
-        await page.waitForFunction(({ title, count }) => document.querySelector(".lightbox-image")?.alt === title && document.querySelector(".lightbox-controls p")?.textContent === count, { title: order[index], count: `${index + 1} / 18` });
+        await page.waitForFunction(({ title, count }) => document.querySelector(".lightbox-image")?.alt === title && document.querySelector(".lightbox-controls p")?.textContent === count, { title: order[index], count: `${index + 1} / ${order.length}` });
         assert.equal(await page.locator("#poster-dialog-title").textContent(), order[index]);
       };
       const stageBounds = () => page.locator(".lightbox-controls").evaluate(element => ({ top: element.getBoundingClientRect().top, bottom: element.getBoundingClientRect().bottom, viewport: innerHeight }));
@@ -42,10 +44,10 @@ try {
       assert.equal(await page.getByRole("button", { name: "下一张", exact: true }).isDisabled(), true);
       assert.equal(await page.locator("dialog").evaluate(dialog => dialog.contains(document.activeElement)), true, "disabling the last next button retains modal focus");
       await page.keyboard.press("ArrowRight");
-      await assertArtwork(17);
+      await assertArtwork(order.length - 1);
       await page.keyboard.press("ArrowLeft");
-      await assertArtwork(16);
-      for (let index = 15; index >= 0; index--) {
+      await assertArtwork(order.length - 2);
+      for (let index = order.length - 3; index >= 0; index--) {
         await page.getByRole("button", { name: "上一张", exact: true }).click();
         await assertArtwork(index);
       }
@@ -55,22 +57,22 @@ try {
       await page.keyboard.press("Escape");
       await page.locator("dialog").waitFor({ state: "hidden" });
       assert.equal(await first.evaluate(element => element === document.activeElement), true, "native dialog returns focus to the original opener after navigation");
-      // Open every disclosure so original thumbnails can be checked against the same sequence.
+      // The historical concept shares the same displayed/modal sequence.
       for (const summary of await page.locator(".gallery-series details > summary").all()) await summary.click();
-      for (const index of [3, 8, 11, 14, 17]) {
+      for (const index of [3, 4, 6, 7]) {
         const trigger = triggers.nth(index);
         await trigger.click();
         await assertArtwork(index);
-        if (index < 17) {
+        if (index < order.length - 1) {
           await page.keyboard.press("ArrowRight");
           await assertArtwork(index + 1);
         }
         await page.getByRole("button", { name: "关闭", exact: true }).click();
         await page.locator("dialog").waitFor({ state: "hidden" });
-        assert.equal(await trigger.evaluate(element => element === document.activeElement), true, "variant/archive close restores its own thumbnail focus");
+        assert.equal(await trigger.evaluate(element => element === document.activeElement), true, "curated/archive close restores its own thumbnail focus");
       }
     }
   }
   assert.deepEqual(errors, []);
-  console.log("PASS: displayed gallery order matches modal count and adjacent navigation across all 18 originals, variants/archive, desktop/mobile, normal/reduced motion, keyboard boundaries, stable controls and original focus restoration.");
+  console.log("PASS: displayed gallery order matches modal count and adjacent navigation across eight curated works and historical concept, desktop/mobile, normal/reduced motion, keyboard boundaries, stable controls and original focus restoration.");
 } finally { await browser.close(); }

@@ -96,14 +96,14 @@ const openingScript = `(() => {
     Object.assign(signature.style, { left: mark.left + "px", top: mark.top + "px", fontSize: font.fontSize, lineHeight: font.lineHeight });
     const markScale = Math.min(80, Math.max(48, innerWidth * .056)) / parseFloat(font.fontSize);
     const markPose = "translate(" + (document.documentElement.clientWidth / 2 - mark.left - mark.width * markScale / 2) + "px," + (innerHeight * .27 - mark.top - mark.height * markScale / 2) + "px) scale(" + markScale + ")";
-    animations.push(signature.animate([{ transform: markPose, offset: 0 }, { transform: markPose, offset: .12, easing: "cubic-bezier(.76, 0, .24, 1)" }, { transform: "translate(0,0) scale(1)", offset: .46 }, { transform: "translate(0,0) scale(1)" }], { duration: 2400, fill: "both" }));
+    animations.push(signature.animate([{ transform: markPose, offset: 0 }, { transform: markPose, offset: .12, easing: "cubic-bezier(.76, 0, .24, 1)" }, { transform: "translate(0,0) scale(1)", offset: .46 }, { transform: "translate(0,0) scale(1)" }], { duration: 2820, fill: "both" }));
     root.setAttribute("data-opening-artifacts", "ready");
     root.setAttribute("data-site-opening", "active");
     const epoch = document.timeline.currentTime;
     [...animations, ...camera.getAnimations({ subtree: true }).filter(animation => animation.animationName === "site-unveil" || animation.animationName?.startsWith("opening-"))].forEach(animation => { animation.startTime = epoch; });
     document.dispatchEvent(new Event("opening-play"));
     clearTimeout(timer);
-    timer = setTimeout(stop, 3100);
+    timer = setTimeout(stop, 3520);
   };
   events.forEach(type => window.addEventListener(type, stop, { capture: true, passive: true }));
   window.addEventListener("animationend", finish);

@@ -37,7 +37,7 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
   return <main id="main-content" className={"container page-body case-page case-page--" + (isConcept ? "concept" : project.gallery ? "gallery" : study?.kind ?? "product")}>
     <header className="page-header case-header case-header-v2">
       <ContentBreadcrumb href="/projects" label="作品" title={project.title} />
-      <h1>{project.title}</h1><p>{project.gallery ? "AI 生成与风格化视觉 · 18 张已有原作，按系列观看与放大。" : project.description}</p>
+      <h1>{project.title}</h1><p>{project.gallery ? "AI 生成与风格化视觉 · 8 张精选原作，按系列观看与放大。" : project.description}</p>
       {isConcept && <p className="article-meta">研究方向 · 尚未实现</p>}
       {(project.demo || project.video) && <div className="link-group">
         {project.demo && <a className="text-link" href={project.demo}>体验作品 <Arrow /></a>}
@@ -97,7 +97,7 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
     {project.gallery && <section id="visual-works" aria-label="视觉作品系列">
       <PosterGallery posters={project.gallery} />
       <dl className="case-facts">
-        <div><dt>展示范围</dt><dd>视觉系列 · 18 张已有原作</dd></div>
+        <div><dt>展示范围</dt><dd>视觉系列 · 8 张精选原作</dd></div>
         <div><dt>技术组成</dt><dd>{project.stack.join(" / ")}</dd></div>
       </dl>
       <div className="prose"><p className="article-meta">AI 生成与风格化视觉作品。产品海报和网站概念保留当时的表达，不等同于已实现的产品能力。</p></div>

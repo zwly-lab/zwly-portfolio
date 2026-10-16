@@ -82,7 +82,7 @@ assert.match(wasm.headers.get("content-type"), /application\/wasm/);
 assert.deepEqual(new Uint8Array(await wasm.arrayBuffer()).slice(0, 4), new Uint8Array([0, 97, 115, 109]));
 const galleryPage = await (await fetch(new URL("/projects/poster-collection", origin))).text();
 const posters = [...new Set([...galleryPage.matchAll(/href="(\/images\/posters\/[^"\s]+\.png)"/g)].map((match) => match[1]))];
-assert.equal(posters.length, 18, "curated gallery image count");
+assert.equal(posters.length, 8, "curated gallery image count");
 assert.ok(!galleryPage.includes("avatar"), "avatars are excluded");
 assert.ok(galleryPage.includes("Style B 极简编辑"), "original style concept is archived");
 assert.ok(galleryPage.includes("<dialog"), "native gallery dialog");
