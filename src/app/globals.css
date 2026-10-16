@@ -649,7 +649,7 @@ button:disabled { cursor: default; opacity: .4; }
 }
 /* Shared feedback across navigation, work, reading and visual surfaces. */
 .site-nav, .project-filters, .showcase-choices, .article-toc { position: relative; }
-.active-underline { position: absolute; inset: 0 auto auto 0; width: 1px; height: 2px; background: var(--accent); transform-origin: left top; opacity: 0; pointer-events: none; transition: transform var(--motion-change) var(--motion-arrive), opacity var(--motion-quick); }
+.active-underline { position: absolute; inset: 0 auto auto 0; width: 0; height: 2px; background: var(--accent); opacity: 0; pointer-events: none; transition: transform var(--motion-change) var(--motion-arrive), width var(--motion-change) var(--motion-arrive), opacity var(--motion-quick); }
 .site-nav a { position: relative; }
 .site-nav a:not([aria-current])::after { content: ""; position: absolute; inset: auto 0 -1px; height: 1px; background: var(--accent); transform: scaleX(0); transform-origin: left; transition: transform var(--motion-standard) var(--motion-arrive); }
 .site-nav a:hover { border-color: transparent; }

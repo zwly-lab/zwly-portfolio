@@ -4,18 +4,38 @@ import { pathToFileURL } from "node:url";
 const { chromium } = await import(process.env.PLAYWRIGHT_MODULE ? pathToFileURL(path.join(process.env.PLAYWRIGHT_MODULE, "index.mjs")).href : "playwright");
 const origin = process.argv[2] || "http://localhost:3000";
 const browser = await chromium.launch({ headless: true, ...(process.env.BROWSER_EXECUTABLE ? { executablePath: process.env.BROWSER_EXECUTABLE } : {}) });
-async function checkMarker(page, selector) {
-  await page.waitForFunction(selector => {
+async function checkMarker(page, selector, zoom = 1) {
+  await page.waitForFunction(({ selector, zoom }) => {
     const group = document.querySelector(selector), selected = group?.querySelector('[aria-current], [aria-pressed="true"]'), line = group?.querySelector('.active-underline');
     if (!selected || !line?.style.transform) return false;
     const label = selected.querySelector('[data-underline-label]').getBoundingClientRect(), marker = line.getBoundingClientRect();
-    return Math.abs(label.left - marker.left - 4) < 1 && Math.abs(marker.right - label.right - 4) < 1;
-  }, selector);
+    return Math.abs(label.left - marker.left - 4 * zoom) < 1 && Math.abs(marker.right - label.right - 4 * zoom) < 1;
+  }, { selector, zoom });
   const geometry = await page.locator(selector).evaluate(group => {
     const selected = group.querySelector('[aria-current], [aria-pressed="true"]'), label = selected.querySelector('[data-underline-label]').getBoundingClientRect(), line = group.querySelector('.active-underline').getBoundingClientRect();
-    return { left: label.left - line.left, right: line.right - label.right, top: line.top - (selected.getBoundingClientRect().bottom - 2) };
+    const zoom = group.getBoundingClientRect().height / parseFloat(getComputedStyle(group).height);
+    return { left: label.left - line.left, right: line.right - label.right, top: line.top - (selected.getBoundingClientRect().bottom - 2 * zoom) };
   });
-  assert.ok(Math.abs(geometry.left - 4) < 1 && Math.abs(geometry.right - 4) < 1 && Math.abs(geometry.top) < 1, 'selection marker follows the actual label with equal 4px overhangs');
+  assert.ok(Math.abs(geometry.left - 4 * zoom) < 1 && Math.abs(geometry.right - 4 * zoom) < 1 && Math.abs(geometry.top) < 1, 'selection marker follows the actual label with equal 4px overhangs at the current display scale');
+}
+async function checkPaintedMarker(page, selector) {
+  const line = await page.locator(selector + ' .active-underline').boundingBox();
+  const clip = { x: Math.floor(line.x) - 12, y: Math.floor(line.y) - 1, width: Math.ceil(line.width) + 48, height: Math.ceil(line.height) + 2 };
+  const png = await page.screenshot({ clip, scale: 'css' });
+  const painted = await page.evaluate(async base64 => {
+    const bitmap = await createImageBitmap(await (await fetch('data:image/png;base64,' + base64)).blob());
+    const canvas = document.createElement('canvas'); canvas.width = bitmap.width; canvas.height = bitmap.height;
+    const context = canvas.getContext('2d'); context.drawImage(bitmap, 0, 0);
+    const { data } = context.getImageData(0, 0, canvas.width, canvas.height);
+    let left = canvas.width, right = -1;
+    for (let y = 0; y < canvas.height; y++) for (let x = 0; x < canvas.width; x++) {
+      const i = (y * canvas.width + x) * 4;
+      if (data[i] < 100 && data[i + 1] < 130 && data[i + 2] < 110) { left = Math.min(left, x); right = Math.max(right, x); }
+    }
+    bitmap.close();
+    return { left, right: right + 1 };
+  }, png.toString('base64'));
+  assert.ok(Math.abs(painted.left - (line.x - clip.x)) < 1.5 && Math.abs(painted.right - (line.x + line.width - clip.x)) < 1.5, 'painted pixels match the centered geometry, without stretching a pixel-rounded 1px layer');
 }
 try {
   for (const width of [360, 820, 1440]) {
@@ -59,5 +79,37 @@ try {
     assert.ok(layout.cards.every(card => !card.wrapped || card.lastLine >= card.fontSize * 4), "long titles do not leave two Chinese characters stranded on a separate line");
     await page.close();
   }
-  console.log("PASS: initial text-aligned navigation markers, 44px targets and readable onward links at 360/820/1440px.");
+  for (const zoom of [1.25, 1.5, 2]) {
+    const page = await browser.newPage({ viewport: { width: 1440, height: 1000 }, reducedMotion: "reduce" });
+    await page.addInitScript(zoom => document.addEventListener('DOMContentLoaded', () => { document.documentElement.style.zoom = String(zoom); }), zoom);
+    await page.goto(origin + '/projects');
+    await checkMarker(page, '.site-nav', zoom);
+    await checkPaintedMarker(page, '.site-nav');
+    for (const label of ['全部', '视觉创作', '交互实验']) {
+      await page.getByRole('button', { name: label, exact: true }).click();
+      await checkMarker(page, '.project-filters', zoom);
+      await checkPaintedMarker(page, '.project-filters');
+    }
+    await page.setViewportSize({ width: 780, height: 1000 });
+    await checkMarker(page, '.site-nav', zoom);
+    await checkMarker(page, '.project-filters', zoom);
+    await page.goto(origin);
+    await page.getByRole('button', { name: '交互实验', exact: true }).click();
+    await page.waitForFunction(() => document.querySelector('#portfolio-overview')?.getAttribute('aria-busy') === 'false');
+    await checkMarker(page, '.showcase-choices', zoom);
+    await page.close();
+  }
+  for (const deviceScaleFactor of [1.25, 1.5]) {
+    const page = await browser.newPage({ viewport: { width: 1440, height: 900 }, deviceScaleFactor });
+    await page.goto(origin + '/projects');
+    await checkMarker(page, '.site-nav');
+    await checkPaintedMarker(page, '.site-nav');
+    for (const label of ['视觉创作', '全部', '交互实验']) {
+      await page.getByRole('button', { name: label, exact: true }).click();
+      await checkMarker(page, '.project-filters');
+      await checkPaintedMarker(page, '.project-filters');
+    }
+    await page.close();
+  }
+  console.log("PASS: centered marker geometry and painted pixels at 125/150/200% zoom and fractional screen densities; 44px targets and readable onward links at 360/820/1440px.");
 } finally { await browser.close(); }

@@ -20,7 +20,11 @@ export function ActiveUnderline({ target, value }: { target: RefObject<HTMLEleme
       const origin = group.getBoundingClientRect();
       const bounds = selected.getBoundingClientRect();
       const label = selected.querySelector<HTMLElement>("[data-underline-label]")?.getBoundingClientRect() ?? bounds;
-      marker.style.transform = `translate(${label.left - origin.left + group.scrollLeft - 4}px, ${bounds.bottom - origin.top + group.scrollTop - 2}px) scaleX(${label.width + 8})`;
+      const style = getComputedStyle(group);
+      // Viewport rectangles include ancestor zoom; the marker needs local CSS pixels.
+      const scaleX = origin.width / parseFloat(style.width), scaleY = origin.height / parseFloat(style.height);
+      marker.style.width = `${label.width / scaleX + 8}px`;
+      marker.style.transform = `translate(${(label.left - origin.left) / scaleX + group.scrollLeft - 4}px, ${(bounds.bottom - origin.top) / scaleY + group.scrollTop - 2}px)`;
       if (!placed.current) {
         marker.getBoundingClientRect();
         marker.style.removeProperty("transition");
