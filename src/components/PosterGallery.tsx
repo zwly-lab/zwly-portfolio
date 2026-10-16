@@ -100,7 +100,7 @@ export function PosterGallery({ posters }: { posters: NonNullable<Project["galle
         </figure>);
         return rail ? <GalleryRail label={group.title}>{figures}</GalleryRail> : <div className="poster-grid series-grid">{figures}</div>;
       };
-      return <section key={group.title} className={"gallery-series " + (group.archive ? "gallery-archive" : "")} aria-label={group.title}><div className="gallery-series-header"><h3>{group.title}</h3><p>{group.text}</p></div>
+      return <section key={group.title} className={"gallery-series " + (group.archive ? "gallery-archive" : "")} aria-label={group.title}><div className="gallery-series-header"><h2>{group.title}</h2><p>{group.text}</p></div>
         {group.archive ? <details><summary>展开四套界面概念</summary>{render(featured)}</details> : <>{render(featured, true)}{variants.length > 0 && <details><summary>查看这个系列的其他 {variants.length} 张作品</summary>{render(variants)}</details>}</>}
       </section>;
     })}

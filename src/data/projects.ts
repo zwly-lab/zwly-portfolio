@@ -4,7 +4,7 @@ export type Project = {
   description: string;
   stack: string[];
   status: "building" | "exploring" | "showcase";
-  category: "应用工具" | "教学可视化" | "视觉创作";
+  category: "应用工具" | "交互实验" | "视觉创作";
   audience?: string;
   steps?: { title: string; text: string }[];
   preview?: "workspace" | "diagram" | "art";
@@ -27,7 +27,7 @@ export const projects: Project[] = [
   },
   {
     slug: "pyscreen", title: "PyScreen · Python 练习台", description: "在浏览器里运行 Python，让代码、变量与画面相互连接。", stack: ["Python", "Pyodide", "Canvas"], status: "showcase",
-    category: "教学可视化", preview: "workspace", audience: "正在学习 Python、希望看清程序执行过程的初学者。",
+    category: "交互实验", preview: "workspace", audience: "正在学习 Python、希望看清程序执行过程的初学者。",
     steps: [{ title: "读任务，改代码", text: "从左侧任务开始，在中间编辑区修改 Python 代码。" }, { title: "运行并观察", text: "运行后，同时查看画布、变量和执行轨迹。" }, { title: "回看，再试一次", text: "逐帧回看结果，依据反馈修改；遇到错误时保留错误提示。" }],
     demo: "/demos/pyscreen/playground.html?level=6",
     image: { src: "/images/projects/pyscreen.png", width: 1440, height: 1000, caption: "实际运行 · 代码、变量、执行轨迹与画布同时呈现" },
@@ -36,7 +36,7 @@ export const projects: Project[] = [
   },
   {
     slug: "kmp-visualizer", title: "KMP 算法可视化", description: "逐步观察模式匹配、前缀表与失配回退。", stack: ["JavaScript", "算法", "可视化"], status: "showcase",
-    category: "教学可视化", preview: "diagram", audience: "正在学习字符串匹配，希望理解前缀表与回退过程的学习者。",
+    category: "交互实验", preview: "diagram", audience: "正在学习字符串匹配，希望理解前缀表与回退过程的学习者。",
     steps: [{ title: "设置两串字符", text: "输入主串和模式串，或使用已有示例。" }, { title: "理解前缀表", text: "从前缀和后缀的关系开始，逐步推导 next / LPS。" }, { title: "跟随匹配过程", text: "暂停或单步观察比较与失配回退，检查最终匹配结果。" }],
     demo: "/demos/kmp/index.html",
     image: { src: "/images/projects/kmp.png", width: 1440, height: 810, caption: "实际运行 · 从前缀与后缀理解 KMP" },
@@ -45,7 +45,7 @@ export const projects: Project[] = [
   },
   {
     slug: "linked-list-merge", title: "有序链表二路归并", description: "跟随指针移动，观察两个有序链表合并。", stack: ["JavaScript", "链表", "动画"], status: "showcase",
-    category: "教学可视化", preview: "diagram", audience: "学习链表与稳定归并、需要看清节点和指针变化的学习者。",
+    category: "交互实验", preview: "diagram", audience: "学习链表与稳定归并、需要看清节点和指针变化的学习者。",
     steps: [{ title: "准备两条链表", text: "输入升序数据，也可使用随机生成的数据。" }, { title: "跟随节点移动", text: "逐步比较两端节点，观察指针和连线的变化。" }, { title: "检查归并结果", text: "回看结果链表，关注重复值的顺序和剩余节点的连接。" }],
     demo: "/demos/linked-list/index.html",
     image: { src: "/images/projects/linked-list.png", width: 1440, height: 1000, caption: "实际运行 · 节点归并完成后的结果链表" },
@@ -54,7 +54,7 @@ export const projects: Project[] = [
   },
   {
     slug: "gdp-timeline", title: "全球 GDP 时间轴", description: "用动态柱状图观察 1960–2019 年的历史排名。", stack: ["Python", "pyecharts", "ECharts"], status: "showcase",
-    category: "教学可视化", audience: "练习时间序列与数据可视化的学习者；数据是历史练习资料。",
+    category: "交互实验", audience: "练习时间序列与数据可视化的学习者；数据是历史练习资料。",
     steps: [{ title: "选择历史年份", text: "在 1960–2019 年的时间轴中选择一年。" }, { title: "播放排名变化", text: "播放时间轴，观察原练习数据中各年的前八名。" }, { title: "回到具体一年", text: "暂停并对照图表数值；这份练习不提供最新经济数据。" }],
     demo: "/demos/gdp/index.html",
     image: { src: "/images/projects/gdp.png", width: 1440, height: 810, caption: "实际运行 · 2019 年历史数据视图" },

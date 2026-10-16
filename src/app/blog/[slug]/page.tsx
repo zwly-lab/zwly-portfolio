@@ -1,3 +1,4 @@
+import { pageMetadata } from "@/lib/metadata";
 import type { Metadata } from "next";
 import { ContentBreadcrumb } from "@/components/ContentBreadcrumb";
 import { notFound } from "next/navigation";
@@ -9,7 +10,8 @@ export function generateStaticParams() { return posts.map(({ slug }) => ({ slug 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
   const post = posts.find((item) => item.slug === slug);
-  return { title: post?.title ?? "手记未找到", description: post?.summary };
+  if (!post) return { title: "未找到" };
+  return pageMetadata({ path: "/blog/" + slug, title: post.title + " · ZWLY Lab", description: post.summary, image: post.cover });
 }
 export default async function PostPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;

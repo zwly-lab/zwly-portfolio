@@ -1,7 +1,10 @@
 "use client";
 
 import { useEffect } from "react";
-import { createOpeningDepth } from "@/lib/opening-depth";
+// Begin eligible downloads during hydration, alongside image preparation.
+const depthModule = typeof document !== "undefined" && document.documentElement.hasAttribute("data-site-opening")
+  ? import("@/lib/opening-depth").catch(() => null)
+  : null;
 
 export function OpeningDepth() {
   useEffect(() => {
@@ -12,7 +15,10 @@ export function OpeningDepth() {
     const prepare = async () => {
       try {
         if (cancelled) return;
-        dispose = await createOpeningDepth();
+        const depth = await depthModule;
+        if (cancelled) return;
+        if (!depth) throw new Error("Opening depth unavailable");
+        dispose = await depth.createOpeningDepth();
         if (cancelled) { dispose(); return; }
         root.dataset.openingDepth = "ready";
       } catch {

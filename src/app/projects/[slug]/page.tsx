@@ -1,3 +1,4 @@
+import { pageMetadata } from "@/lib/metadata";
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
@@ -15,7 +16,8 @@ export function generateStaticParams() { return projects.map(({ slug }) => ({ sl
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
   const project = projects.find((item) => item.slug === slug);
-  return { title: project?.title ?? "作品未找到", description: project?.description };
+  if (!project) return { title: "未找到" };
+  return pageMetadata({ path: "/projects/" + slug, title: project.title + " · ZWLY Lab", description: project.description, image: project.image ?? project.gallery?.[0] });
 }
 
 export default async function ProjectPage({ params }: { params: Promise<{ slug: string }> }) {
@@ -39,7 +41,7 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
       {isConcept && <p className="article-meta">研究方向 · 尚未实现</p>}
       {(project.demo || project.video) && <div className="link-group">
         {project.demo && <a className="text-link" href={project.demo}>体验作品 <Arrow /></a>}
-        {project.video && <a className="text-link" href="#product-film">观看操作视频 <Arrow /></a>}
+        {project.video && <a className="text-link" href="#product-film">操作视频（展开查看） <Arrow /></a>}
       </div>}
     </header>
 
@@ -56,10 +58,13 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
     {study && <>
       <section className="editorial-grid case-lead" aria-labelledby="case-question"><h2 id="case-question">{study.question}</h2><div className="prose"><p>{study.context}</p></div></section>
 
-      {study.kind === "product" && project.video && <figure id="product-film" className="project-media case-evidence">
-        <video controls playsInline poster={project.image?.src} preload="none" aria-label={project.title + " 已有静音操作视频"}><source src={project.video} type="video/mp4" /><a href={project.video}>下载操作视频</a></video>
-        <figcaption>已有本地操作记录 · 静音 · 可暂停、拖动进度</figcaption>
-      </figure>}
+      {study.kind === "product" && project.video && <details id="product-film" className="case-film-disclosure case-evidence">
+        <summary>静音操作视频 · 展开查看本地操作记录</summary>
+        <figure className="project-media case-film-content">
+          <video controls playsInline poster={project.image?.src} preload="none" aria-label={project.title + " 已有静音操作视频"} aria-describedby="product-film-caption"><source src={project.video} type="video/mp4" /><a href={project.video}>下载操作视频</a></video>
+          <figcaption id="product-film-caption">已有本地操作记录 · 静音 · 可暂停、拖动进度</figcaption>
+        </figure>
+      </details>}
 
       <section className="case-decisions" aria-labelledby="case-decisions-title">
         <div className="section-header"><h2 id="case-decisions-title">{study.kind === "algorithm" ? "让过程可以被看清" : study.kind === "data" ? "图表怎样组织信息" : "界面中的选择与取舍"}</h2></div>

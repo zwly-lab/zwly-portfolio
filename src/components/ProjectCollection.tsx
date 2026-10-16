@@ -6,7 +6,7 @@ import { ProjectCard } from "./ProjectCard";
 import { ActiveUnderline } from "./ActiveUnderline";
 import { motionTiming } from "@/lib/motion";
 
-const categories = ["全部", "应用工具", "教学可视化", "视觉创作"] as const;
+const categories = ["全部", "应用工具", "交互实验", "视觉创作"] as const;
 
 export function ProjectCollection({ projects }: { projects: Project[] }) {
   const [category, setCategory] = useState<(typeof categories)[number]>("全部");

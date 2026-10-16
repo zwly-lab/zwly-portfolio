@@ -202,7 +202,7 @@ async function main() {
     return Math.abs(line.left - selected.left) < 2 && Math.abs(line.width - selected.width) < 2;
   });
   assert.ok((await page.locator("#filtered-projects").textContent()).includes("探索中的方向"));
-  await page.getByRole("button", { name: "教学可视化", exact: true }).click();
+  await page.getByRole("button", { name: "交互实验", exact: true }).click();
   assert.equal(await page.locator("#filtered-projects .work-card").count(), 4);
 
   await page.goto(origin + "/projects/pyscreen");

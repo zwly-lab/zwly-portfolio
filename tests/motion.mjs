@@ -65,7 +65,7 @@ try {
     return { opacity: Number(style.opacity), clipPath: style.clipPath, left: bounds.left, top: bounds.top };
   });
   assert.ok(partial.opacity > 0 && partial.opacity < 1, "test interrupts an actual card entrance");
-  await page.getByRole("button", { name: "教学可视化", exact: true }).click();
+  await page.getByRole("button", { name: "交互实验", exact: true }).click();
   const continuation = await interruptedCard.evaluate(element => {
     const animation = element.getAnimations()[0];
     animation.pause(); animation.currentTime = 0;

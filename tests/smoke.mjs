@@ -30,6 +30,15 @@ for (const [path, heading, title] of pages) {
   assert.ok(html.includes(heading), path + " heading");
   assert.ok(html.includes("<img"), path + " visual preview");
   assert.ok(html.includes("<title>" + title), path + " metadata");
+  const canonical = "https://zwly-lab.vercel.app" + (path === "/" ? "" : path);
+  assert.ok(html.includes('<link rel="canonical" href="' + canonical + '"'), path + " canonical");
+  assert.ok(html.includes('property="og:url" content="' + canonical + '"'), path + " share URL");
+  for (const field of ['property="og:title"', 'property="og:description"', 'property="og:image"', 'name="twitter:card"', 'name="twitter:title"', 'name="twitter:image"']) assert.ok(html.includes(field), path + " share " + field);
+  const image = html.match(/property="og:image" content="([^"]+)"/)[1];
+  assert.ok(image.startsWith("https://zwly-lab.vercel.app/images/"), path + " real share image");
+  const cover = await fetch(new URL(new URL(image).pathname, origin));
+  assert.equal(cover.status, 200, path + " available share image");
+  assert.match(cover.headers.get("content-type"), /image\//);
   assert.ok(html.includes('id="main-content"'), path + " skip-link target");
   assert.ok(html.includes('href="https://github.com/zwly-lab"'), path + " contact");
   assert.ok(!html.includes('href="#"'), path + " inert link");

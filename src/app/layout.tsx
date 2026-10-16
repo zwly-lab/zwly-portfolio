@@ -4,6 +4,7 @@ import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { PageTransition, RouteMotion } from "@/components/RouteMotion";
 import { SiteOpening } from "@/components/SiteOpening";
+import { siteUrl } from "@/lib/metadata";
 import "./globals.css";
 const archivo = localFont({ src: "../../public/fonts/Archivo.woff2", variable: "--font-archivo", display: "swap", weight: "100 900" });
 
@@ -12,11 +13,21 @@ const openingScript = `(() => {
   const preference = matchMedia("(prefers-reduced-motion: reduce)");
   if (location.pathname !== "/" || location.hash || scrollY > 0 || document.hidden || preference.matches || performance.getEntriesByType("navigation")[0]?.type === "back_forward") return;
   const root = document.documentElement;
+  const replay = new URLSearchParams(location.search).get("opening") === "replay";
+  try {
+    if (sessionStorage.getItem("zwly-opening-seen") && !replay) {
+      root.setAttribute("data-site-return", "");
+      const arrive = () => setTimeout(() => root.removeAttribute("data-site-return"), 450);
+      document.addEventListener("DOMContentLoaded", arrive, { once: true });
+      return;
+    }
+  } catch {}
   const events = ["click", "pointerdown", "keydown", "wheel", "touchmove", "scroll", "pagehide", "resize"];
   const animations = [];
   let timer;
   let depthReady;
   const stop = () => {
+    try { sessionStorage.setItem("zwly-opening-seen", "1"); } catch {}
     root.removeAttribute("data-site-opening");
     root.removeAttribute("data-opening-artifacts");
     root.removeAttribute("data-opening-layout");
@@ -104,6 +115,7 @@ const openingScript = `(() => {
 })();`;
 
 export const metadata: Metadata = {
+  metadataBase: new URL(siteUrl),
   title: { default: "ZWLY Lab — Vibe Coding 作品集", template: "%s · ZWLY Lab" },
   description: "ZWLY Lab 的 Vibe Coding 作品集：与 AI 协作，把想法做成应用、交互实验与视觉作品。浏览真实成果、体验演示，阅读构建与迭代手记。",
   openGraph: { title: "ZWLY Lab — Vibe Coding 作品集", description: "与 AI 协作，把想法做成作品。应用、交互实验、视觉创作与构建手记。", locale: "zh_CN", type: "website" },

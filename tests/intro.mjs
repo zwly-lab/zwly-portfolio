@@ -227,7 +227,12 @@ try {
       assert.equal(await page.evaluate(() => window.openingRuns), 1);
       await page.reload();
       await settled(page);
-      assert.equal(await page.evaluate(() => window.openingRuns), 1, "full reload visibly replays instead of consulting an old session flag");
+      assert.equal(await page.evaluate(() => window.openingRuns), 0, "same-session reload uses a short arrival instead of replaying the full cover");
+      assert.equal(await page.locator(".site-depth-canvas").count(), 0, "return visit creates no depth surface");
+      await page.locator('a[href="/?opening=replay"]').click();
+      await page.waitForURL(origin + "/?opening=replay");
+      await settled(page);
+      assert.equal(await page.evaluate(() => window.openingRuns), 1, "manual replay restores the complete opening");
       await usable(page);
       await page.getByRole("link", { name: "ZWLY Lab 首页", exact: true }).click();
       await page.waitForURL(origin + "/");
