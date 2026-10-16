@@ -1,6 +1,6 @@
 import { pageMetadata } from "@/lib/metadata";
 import Image from "next/image";
-import Link from "next/link";
+import Link from "@/components/NavigationLink";
 import { Arrow } from "@/components/Arrow";
 import { posts } from "@/data/posts";
 export const metadata = pageMetadata({ path: "/blog", title: "手记 · ZWLY Lab", description: "关于界面、数据与视觉的实践手记。每篇留下一个选择，和可以对照的例子。", image: posts.find((post) => post.slug === "motion-for-understanding")!.cover });

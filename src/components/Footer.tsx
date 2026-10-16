@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Link from "@/components/NavigationLink";
 import { Arrow } from "./Arrow";
 import { site } from "@/data/site";
 

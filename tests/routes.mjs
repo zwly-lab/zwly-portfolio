@@ -31,7 +31,7 @@ try {
       const arrival = incoming.effect.getKeyframes();
       return { duration: incoming.effect.getTiming().duration, delay: incoming.effect.getTiming().delay, arrivalY: new DOMMatrix(arrival[0].transform).f, endTransform: arrival.at(-1).transform, exit: outgoing.effect.getTiming().duration, width: oldFrame.width, oldWidth: frames[0].width, dx: after.e + offset.e - before.e, dy: after.f + offset.f - before.f, groupFinished: group.playState, titleAnimations: document.querySelector("h1").getAnimations().length };
     });
-    assert.equal(motion.duration, 300);
+    assert.equal(motion.duration, 460);
     assert.equal(motion.delay, 180, "new content follows the old content's departure");
     assert.equal(motion.arrivalY, 6, "page content receives one bounded spatial arrival");
     assert.equal(motion.endTransform, "none", "arrival releases the snapshot to its natural position");
@@ -101,8 +101,11 @@ try {
   await slow.getByRole("link", { name: "关于", exact: true }).dispatchEvent("click");
   await slow.waitForTimeout(120);
   assert.ok((await slow.locator("h1").textContent()).includes("Vibe Coding"), "slow route keeps the existing page while content is fetched");
+  await slow.waitForFunction(() => { const hint = document.querySelector('.navigation-pending'); return hint && Number(getComputedStyle(hint).opacity) > .7; });
+  assert.equal(await slow.getByRole('status').filter({ hasText: '正在打开页面' }).count(), 1, 'a real route wait receives one shared loading indicator');
   await slow.waitForURL(origin + "/about");
   await slow.waitForFunction(() => !document.getAnimations().some(animation => animation.effect?.pseudoElement));
+  assert.equal(await slow.locator('.navigation-pending').count(), 0, 'route completion removes pending feedback');
   await slow.close();
   const fallback = await context.newPage();
   fallback.on("pageerror", error => errors.push(error.message));

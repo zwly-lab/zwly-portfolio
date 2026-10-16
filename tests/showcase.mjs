@@ -121,7 +121,7 @@ try {
           } else {
             assert.equal(motion.length, 1);
             assert.ok(motion[0].naturalWidth > 0, "animation starts only after responsive image decode");
-            assert.equal(motion[0].timing.duration, 480);
+            assert.equal(motion[0].timing.duration, 560);
             assert.equal(motion[0].timing.delay, 40);
             assert.equal(Number(motion[0].frames[0].opacity), 0);
             assert.match(motion[0].frames[0].clipPath, /18%/);

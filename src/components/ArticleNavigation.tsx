@@ -1,5 +1,5 @@
 // Adapted from timlrx/tailwind-nextjs-starter-blog PostLayout; MIT notice in licenses/.
-import Link from "next/link";
+import Link from "@/components/NavigationLink";
 import type { Post } from "@/data/posts";
 
 export function ArticleNavigation({ previous, next }: { previous?: Post; next?: Post }) {

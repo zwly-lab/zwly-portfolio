@@ -1,5 +1,5 @@
 import Image from "next/image";
-import Link from "next/link";
+import Link from "@/components/NavigationLink";
 
 export function NoteExample({ slug }: { slug: string }) {
   if (slug === "data-before-charts") return <div className="note-example"><h3>带着一个问题查看时间轴</h3><figure className="note-inline-image"><Image src="/images/projects/gdp.png" alt="历史 GDP 时间轴练习的2019年视图，用于核对年份、排名与展示范围" width={1440} height={810} sizes="(max-width: 760px) 100vw, 720px" /><figcaption>课程历史练习截图 · 数据范围为 1960–2019 年</figcaption></figure><ol className="example-flow"><li>确认年份范围</li><li>暂停到具体一年</li><li>核对数值与排名</li></ol><p>演示保留原练习数据；完整数据来源与单位尚待核验。</p><Link className="text-link" href="/demos/gdp/index.html">查看历史 GDP 练习</Link></div>;

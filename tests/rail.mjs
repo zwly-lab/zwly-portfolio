@@ -33,6 +33,16 @@ try {
           }, { id, index }, { timeout: 15000 });
           await track.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
         };
+        const placeArtwork = async placement => {
+          await track.evaluate((element, placement) => {
+            const card = element.children[0];
+            const height = card.querySelector(".poster-open").offsetHeight;
+            const header = document.querySelector(".site-header").getBoundingClientRect().bottom;
+            const top = placement === "above" ? innerHeight - height + 80 : placement === "below" ? header - 80 : header + (innerHeight - header - height) / 2;
+            window.scrollBy({ top: card.getBoundingClientRect().top - top, behavior: "instant" });
+          }, placement);
+          await track.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+        };
         await rail.scrollIntoViewIfNeeded();
         await waitPosition(0);
         assert.ok(await next.isVisible(), "desktop and mobile both expose navigation");
@@ -50,6 +60,34 @@ try {
         await track.focus();
         await track.press("Home");
         await waitPosition(0);
+        if (width !== 360) {
+          for (const [placement, index, deltaY] of [["above", 0, 40], ["below", 2, -40]]) {
+            await track.press(index === 0 ? "Home" : "End");
+            await waitPosition(index);
+            await placeArtwork(placement);
+            const before = await track.evaluate(element => ({ left: element.scrollLeft, y: scrollY, turns: [...element.children].map(card => card.style.getPropertyValue("--rail-turn")) }));
+            assert.equal(await track.evaluate((element, deltaY) => {
+              const event = new WheelEvent("wheel", { deltaY, bubbles: true, cancelable: true });
+              element.dispatchEvent(event);
+              return event.defaultPrevented;
+            }, deltaY), false, `${placement}: a clipped artwork must not capture vertical wheel input`);
+            const pointer = await track.evaluate(element => {
+              const card = element.querySelector("[data-active=true]");
+              const rect = card.getBoundingClientRect();
+              const header = document.querySelector(".site-header").getBoundingClientRect().bottom;
+              return { x: rect.left + rect.width / 2, y: (Math.max(header, rect.top) + Math.min(innerHeight, rect.top + card.querySelector(".poster-open").offsetHeight)) / 2 };
+            });
+            await page.mouse.move(pointer.x, pointer.y);
+            await page.mouse.wheel(0, deltaY);
+            await page.waitForFunction(y => Math.abs(scrollY - y) > 1, before.y);
+            await waitPosition(index);
+            assert.ok(Math.abs(await track.evaluate(element => element.scrollLeft) - before.left) < 1, `${placement}: the page scrolls before the rail advances`);
+            assert.deepEqual(await track.locator("figure").evaluateAll(cards => cards.map(card => card.style.getPropertyValue("--rail-turn"))), before.turns, `${placement}: partial visibility does not change artwork rotation`);
+          }
+          await track.press("Home");
+          await waitPosition(0);
+        }
+        await placeArtwork("ready");
         assert.ok(frames.every(frame => Math.abs(frame.height - frames[0].height) <= 1), "mixed formats share an equal frame height");
         assert.ok(frames.every(frame => frame.ratioError <= 2 && frame.contained), "complete images retain their intrinsic ratio");
         await next.focus();
@@ -85,6 +123,15 @@ try {
           return event.defaultPrevented;
         }), false, "the beginning also yields outward wheel input");
         await track.hover();
+        await placeArtwork("ready");
+        for (const input of [{ deltaX: 100, deltaY: 0 }, { deltaY: 100, ctrlKey: true }]) {
+          assert.equal(await track.evaluate((element, input) => {
+            const event = new WheelEvent("wheel", { ...input, bubbles: true, cancelable: true });
+            element.dispatchEvent(event);
+            return event.defaultPrevented;
+          }, input), false, "native horizontal scrolling and pinch zoom are not intercepted");
+        }
+        await waitPosition(0);
         const wheelY = await page.evaluate(() => scrollY);
         await page.mouse.wheel(0, 100);
         await waitPosition(1);
@@ -123,6 +170,29 @@ try {
       await page.close();
     }
   }
+  const shortPage = await browser.newPage({ viewport: { width: 390, height: 400 }, reducedMotion: "reduce" });
+  await shortPage.goto(origin + "/projects/poster-collection");
+  const shortTrack = shortPage.locator(".gallery-rail-track").first();
+  await shortTrack.waitFor({ state: "visible" });
+  await shortPage.waitForFunction(() => document.querySelector(".gallery-rail-track").dataset.overflow === "true");
+  for (const ready of [false, true]) {
+    await shortTrack.evaluate((element, ready) => {
+      const card = element.children[0];
+      const height = card.querySelector(".poster-open").offsetHeight;
+      const header = document.querySelector(".site-header").getBoundingClientRect().bottom;
+      if (height <= innerHeight - header) throw new Error("Short viewport must be smaller than the artwork");
+      const top = ready ? header + (innerHeight - header - height) / 2 : header + 40;
+      window.scrollBy({ top: card.getBoundingClientRect().top - top, behavior: "instant" });
+    }, ready);
+    await shortTrack.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+    assert.equal(await shortTrack.evaluate(element => {
+      const event = new WheelEvent("wheel", { deltaY: 100, bubbles: true, cancelable: true });
+      element.dispatchEvent(event);
+      return event.defaultPrevented;
+    }), ready, "an oversized artwork becomes ready only when it fills the usable short viewport");
+  }
+  await shortPage.waitForFunction(() => document.querySelector(".gallery-rail-controls [role=status]").textContent === "2 / 3");
+  await shortPage.close();
   const noScript = await browser.newPage({ javaScriptEnabled: false, viewport: { width: 390, height: 844 } });
   await noScript.goto(origin + "/projects/poster-collection");
   assert.equal(await noScript.locator(".poster-open").count(), 8, "curated artwork is server rendered");

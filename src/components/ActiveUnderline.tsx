@@ -1,12 +1,12 @@
 "use client";
 
-import { useLayoutEffect, useRef, type RefObject } from "react";
+import { useEffect, useRef, type RefObject } from "react";
 
 // Adapted from Motion Primitives' shared selection background; MIT notice in licenses/.
 export function ActiveUnderline({ target, value }: { target: RefObject<HTMLElement | null>; value: string }) {
   const line = useRef<HTMLSpanElement>(null);
   const placed = useRef(false);
-  useLayoutEffect(() => {
+  useEffect(() => {
     const group = target.current;
     const marker = line.current;
     if (!group || !marker) return;
@@ -19,7 +19,8 @@ export function ActiveUnderline({ target, value }: { target: RefObject<HTMLEleme
       if (!selected) return;
       const origin = group.getBoundingClientRect();
       const bounds = selected.getBoundingClientRect();
-      marker.style.transform = `translate(${bounds.left - origin.left}px, ${bounds.bottom - origin.top - 2}px) scaleX(${bounds.width})`;
+      const label = selected.querySelector<HTMLElement>("[data-underline-label]")?.getBoundingClientRect() ?? bounds;
+      marker.style.transform = `translate(${label.left - origin.left + group.scrollLeft}px, ${bounds.bottom - origin.top + group.scrollTop - 2}px) scaleX(${label.width})`;
       if (!placed.current) {
         marker.getBoundingClientRect();
         marker.style.removeProperty("transition");

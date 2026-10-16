@@ -54,6 +54,18 @@ export function GalleryRail({ children, label }: { children: ReactNode; label: s
     }
     function wheel(event: WheelEvent) {
       if (!element || event.ctrlKey || Math.abs(event.deltaX) >= Math.abs(event.deltaY)) return;
+      const card = cards[currentIndex];
+      const artwork = card.querySelector<HTMLElement>(".poster-open");
+      if (!artwork) return;
+      // Measure the stable figure, not its rotating/scaling artwork.
+      const top = card.getBoundingClientRect().top;
+      const bottom = top + artwork.offsetHeight;
+      const viewportTop = Math.max(0, document.querySelector(".site-header")?.getBoundingClientRect().bottom ?? 0);
+      const viewportBottom = window.innerHeight;
+      const ready = artwork.offsetHeight <= viewportBottom - viewportTop
+        ? top >= viewportTop - 1 && bottom <= viewportBottom + 1
+        : top <= viewportTop + 1 && bottom >= viewportBottom - 1;
+      if (!ready) return;
       const max = element.scrollWidth - element.clientWidth;
       const direction = Math.sign(event.deltaY);
       if (!direction || max < 1 || (direction < 0 && element.scrollLeft <= 1) || (direction > 0 && element.scrollLeft >= max - 1)) return;
@@ -66,8 +78,8 @@ export function GalleryRail({ children, label }: { children: ReactNode; label: s
       }
       wheelTarget = Math.max(0, Math.min(count - 1, (wheelTarget ?? currentIndex) + direction));
       wheelDirection = direction;
-      const card = cards[wheelTarget];
-      element.scrollTo({ left: card.offsetLeft + card.offsetWidth / 2 - element.clientWidth / 2, behavior: reduced.matches ? "instant" : "smooth" });
+      const target = cards[wheelTarget];
+      element.scrollTo({ left: target.offsetLeft + target.offsetWidth / 2 - element.clientWidth / 2, behavior: reduced.matches ? "instant" : "smooth" });
       window.clearTimeout(wheelEnd);
       wheelEnd = window.setTimeout(finishWheel, 800);
     }

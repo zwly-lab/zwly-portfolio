@@ -1,6 +1,6 @@
 import { pageMetadata } from "@/lib/metadata";
 import Image from "next/image";
-import Link from "next/link";
+import Link from "@/components/NavigationLink";
 export const metadata = pageMetadata({ path: "/about", title: "关于 · ZWLY Lab", description: "我做判断，与 AI 一起实现。从真实需求、设计取舍到浏览器验证，了解 ZWLY Lab 的创作方式。" });
 export default function AboutPage() {
   return <main id="main-content" className="container page-body">

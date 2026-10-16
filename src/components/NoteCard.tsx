@@ -1,6 +1,6 @@
 // Uses the same media-first card structure; see docs/design-references.md.
 import Image from "next/image";
-import Link from "next/link";
+import Link from "@/components/NavigationLink";
 import { Arrow } from "./Arrow";
 import type { Post } from "@/data/posts";
 

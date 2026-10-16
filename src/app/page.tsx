@@ -1,5 +1,5 @@
 import Image from "next/image";
-import Link from "next/link";
+import Link from "@/components/NavigationLink";
 import { HeroShowcase } from "@/components/HeroShowcase";
 import { Arrow } from "@/components/Arrow";
 import { ProjectCard } from "@/components/ProjectCard";

@@ -1,5 +1,5 @@
 // Adapted from magicuidesign/portfolio ProjectCard; MIT notice in licenses/.
-import Link from "next/link";
+import Link from "@/components/NavigationLink";
 import Image from "next/image";
 import { Arrow } from "./Arrow";
 import type { Project } from "@/data/projects";

@@ -1,7 +1,7 @@
 "use client";
 
 import Image, { getImageProps } from "next/image";
-import Link from "next/link";
+import Link from "@/components/NavigationLink";
 import { useLayoutEffect, useRef, useState } from "react";
 import { ActiveUnderline } from "./ActiveUnderline";
 import { Arrow } from "./Arrow";
@@ -77,7 +77,7 @@ export function HeroShowcase() {
       item.animate(before ? [
         { transform: `translate(${before.bounds.left - after.left}px, ${before.bounds.top - after.top}px) scale(${before.bounds.width / after.width}, ${before.bounds.height / after.height})`, opacity: before.opacity, clipPath: before.clipPath },
         { transform: "none", opacity: 1, clipPath: "inset(0)" },
-      ] : [{ opacity: 0, transform: "translateY(8px)", clipPath: "inset(0 0 18%)" }, { opacity: 1, transform: "none", clipPath: "inset(0)" }], before ? motionTiming("change") : { ...motionTiming("enter"), delay: 40, fill: "backwards" });
+      ] : [{ opacity: 0, transform: "translateY(8px)", clipPath: "inset(0 0 18%)" }, { opacity: 1, transform: "none", clipPath: "inset(0)" }], { ...motionTiming("enter"), delay: before ? 0 : 40, fill: "backwards" });
     });
     return () => { items?.forEach((item) => item.getAnimations().forEach((animation) => animation.cancel())); };
   }, [selected]);

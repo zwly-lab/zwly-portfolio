@@ -118,6 +118,8 @@ Used Basic Memory against the connected second-brain project to follow note/inde
 
 The user's URL / animation resources are the canonical 优质外部工具与资源导航 and UI交互动效设计清单 in the Second Brain. Followed their external references, including [Minimal Gallery](https://minimal.gallery/), [Landing Love](https://www.landing.love/), [Design Spells](https://designspells.com/) and [Fluid Functionalism dialog](https://www.fluidfunctionalism.com/docs/dialog). Not all links in the resource collection were tested.
 
+The 2026-10-16 interaction pass re-read the checklist updated on 2026-10-13. Applied its sections 2–4: retain decoded content during real waits, keep shared-image identity through selection, use shorter departures than arrivals, align feedback with actual navigation state, and distinguish document scrolling from image navigation. The rail only captures vertical wheel input once its artwork is fully visible below the sticky header (or fills the usable viewport on short screens). Timing and text-aligned selection markers reuse the existing native motion system; pending links use the installed Next.js `useLinkStatus`, without an overlay or artificial delay before navigation.
+
 | Source | Applied result |
 | --- | --- |
 | Data visualization index + Python course learning notes | Original, selected article “画图之前，先读懂数据”; historical GDP preview and actual demo; explicit source/unit verification limits |

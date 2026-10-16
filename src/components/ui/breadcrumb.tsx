@@ -1,6 +1,6 @@
 // Adapted from the shadcn registry Breadcrumb; MIT notice in licenses/.
 import type { ComponentProps } from "react";
-import Link from "next/link";
+import Link from "@/components/NavigationLink";
 
 export function Breadcrumb(props: ComponentProps<"nav">) {
   return <nav aria-label="页面路径" className="breadcrumb" data-slot="breadcrumb" {...props} />;

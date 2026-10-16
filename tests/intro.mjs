@@ -422,7 +422,7 @@ try {
     await page.goto(origin + "/about");
     await page.waitForFunction(() => window.headingEntries.length > 0);
     assert.equal(await page.evaluate(() => window.openingRuns), 0);
-    assert.equal(await page.evaluate(() => window.headingEntries[0].duration), 480);
+    assert.equal(await page.evaluate(() => window.headingEntries[0].duration), 560);
     assert.equal(await page.locator("[data-opening-preview] img").evaluateAll(images => images.every(image => image.loading === "lazy")), true, "other routes do not eagerly request the decorative opening copies");
   });
   await check("browser history does not replay the opening", {}, async page => {

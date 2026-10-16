@@ -47,7 +47,7 @@ try {
       return { left: bounds.left, top: bounds.top, width: bounds.width, duration: animation.effect.getTiming().duration };
     });
     for (const key of ["left", "top", "width"]) assert.ok(Math.abs(beginning[key] - before[key]) < 2, "retained preview starts at its old " + key);
-    assert.equal(beginning.duration, 300);
+    assert.equal(beginning.duration, 560);
     await page.emulateMedia({ reducedMotion: "reduce" });
     await page.waitForFunction(() => document.getAnimations().length === 0);
     assert.equal(await page.locator(".overview-images").evaluate(element => element.getAnimations({ subtree: true }).length), 0, "changing motion preference cancels in-flight selection");
@@ -86,7 +86,7 @@ try {
   const preview = await page.locator(".lightbox-image").evaluate(element => ({ complete: element.complete, background: getComputedStyle(element).backgroundImage, duration: element.getAnimations()[0]?.effect.getTiming().duration, width: element.offsetWidth, height: element.offsetHeight }));
   assert.equal(preview.complete, false, "test holds the full-resolution response");
   assert.ok(preview.background.startsWith('url('), "loaded thumbnail fills the image throughout entrance");
-  assert.equal(preview.duration, 480);
+  assert.equal(preview.duration, 560);
   assert.ok(preview.height > 500 && preview.width > 300, "unloaded artwork reserves a visible full-size frame");
   await page.locator(".lightbox-image").evaluate(element => element.decode());
   assert.equal(await page.locator(".lightbox-image").evaluate(element => getComputedStyle(element).backgroundImage), "none", "full image replaces thumbnail");
