@@ -11,7 +11,7 @@ try {
     const page = await context.newPage();
     await page.goto(origin);
     const previews = await page.locator('.portfolio-showcase img').evaluateAll(images => images.map(image => image.currentSrc));
-    assert.ok(previews.every(src => decodeURIComponent(src).includes('/_next/static/media/')), 'critical previews use content-hashed immutable sources');
+    assert.ok(previews.every(src => /\/_next\/static\/(?:immutable\/)?media\//.test(decodeURIComponent(src))), 'critical previews use content-hashed immutable sources on local and Vercel builds');
     await page.locator(".note-card").last().scrollIntoViewIfNeeded();
     const poster = page.locator(".note-cover-frame--chinese-product-posters img");
     await poster.evaluate(image => image.decode());
