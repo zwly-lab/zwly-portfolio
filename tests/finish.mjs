@@ -12,7 +12,7 @@ try {
   const page = await first.newPage();
   const modules = [];
   page.on("response", response => {
-    if (response.url().includes("/static/chunks/") && response.url().endsWith(".js")) modules.push(response.text().then(text => text.includes("site-depth-canvas") ? response.url() : null));
+    if (new URL(response.url()).pathname.includes("/chunks/") && new URL(response.url()).pathname.endsWith(".js")) modules.push(response.text().then(text => text.includes("site-depth-canvas") ? response.url() : null));
   });
   await page.goto(origin);
   await page.waitForFunction(() => sessionStorage.getItem("zwly-opening-seen") === "1");
