@@ -108,7 +108,6 @@ export async function createOpeningDepth() {
     });
     const flipY = new THREE.Matrix4().makeScale(1, -1, 1);
     const cssMatrix = new THREE.Matrix4(), offset = new THREE.Matrix4(), extrusion = new THREE.Matrix4();
-    const css = (element: HTMLElement) => cssMatrix.fromArray(new DOMMatrix(getComputedStyle(element).transform).toFloat32Array());
     const render = () => {
       if (stopped) return;
       if (!root.hasAttribute("data-site-opening")) { dispose(); return; }
@@ -121,8 +120,10 @@ export async function createOpeningDepth() {
         const strength = THREE.MathUtils.smoothstep(time, 0, 350) * (1 - blend);
         landing = Math.max(landing, blend);
         const thickness = Math.max(.03, strength);
-        mesh.matrix.makeTranslation(x, y, 0).multiply(flipY).multiply(css(preview)).multiply(flipY).multiply(offset.makeTranslation(0, 0, -5 * thickness)).multiply(extrusion.makeScale(1, 1, thickness));
-        const opacity = Number(getComputedStyle(preview).opacity);
+        const style = getComputedStyle(preview);
+        cssMatrix.fromArray(new DOMMatrix(style.transform).toFloat32Array());
+        mesh.matrix.makeTranslation(x, y, 0).multiply(flipY).multiply(cssMatrix).multiply(flipY).multiply(offset.makeTranslation(0, 0, -5 * thickness)).multiply(extrusion.makeScale(1, 1, thickness));
+        const opacity = Number(style.opacity);
         mesh.visible = opacity > .001;
         mesh.castShadow = opacity > .5 && strength > .01;
         front.opacity = opacity;
@@ -135,19 +136,20 @@ export async function createOpeningDepth() {
       const elapsed = Number(cards[0].animation?.currentTime ?? 0);
       floorMaterial.opacity = .11 * THREE.MathUtils.smoothstep(elapsed, 0, 350) * (1 - landing);
       renderer.render(scene, camera);
-      frame = requestAnimationFrame(render);
+      // The landed frame stays on the canvas during the page reveal.
+      if (elapsed < 2220) frame = requestAnimationFrame(render);
     };
-    start = () => { cancelAnimationFrame(frame); render(); };
+    start = () => { cancelAnimationFrame(frame); frame = requestAnimationFrame(render); };
     await renderer.compileAsync(scene, camera);
     if (root.hasAttribute("data-site-opening")) {
       renderer.render(scene, camera);
       await new Promise(requestAnimationFrame);
     }
     if (root.hasAttribute("data-site-opening")) {
+      renderer.clear();
       document.body.appendChild(canvas);
       canvas.addEventListener("webglcontextlost", lost);
       document.addEventListener("opening-play", start);
-      render();
     }
     return dispose;
   } catch (error) { dispose(); throw error; }

@@ -25,8 +25,17 @@ async function check(name, options, run) {
         return Math.abs((bounds.left + bounds.right) / 2 - document.documentElement.clientWidth / 2) < 70 && bounds.top > innerHeight * .35 && bounds.bottom < innerHeight * .85;
       });
     }));
+    window.prefetchDuringOpening = 0;
+    const fetch = window.fetch;
+    window.fetch = function(input, init) {
+      const headers = new Headers(init?.headers ?? (input instanceof Request ? input.headers : undefined));
+      if ((headers.has("next-router-prefetch") || headers.has("next-router-segment-prefetch")) && document.documentElement.hasAttribute("data-site-opening")) window.prefetchDuringOpening++;
+      return fetch.call(this, input, init);
+    };
     window.depthDraws = 0;
     window.depthCompilesDuringFlight = 0;
+    window.pendingDepthDraws = 0;
+    window.landedDepthDraws = 0;
     window.depthContexts = [];
     window.depthSeen = false;
     const getContext = HTMLCanvasElement.prototype.getContext;
@@ -41,9 +50,11 @@ async function check(name, options, run) {
           const draw = context[method];
           context[method] = function(...args) {
             const result = draw.apply(this, args);
+            if (this.canvas.isConnected && document.documentElement.dataset.siteOpening === "pending") window.pendingDepthDraws++;
             if (document.documentElement.getAttribute("data-site-opening") === "active") {
               window.depthDraws++;
               const time = document.querySelector("[data-opening-preview]")?.getAnimations().find(animation => !(animation instanceof CSSAnimation))?.currentTime;
+              if (Number(time) > 2260) window.landedDepthDraws++;
               if (window.depthCornerAlpha === undefined && Number(time) > 500 && context.getParameter(context.FRAMEBUFFER_BINDING) === null) {
                 const pixel = new Uint8Array(4);
                 window.depthCornerAlpha = 0;
@@ -66,6 +77,21 @@ async function check(name, options, run) {
       if (this.matches("[data-opening-preview]")) window.artifactAnimations.push(animation);
       return animation;
     };
+    if (options.slowActivation) {
+      const getAnimations = Element.prototype.getAnimations;
+      Element.prototype.getAnimations = function(...args) {
+        const result = getAnimations.apply(this, args);
+        if (this.matches(".site-camera") && !window.activationDelayed) {
+          window.activationDelayed = true;
+          const end = performance.now() + 200;
+          while (performance.now() < end) { /* Simulate expensive style activation. */ }
+        }
+        return result;
+      };
+      document.addEventListener("opening-play", () => requestAnimationFrame(() => {
+        window.firstFlightTime = document.querySelector("[data-opening-preview]").getAnimations().find(animation => !(animation instanceof CSSAnimation))?.currentTime;
+      }), { once: true });
+    }
     if (options.hidden) Object.defineProperty(document, "hidden", { configurable: true, get: () => true });
     if (options.scrolled) Object.defineProperty(window, "scrollY", { configurable: true, get: () => 150 });
     if (options.blocked) Storage.prototype.getItem = Storage.prototype.setItem = () => { throw new DOMException("Storage disabled", "SecurityError"); };
@@ -204,6 +230,9 @@ try {
       assert.equal(await page.evaluate(() => window.depthSeen && window.depthDraws > 10), true, "real WebGL card geometry and shadow passes render during the opening");
       assert.equal(await page.evaluate(() => window.depthCornerAlpha <= 2), true, "the shadow receiver stays transparent away from the cards without full-page shadow acne");
       assert.equal(await page.evaluate(() => window.depthCompilesDuringFlight), 0, "shadow and surface shaders are warmed before the opening starts");
+      assert.equal(await page.evaluate(() => window.prefetchDuringOpening), 0, "route prefetch waits until the whole-page opening finishes");
+      assert.equal(await page.evaluate(() => window.pendingDepthDraws), 0, "ready handoff does not run a duplicate pending render loop");
+      assert.equal(await page.evaluate(() => window.landedDepthDraws), 0, "landed artwork is retained without repainting through the page reveal");
       assert.equal(await page.locator(".site-depth-canvas").count(), 0, "the short-lived renderer is released after landing");
       assert.equal(await page.evaluate(() => window.depthContexts.every(context => context.isContextLost())), true, "GPU contexts are released after landing");
       assert.ok(frames.every(frame => frame.cameraTilt === 0 && frame.cameraDepth === 0 && frame.blur === 0 && frame.pageOpacity === "1" && frame.pageShadow === "none"), "the page remains frontal, sharp and unframed throughout the physical card scene");
@@ -290,6 +319,12 @@ try {
       }
     });
   }
+  await check("expensive activation cannot consume the first visible frames", { slowActivation: true }, async page => {
+    await page.goto(origin); await settled(page);
+    assert.equal(await page.evaluate(() => window.activationDelayed), true);
+    assert.ok(await page.evaluate(() => window.firstFlightTime >= 0 && window.firstFlightTime < 80), "the visible clock starts after the 200ms activation fixture, not before it");
+    await usable(page);
+  });
   await check("late hydration cannot consume the visible scene before it starts", {}, async page => {
     await page.route("**/_next/static/**/*.js", async route => { await new Promise(resolve => setTimeout(resolve, 1600)); await route.continue(); });
     await page.goto(origin); await settled(page);

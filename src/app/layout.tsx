@@ -99,8 +99,13 @@ const openingScript = `(() => {
     animations.push(signature.animate([{ transform: markPose, offset: 0 }, { transform: markPose, offset: .12, easing: "cubic-bezier(.76, 0, .24, 1)" }, { transform: "translate(0,0) scale(1)", offset: .46 }, { transform: "translate(0,0) scale(1)" }], { duration: 2820, fill: "both" }));
     root.setAttribute("data-opening-artifacts", "ready");
     root.setAttribute("data-site-opening", "active");
+    const sequence = [...animations, ...camera.getAnimations({ subtree: true }).filter(animation => animation.animationName === "site-unveil" || animation.animationName?.startsWith("opening-"))];
+    sequence.forEach(animation => { animation.pause(); animation.currentTime = 0; });
+    // Settle activation styles before starting the shared visible clock.
+    await new Promise(requestAnimationFrame);
+    if (!root.hasAttribute("data-site-opening")) return;
     const epoch = document.timeline.currentTime;
-    [...animations, ...camera.getAnimations({ subtree: true }).filter(animation => animation.animationName === "site-unveil" || animation.animationName?.startsWith("opening-"))].forEach(animation => { animation.startTime = epoch; });
+    sequence.forEach(animation => { animation.play(); animation.startTime = epoch; });
     document.dispatchEvent(new Event("opening-play"));
     clearTimeout(timer);
     timer = setTimeout(stop, 3520);
