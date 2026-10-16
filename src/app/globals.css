@@ -219,7 +219,7 @@ button:disabled { cursor: default; opacity: .4; }
 .thumbnail-frame { overflow: hidden; border: 1px solid var(--line); background: #f2f4ef; aspect-ratio: 16 / 10; }
 .thumbnail-frame .project-thumbnail { border: 0; }
 .thumbnail-frame.workspace .project-thumbnail { width: 133%; max-width: none; aspect-ratio: auto; margin-left: -33%; margin-top: -18%; }
-.thumbnail-frame.diagram .project-thumbnail { width: 115%; max-width: none; aspect-ratio: auto; margin-left: -7.5%; margin-top: -4%; }
+.thumbnail-frame.diagram .project-thumbnail { width: 100%; height: 100%; aspect-ratio: auto; object-fit: contain; margin: 0; }
 .thumbnail-frame.art .project-thumbnail { object-fit: cover; object-position: center; }
 .collection-toolbar { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; padding: 24px 0 0; }
 .collection-toolbar p { margin: 0; }
@@ -419,9 +419,6 @@ button:disabled { cursor: default; opacity: .4; }
 .product-pair .thumbnail-frame { aspect-ratio: 1.32; }
 .work-campus-takeout .thumbnail-frame { background: #f1f3ed; padding: 0; }
 .work-campus-takeout .project-thumbnail { width: 100%; max-width: none; height: auto; aspect-ratio: auto; margin: 0; }
-.work-kmp-visualizer .thumbnail-frame .project-thumbnail { width: 170%; margin-left: -8%; margin-top: -8%; }
-.work-linked-list-merge .thumbnail-frame { position: relative; }
-.work-linked-list-merge .thumbnail-frame .project-thumbnail { position: absolute; bottom: -3%; left: 0; width: 145%; height: auto; margin: 0; }
 .product-pair .work-jd-protocol-engine .project-thumbnail { width: 100%; height: 100%; object-fit: contain; }
 .work-group { padding-top: 36px; }
 .work-group-header { display: grid; grid-template-columns: 1fr 1.4fr; gap: 40px; align-items: start; }
@@ -814,3 +811,14 @@ a[href]:active, button:not(:disabled):not([aria-disabled="true"]):active, summar
   :is(.gallery-series details, .case-film-disclosure)[open]::details-content { block-size: auto; opacity: 1; }
 }
 @media (prefers-reduced-motion: reduce) { :is(.gallery-series details, .case-film-disclosure)::details-content { transition: none; } }
+
+.poster-dialog .lightbox-icon-button { display: grid; place-items: center; width: 44px; height: 44px; flex-shrink: 0; padding: 11px; border-radius: 50%; }
+.lightbox-icon-button svg { display: block; width: 20px; height: 20px; transition: transform var(--motion-quick) var(--motion-arrive); }
+.poster-dialog .lightbox-close { border-color: transparent; color: var(--muted); }
+.poster-dialog .lightbox-icon-button:not(:disabled):is(:hover, :focus-visible) { background: var(--footer); border-color: var(--accent); color: var(--accent); }
+.poster-dialog .lightbox-icon-button:not(:disabled):active { background: #dce8dc; }
+.lightbox-previous:not(:disabled):hover svg { transform: translateX(-2px); }
+.lightbox-next:not(:disabled):hover svg { transform: translateX(2px); }
+.poster-dialog .lightbox-icon-button:disabled { opacity: .35; }
+.poster-dialog .lightbox-icon-button:focus-visible { outline-offset: 4px; }
+@media (prefers-reduced-motion: reduce) { .poster-dialog .lightbox-icon-button, .lightbox-icon-button svg { transition: none; } .poster-dialog .lightbox-icon-button:hover svg { transform: none; } }

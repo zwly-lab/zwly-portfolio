@@ -294,6 +294,19 @@ try {
     assert.equal(await page.evaluate(() => window.artifactAnimations.length), 3);
     await usable(page);
   });
+  for (const connection of [{ effectiveType: "3g", saveData: false }, { effectiveType: "4g", saveData: true }]) {
+    await check(`lightweight opening on ${connection.saveData ? "data saver" : "slow connection"}`, {}, async page => {
+      await page.addInitScript(connection => Object.defineProperty(navigator, "connection", { value: connection }), connection);
+      const chunks = [];
+      page.on("response", response => {
+        if (new URL(response.url()).pathname.includes("/chunks/") && response.url().endsWith(".js")) chunks.push(response.text());
+      });
+      await page.goto(origin); await settled(page); await usable(page);
+      assert.equal(await page.evaluate(() => window.artifactAnimations.length), 3, "the complete CSS card opening still plays");
+      assert.equal(await page.evaluate(() => window.depthContexts.length), 0, "no GPU preparation delays slow connections");
+      assert.ok((await Promise.all(chunks)).every(text => !text.includes("site-depth-canvas")), "omit the heavy depth module download");
+    });
+  }
   await check("GPU context loss returns to the matching CSS card positions", {}, async page => {
     await page.goto(origin, { waitUntil: "domcontentloaded" });
     await page.waitForFunction(() => document.documentElement.dataset.siteOpening === "active" && document.querySelector(".site-depth-canvas"));

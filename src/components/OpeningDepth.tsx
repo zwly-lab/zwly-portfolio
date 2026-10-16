@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect } from "react";
+const connection = typeof navigator !== "undefined" ? (navigator as Navigator & { connection?: { saveData?: boolean; effectiveType?: string } }).connection : undefined;
 // Begin eligible downloads during hydration, alongside image preparation.
-const depthModule = typeof document !== "undefined" && document.documentElement.hasAttribute("data-site-opening")
+const depthModule = typeof document !== "undefined" && document.documentElement.hasAttribute("data-site-opening") && !connection?.saveData && !["slow-2g", "2g", "3g"].includes(connection?.effectiveType ?? "")
   ? import("@/lib/opening-depth").catch(() => null)
   : null;
 

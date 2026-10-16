@@ -106,13 +106,13 @@ export function PosterGallery({ posters }: { posters: NonNullable<Project["galle
       if (event.key === "ArrowRight") { event.preventDefault(); change(activeIndex.current + 1); }
       if (event.key === "ArrowLeft") { event.preventDefault(); change(activeIndex.current - 1); }
     }}>
-      <div className="lightbox-toolbar"><h2 id="poster-dialog-title">{poster?.title ?? "视觉作品"}</h2><button type="button" onClick={() => void close()}>关闭</button></div>
+      <div className="lightbox-toolbar"><h2 id="poster-dialog-title">{poster?.title ?? "视觉作品"}</h2><button className="lightbox-icon-button lightbox-close" type="button" aria-label="关闭" title="关闭（Esc）" onClick={() => void close()}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" aria-hidden="true"><path d="m6 6 12 12M6 18 18 6" /></svg></button></div>
       <div className="lightbox-stage">{poster && <Image ref={(element) => {
         image.current = element;
         const thumbnail = thumbnails.current[index!]?.currentSrc || thumbnails.current[index!]?.src;
         if (element && !element.complete && thumbnail) element.style.backgroundImage = `url("${thumbnail}")`;
       }} key={poster.src} className="lightbox-image" src={poster.src} alt={poster.title} width={poster.width} height={poster.height} sizes="90vw" style={{ aspectRatio: `${poster.width} / ${poster.height}`, width: `min(100%, calc((100dvh - 220px) * ${poster.width / poster.height}))` }} onLoad={(event) => { event.currentTarget.style.backgroundImage = "none"; }} />}</div>
-      <div className="lightbox-controls"><button type="button" disabled={index === null || index === 0} onClick={() => { if (activeIndex.current !== null) change(activeIndex.current - 1); }}>上一张</button><p role="status">{index === null ? 0 : index + 1} / {displayedPosters.length}</p><button type="button" disabled={index === null || index === displayedPosters.length - 1} onClick={() => { if (activeIndex.current !== null) change(activeIndex.current + 1); }}>下一张</button></div>
+      <div className="lightbox-controls"><button className="lightbox-icon-button lightbox-previous" type="button" aria-label="上一张" title="上一张（←）" disabled={index === null || index === 0} onClick={() => { if (activeIndex.current !== null) change(activeIndex.current - 1); }}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M19 12H5m6-6-6 6 6 6" /></svg></button><p role="status" aria-live="polite" aria-atomic="true">{index === null ? 0 : index + 1} / {displayedPosters.length}</p><button className="lightbox-icon-button lightbox-next" type="button" aria-label="下一张" title="下一张（→）" disabled={index === null || index === displayedPosters.length - 1} onClick={() => { if (activeIndex.current !== null) change(activeIndex.current + 1); }}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6" /></svg></button></div>
     </dialog>
   </>;
 }

@@ -7,7 +7,7 @@ const { chromium } = await import(process.env.PLAYWRIGHT_MODULE ? pathToFileURL(
 const origin = process.argv[2] || "http://localhost:3000";
 const browser = await chromium.launch({ headless: true, ...(process.env.BROWSER_EXECUTABLE ? { executablePath: process.env.BROWSER_EXECUTABLE } : {}) });
 const directions = [["精选一览", "selected"], ["交互实验", "learning"], ["应用作品", "applications"], ["视觉创作", "visual"]];
-const kmp = '/images/projects/kmp.png';
+const kmp = '/images/projects/kmp-matching.png';
 const poster = '/images/posters/jd-overview.png';
 
 async function scenario(width, reducedMotion, run, options = {}) {
@@ -29,7 +29,7 @@ async function scenario(width, reducedMotion, run, options = {}) {
       const animation = animate.call(this, frames, options);
       if (this.matches(".overview-work")) {
         window.previewMotion.push({ source: this.dataset.preview, naturalWidth: this.querySelector("img")?.naturalWidth, frames: animation.effect.getKeyframes(), timing: animation.effect.getTiming() });
-        if (window.freezeKmp && this.dataset.preview === "/images/projects/kmp.png") {
+        if (window.freezeKmp && this.dataset.preview === "/images/projects/kmp-matching.png") {
           animation.pause(); animation.currentTime = 0;
         }
       }
@@ -112,7 +112,7 @@ try {
           await pendingLearning(page);
           release();
           await selected(page, "learning");
-          const motion = await page.evaluate(() => window.previewMotion.filter(entry => entry.source === "/images/projects/kmp.png"));
+          const motion = await page.evaluate(() => window.previewMotion.filter(entry => entry.source === "/images/projects/kmp-matching.png"));
           const item = page.locator(`[data-preview="${kmp}"]`);
           assert.ok(await item.locator("img").evaluate(image => image.naturalWidth) > 0, "KMP has usable pixels before entrance");
           if (reducedMotion === "reduce") {

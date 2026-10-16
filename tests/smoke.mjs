@@ -71,7 +71,7 @@ for (const [path, heading, title] of pages) {
 for (const path of ["/missing-page", "/projects/missing-project", "/blog/missing-note"]) {
   assert.equal((await fetch(new URL(path, origin))).status, 404, path);
 }
-for (const path of ["/demos/kmp/index.html", "/demos/kmp/src/app.js", "/demos/linked-list/index.html", "/demos/pyscreen/index.html", "/demos/pyscreen/playground.html", "/demos/pyscreen/playground-worker.mjs", "/demos/pyscreen/pyodide/pyodide.mjs", "/demos/pyscreen/pyodide/python_stdlib.zip", "/demos/gdp/index.html", "/images/projects/jd-dashboard.png", "/videos/jd-product-film.mp4", "/images/projects/campus-menu.png", "/images/projects/pyscreen.png", "/images/projects/kmp.png", "/images/projects/linked-list.png", "/images/projects/gdp.png", "/images/projects/jd-tasks.png", "/images/projects/jd-logs.png"]) {
+for (const path of ["/demos/kmp/index.html", "/demos/kmp/src/app.js", "/demos/linked-list/index.html", "/demos/pyscreen/index.html", "/demos/pyscreen/playground.html", "/demos/pyscreen/playground-worker.mjs", "/demos/pyscreen/pyodide/pyodide.mjs", "/demos/pyscreen/pyodide/python_stdlib.zip", "/demos/gdp/index.html", "/images/projects/jd-dashboard.png", "/videos/jd-product-film.mp4", "/images/projects/campus-menu.png", "/images/projects/pyscreen.png", "/images/projects/kmp-matching.png", "/images/projects/linked-list.png", "/images/projects/gdp.png", "/images/projects/jd-tasks.png", "/images/projects/jd-logs.png"]) {
   const response = await fetch(new URL(path, origin));
   assert.equal(response.status, 200, path);
   assert.ok((await response.arrayBuffer()).byteLength > 0, path + " empty asset");

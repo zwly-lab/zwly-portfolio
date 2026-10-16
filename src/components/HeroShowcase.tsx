@@ -6,14 +6,14 @@ import { useLayoutEffect, useRef, useState } from "react";
 import { ActiveUnderline } from "./ActiveUnderline";
 import { Arrow } from "./Arrow";
 import { motionTiming } from "@/lib/motion";
-import { featuredPreviews, previewSizes } from "@/data/featured";
+import { featuredImages, featuredPreviews, previewSizes } from "@/data/featured";
 import { useOpeningPrefetch } from "@/lib/useOpeningPrefetch";
 
 const views = [
   { label: "精选一览", kind: "selected", text: "应用、交互与视觉，同一个作品集里的三种探索。选择方向，继续展开。", items: featuredPreviews },
   { label: "交互实验", kind: "learning", text: "从代码执行到算法回退，让知识的变化过程可以被看见。", items: [
     { title: "PyScreen · Python 练习台", src: "/images/projects/pyscreen.png", width: 1440, height: 1000, slug: "pyscreen", alt: "真实 Python 练习台：任务、代码和运行反馈" },
-    { title: "KMP · 字符串匹配", src: "/images/projects/kmp.png", width: 1440, height: 810, slug: "kmp-visualizer", alt: "KMP 真实演示：前缀与后缀的关系" },
+    { title: "KMP · 字符串匹配", src: "/images/projects/kmp-matching.png", width: 1440, height: 810, slug: "kmp-visualizer", alt: "KMP 真实演示：next 数组与字符逐步比较" },
   ] },
   { label: "应用作品", kind: "applications", text: "围绕点餐与本地任务，把信息组织成可以继续操作的路径。", items: [
     { title: "JD · 本地任务控制台", src: "/images/projects/jd-dashboard.png", width: 1600, height: 1000, slug: "jd-protocol-engine", alt: "JD 本地任务控制台的实际界面" },
@@ -46,7 +46,7 @@ export function HeroShowcase() {
     if (next === selected) return;
     try {
       await Promise.all(views[next].items.map((item, index) => {
-        const { props } = getImageProps({ src: item.src, alt: item.alt, width: item.width, height: item.height, sizes: previewSizes(index) });
+        const { props } = getImageProps({ src: featuredImages[item.src] ?? item.src, alt: item.alt, width: item.width, height: item.height, sizes: previewSizes(index) });
         const image = new window.Image();
         image.sizes = props.sizes ?? "";
         image.srcset = props.srcSet ?? "";
@@ -84,7 +84,7 @@ export function HeroShowcase() {
   return <div className="hero-showcase portfolio-showcase">
     <div ref={controls} className="showcase-choices" role="group" aria-label="切换作品方向"><ActiveUnderline target={controls} value={views[requested].label} />{views.map((item, index) => <button key={item.label} type="button" aria-pressed={index === requested} aria-controls="portfolio-overview" onClick={() => void select(index)}>{item.label}</button>)}</div>
     <div ref={grid} id="portfolio-overview" aria-busy={requested !== selected} className={"overview-images overview-" + view.kind}>
-      {view.items.map((item, index) => <Link prefetch={prefetch ? undefined : false} data-preview={item.src} key={item.src} href={"/projects/" + item.slug} className={"overview-work overview-work--" + item.slug}><div className="overview-frame"><Image src={item.src} alt={item.alt} width={item.width} height={item.height} sizes={previewSizes(index)} loading="eager" /></div><span>{item.title}<Arrow /></span></Link>)}
+      {view.items.map((item, index) => <Link prefetch={prefetch ? undefined : false} data-preview={item.src} key={item.src} href={"/projects/" + item.slug} className={"overview-work overview-work--" + item.slug}><div className="overview-frame"><Image src={featuredImages[item.src] ?? item.src} alt={item.alt} width={item.width} height={item.height} sizes={previewSizes(index)} preload={selected === 0 && index === 0} loading={selected === 0 && index === 0 ? undefined : "eager"} /></div><span>{item.title}<Arrow /></span></Link>)}
     </div>
     <p className="overview-description" role="status"><span key={requested !== selected ? "loading" : failed ? "error" : view.kind} className="state-arrival">{requested !== selected ? "正在加载" + views[requested].label + "预览，当前作品仍可打开。" : failed ? "预览未能加载。请重试切换，或通过浏览作品集入口继续。" : view.text}</span></p>
   </div>;

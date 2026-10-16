@@ -1,3 +1,7 @@
+import dashboard from "../../public/images/projects/jd-dashboard.png";
+import pyscreen from "../../public/images/projects/pyscreen.png";
+import travel from "../../public/images/posters/travel-diary.png";
+
 export const featuredPreviews = [
   { title: "JD · 应用界面", src: "/images/projects/jd-dashboard.png", width: 1600, height: 1000, slug: "jd-protocol-engine", alt: "JD 实际任务控制台：应用界面作品" },
   { title: "PyScreen · 交互实验", src: "/images/projects/pyscreen.png", width: 1440, height: 1000, slug: "pyscreen", alt: "PyScreen 实际运行界面：交互实验作品" },
@@ -5,3 +9,9 @@ export const featuredPreviews = [
 ];
 
 export const previewSizes = (index: number) => index === 0 ? "(max-width: 760px) 100vw, 580px" : "(max-width: 760px) 50vw, 380px";
+// Content hashes let repeat visits reuse previews without a revalidation round trip.
+export const featuredImages: Record<string, string> = {
+  "/images/projects/jd-dashboard.png": dashboard.src,
+  "/images/projects/pyscreen.png": pyscreen.src,
+  "/images/posters/travel-diary.png": travel.src,
+};

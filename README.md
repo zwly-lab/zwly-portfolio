@@ -100,4 +100,6 @@ The original Style B concept was recovered from the ChatGPT Library image cache 
 
 `node tests/finish.mjs [origin] [screenshot-directory]` verifies the isolated 3D download and its absence on return/reduced-motion visits, one primary work with two compact entries, earlier live interaction, 44px navigation, native video disclosure and gallery heading hierarchy at 360/390/1440px. It uses the same optional Playwright runtime as the other browser checks.
 
-`node tests/media.mjs [origin]` checks complete portrait-poster previews, rounded media frames and Chinese heading/summary spacing at 360/820/1440px.
+`node tests/media.mjs [origin]` checks content-hashed critical previews, complete algorithm screenshots, portrait-poster previews, rounded media frames and Chinese heading/summary spacing at 360/820/1440px. The KMP matching preview was captured from the shipped demo at step 130 using its real next-step control; the previous screenshot remains in the asset folder.
+
+Critical opening images use static content hashes for immutable caching; only the primary hero image is preloaded. The 41 opening scenarios also cover data saver and slow network hints: these omit the Three.js download and GPU preparation while retaining the complete CSS card opening. Unsupported network hints keep the normal 3D opening. Gallery checks require decoded full images and consistent 44px icon controls.

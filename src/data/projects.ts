@@ -39,7 +39,7 @@ export const projects: Project[] = [
     category: "交互实验", preview: "diagram", audience: "正在学习字符串匹配，希望理解前缀表与回退过程的学习者。",
     steps: [{ title: "设置两串字符", text: "输入主串和模式串，或使用已有示例。" }, { title: "理解前缀表", text: "从前缀和后缀的关系开始，逐步推导 next / LPS。" }, { title: "跟随匹配过程", text: "暂停或单步观察比较与失配回退，检查最终匹配结果。" }],
     demo: "/demos/kmp/index.html",
-    image: { src: "/images/projects/kmp.png", width: 1440, height: 810, caption: "实际运行 · 从前缀与后缀理解 KMP" },
+    image: { src: "/images/projects/kmp-matching.png", width: 1440, height: 810, caption: "实际运行 · next 数组与字符逐步比较" },
     overview: "将 KMP 字符串匹配过程拆成可播放的步骤。通过主串与模式串的位置、next / LPS 表和失配回退过程，理解算法如何避免重复比较。",
     focus: ["同时呈现字符比较与指针变化。", "支持暂停、单步观察与自定义输入。", "用可重复的匹配轨迹验证算法行为。"],
   },

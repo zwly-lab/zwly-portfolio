@@ -29,6 +29,15 @@ try {
       };
       const stageBounds = () => page.locator(".lightbox-controls").evaluate(element => ({ top: element.getBoundingClientRect().top, bottom: element.getBoundingClientRect().bottom, viewport: innerHeight }));
       await assertArtwork(0);
+      const controls = page.locator(".poster-dialog .lightbox-icon-button");
+      assert.equal(await controls.count(), 3, "close, previous and next use the same icon control");
+      for (const control of await controls.all()) {
+        const bounds = await control.boundingBox();
+        assert.ok(bounds.width >= 44 && bounds.height >= 44, "icon controls retain a 44px touch target");
+        assert.equal(await control.locator('svg[aria-hidden="true"]').count(), 1, "decorative icons do not replace accessible action names");
+      }
+      await page.locator(".lightbox-image").evaluate(async image => { await image.decode(); });
+      assert.ok(await page.locator(".lightbox-image").evaluate(image => image.naturalWidth > 0 && image.getBoundingClientRect().width > 0), "opened artwork decodes and has visible geometry");
       assert.equal(await page.getByRole("button", { name: "上一张", exact: true }).isDisabled(), true);
       await page.keyboard.press("ArrowLeft");
       await assertArtwork(0);
