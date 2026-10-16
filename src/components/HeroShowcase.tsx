@@ -82,7 +82,7 @@ export function HeroShowcase() {
     return () => { items?.forEach((item) => item.getAnimations().forEach((animation) => animation.cancel())); };
   }, [selected]);
   return <div className="hero-showcase portfolio-showcase">
-    <div ref={controls} className="showcase-choices" role="group" aria-label="切换作品方向"><ActiveUnderline target={controls} value={views[requested].label} />{views.map((item, index) => <button key={item.label} type="button" aria-pressed={index === requested} aria-controls="portfolio-overview" onClick={() => void select(index)}>{item.label}</button>)}</div>
+    <div ref={controls} className="showcase-choices" role="group" aria-label="切换作品方向"><ActiveUnderline target={controls} value={views[requested].label} />{views.map((item, index) => <button key={item.label} type="button" aria-pressed={index === requested} aria-controls="portfolio-overview" onClick={() => void select(index)}><span data-underline-label>{item.label}</span></button>)}</div>
     <div ref={grid} id="portfolio-overview" aria-busy={requested !== selected} className={"overview-images overview-" + view.kind}>
       {view.items.map((item, index) => <Link prefetch={prefetch ? undefined : false} data-preview={item.src} key={item.src} href={"/projects/" + item.slug} className={"overview-work overview-work--" + item.slug}><div className="overview-frame"><Image src={featuredImages[item.src] ?? item.src} alt={item.alt} width={item.width} height={item.height} sizes={previewSizes(index)} preload={selected === 0 && index === 0} loading={selected === 0 && index === 0 ? undefined : "eager"} /></div><span>{item.title}<Arrow /></span></Link>)}
     </div>

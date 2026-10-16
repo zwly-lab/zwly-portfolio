@@ -198,8 +198,8 @@ async function main() {
   assert.equal(await page.locator("#filtered-projects .work-card").count(), 4);
   await page.waitForFunction(() => {
     const line = document.querySelector(".project-filters .active-underline").getBoundingClientRect();
-    const selected = document.querySelector('.project-filters [aria-pressed="true"]').getBoundingClientRect();
-    return Math.abs(line.left - selected.left) < 2 && Math.abs(line.width - selected.width) < 2;
+    const selected = document.querySelector('.project-filters [aria-pressed="true"] [data-underline-label]').getBoundingClientRect();
+    return Math.abs(line.left - (selected.left - 4)) < 2 && Math.abs(line.width - (selected.width + 8)) < 2;
   });
   assert.ok((await page.locator("#filtered-projects").textContent()).includes("探索中的方向"));
   await page.getByRole("button", { name: "交互实验", exact: true }).click();

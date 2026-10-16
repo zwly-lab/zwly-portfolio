@@ -20,7 +20,7 @@ export function ActiveUnderline({ target, value }: { target: RefObject<HTMLEleme
       const origin = group.getBoundingClientRect();
       const bounds = selected.getBoundingClientRect();
       const label = selected.querySelector<HTMLElement>("[data-underline-label]")?.getBoundingClientRect() ?? bounds;
-      marker.style.transform = `translate(${label.left - origin.left + group.scrollLeft}px, ${bounds.bottom - origin.top + group.scrollTop - 2}px) scaleX(${label.width})`;
+      marker.style.transform = `translate(${label.left - origin.left + group.scrollLeft - 4}px, ${bounds.bottom - origin.top + group.scrollTop - 2}px) scaleX(${label.width + 8})`;
       if (!placed.current) {
         marker.getBoundingClientRect();
         marker.style.removeProperty("transition");

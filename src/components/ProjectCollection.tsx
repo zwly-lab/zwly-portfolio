@@ -50,7 +50,7 @@ export function ProjectCollection({ projects }: { projects: Project[] }) {
     <div className="collection-toolbar">
       <div ref={filters} className="project-filters" role="group" aria-label="按作品类型筛选">
         <ActiveUnderline target={filters} value={category} />
-        {categories.map((item) => <button key={item} type="button" aria-pressed={category === item} aria-controls="filtered-projects" onClick={() => select(item)}>{item}</button>)}
+        {categories.map((item) => <button key={item} type="button" aria-pressed={category === item} aria-controls="filtered-projects" onClick={() => select(item)}><span data-underline-label>{item}</span></button>)}
       </div>
       <p className="article-meta" role="status">{visible.length} 件作品</p>
     </div>
