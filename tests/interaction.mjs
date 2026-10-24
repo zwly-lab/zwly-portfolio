@@ -18,9 +18,9 @@ async function checkMarker(page, selector, zoom = 1) {
   });
   assert.ok(Math.abs(geometry.left - 4 * zoom) < 1 && Math.abs(geometry.right - 4 * zoom) < 1 && Math.abs(geometry.top) < 1, 'selection marker follows the actual label with equal 4px overhangs at the current display scale');
 }
-async function checkPaintedMarker(page, selector) {
-  const line = await page.locator(selector + ' .active-underline').boundingBox();
-  const clip = { x: Math.floor(line.x) - 12, y: Math.floor(line.y) - 1, width: Math.ceil(line.width) + 48, height: Math.ceil(line.height) + 2 };
+async function checkPaintedMarker(page, selector, line = null) {
+  line ??= await page.locator(selector + ' .active-underline').boundingBox();
+  const clip = { x: Math.floor(line.x) - (selector ? 12 : 1), y: Math.floor(line.y), width: Math.ceil(line.width) + (selector ? 48 : 2), height: Math.ceil(line.y + line.height) - Math.floor(line.y) };
   const png = await page.screenshot({ clip, scale: 'css' });
   const painted = await page.evaluate(async base64 => {
     const bitmap = await createImageBitmap(await (await fetch('data:image/png;base64,' + base64)).blob());
@@ -30,12 +30,23 @@ async function checkPaintedMarker(page, selector) {
     let left = canvas.width, right = -1;
     for (let y = 0; y < canvas.height; y++) for (let x = 0; x < canvas.width; x++) {
       const i = (y * canvas.width + x) * 4;
-      if (data[i] < 100 && data[i + 1] < 130 && data[i + 2] < 110) { left = Math.min(left, x); right = Math.max(right, x); }
+      // A 1px hover line can paint across two half-covered pixel rows.
+      if (data[i] < 190 && data[i + 1] < 200 && data[i + 2] < 195) { left = Math.min(left, x); right = Math.max(right, x); }
     }
     bitmap.close();
     return { left, right: right + 1 };
   }, png.toString('base64'));
-  assert.ok(Math.abs(painted.left - (line.x - clip.x)) < 1.5 && Math.abs(painted.right - (line.x + line.width - clip.x)) < 1.5, 'painted pixels match the centered geometry, without stretching a pixel-rounded 1px layer');
+  assert.ok(Math.abs(painted.left - (line.x - clip.x)) < 1.5 && Math.abs(painted.right - (line.x + line.width - clip.x)) < 1.5, 'painted pixels match the centered geometry: ' + JSON.stringify({ painted, line, clip }));
+}
+async function checkFeedbackLine(page, control) {
+  await control.evaluate(element => Promise.all(element.getAnimations({ subtree: true }).map(animation => animation.finished)));
+  const line = await control.evaluate(element => {
+    const label = element.querySelector('[data-underline-label]'), bounds = label.getBoundingClientRect(), hit = element.getBoundingClientRect(), style = getComputedStyle(label, '::after');
+    return { content: style.content, width: parseFloat(style.width), left: parseFloat(style.left), x: bounds.left - 4, y: hit.bottom - 1, height: 1, expectedWidth: bounds.width + 8, border: getComputedStyle(element).borderBottomColor };
+  });
+  assert.ok(line.content !== 'none' && Math.abs(line.width - line.expectedWidth) < 1 && line.left === -4, 'hover and keyboard lines extend equally beyond the text, independent of the click target');
+  assert.equal(line.border, 'rgba(0, 0, 0, 0)', 'hover feedback does not leave a second border beneath the moving marker');
+  await checkPaintedMarker(page, null, { ...line, width: line.expectedWidth });
 }
 try {
   for (const width of [360, 820, 1440]) {
@@ -52,11 +63,25 @@ try {
       assert.ok(geometry.hit >= 44, "text alignment preserves the larger pointer target");
     }
     await page.goto(origin + '/projects');
+    const about = page.locator('.site-nav a[href="/about"]');
+    await about.hover();
+    await checkFeedbackLine(page, about);
+    await page.mouse.move(0, 0);
+    await about.focus();
+    await page.keyboard.press('Shift+Tab');
+    await page.keyboard.press('Tab');
+    assert.ok(await about.evaluate(element => element.matches(':focus-visible')), 'navigation exposes real keyboard feedback');
+    await checkFeedbackLine(page, about);
+    await page.locator('.site-nav [aria-current]').hover();
+    assert.equal(await page.locator('.site-nav [aria-current] [data-underline-label]').evaluate(label => getComputedStyle(label, '::after').content), 'none', 'the selected navigation item keeps only its shared marker');
     for (const label of ['全部', '应用工具', '交互实验', '视觉创作']) {
       await page.getByRole('button', { name: label, exact: true }).click();
       await checkMarker(page, '.project-filters');
     }
     await page.goto(origin);
+    const direction = page.getByRole('button', { name: '交互实验', exact: true });
+    await direction.hover();
+    await checkFeedbackLine(page, direction);
     for (const label of ['精选一览', '交互实验', '应用作品', '视觉创作']) {
       await page.getByRole('button', { name: label, exact: true }).click();
       await page.waitForFunction(() => document.querySelector('#portfolio-overview')?.getAttribute('aria-busy') === 'false');
@@ -104,12 +129,18 @@ try {
     await page.goto(origin + '/projects');
     await checkMarker(page, '.site-nav');
     await checkPaintedMarker(page, '.site-nav');
+    const about = page.locator('.site-nav a[href="/about"]');
+    await about.hover();
+    await checkFeedbackLine(page, about);
     for (const label of ['视觉创作', '全部', '交互实验']) {
       await page.getByRole('button', { name: label, exact: true }).click();
       await checkMarker(page, '.project-filters');
       await checkPaintedMarker(page, '.project-filters');
     }
+    for (const label of ['全部', '视觉创作', '交互实验']) await page.getByRole('button', { name: label, exact: true }).click();
+    await checkMarker(page, '.project-filters');
+    await checkPaintedMarker(page, '.project-filters');
     await page.close();
   }
-  console.log("PASS: centered marker geometry and painted pixels at 125/150/200% zoom and fractional screen densities; 44px targets and readable onward links at 360/820/1440px.");
+  console.log("PASS: centered selection, hover and keyboard lines; rapid switching, painted pixels at 125/150/200% zoom and fractional screen densities; 44px targets and readable onward links at 360/820/1440px.");
 } finally { await browser.close(); }
